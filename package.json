@@ -1,0 +1,34 @@
+{
+  "name": "puzzlevan",
+  "version": "0.0.0-pre",
+  "description": "Pencil puzzle editor by Javascript",
+  "main": "src/main.js",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [
+    "puzzle",
+    "pencil puzzle",
+    "Electron"
+  ],
+  "author": "sabo2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sabo2/puzzlevan"
+  },
+  "scripts": {
+    "build":   "electron .",
+    "release": "electron-packger . puzzlevan --platform=darwin --arch=x64 --version=0.31.0",
+    "lint":    "grunt newer:jshint"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-newer": "^0.7.0"
+  }
+}
