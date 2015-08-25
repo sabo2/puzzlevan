@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build":   "electron .",
-    "release": "electron-packger . puzzlevan --platform=darwin --arch=x64 --version=0.31.0",
+    "release": "electron-packager . puzzlevan --platform=darwin --arch=x64 --version=0.31.0",
     "lint":    "grunt newer:jshint"
   },
   "devDependencies": {
