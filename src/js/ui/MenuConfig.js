@@ -29,7 +29,7 @@ ui.menuconfig = {
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
 		this.add('fullwidth', (ui.windowWidth()<600));		/* キャンバスを横幅いっぱいに広げる */
 		
-		this.add('toolarea', 1, [0,1]);						/* ツールエリアの表示 */
+		this.add('toolarea', 0, [0,1]);						/* ツールエリアの表示 */
 	},
 	add : Config.add,
 

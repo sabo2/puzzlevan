@@ -7,21 +7,6 @@
 		line-height : 120%;
 	}
 
-	/* メインの白背景領域 */
-	div#main {
-		width : 80%;
-		background-color : white;
-		margin         : 8pt auto;
-		padding-bottom : 6pt;
-		border     : 2pt green solid;
-		text-align : center;
-	}
-
-	h2#title {
-		margin : 16pt 0pt 24pt 0pt;
-		text-align : center;
-	}
-
 	/* 盤面外の表示部分(管理領域・メニュー・ポップアップ・ボタン) */
 	.outofboard {
 		font-size   : 1.0em;
@@ -90,10 +75,8 @@
 
 	/* 管理領域 */
 	div#menuboard{
-		width     : 90%;
-		max-width : 560px;
-		margin        : auto;
-		margin-bottom : 8pt;
+		width     : 100%;
+		margin-bottom : 4pt;
 		border : 1px red solid;
 		text-align : left;
 	}
@@ -111,7 +94,7 @@
 
 	/* パズル表示部 */
 	div#quesboard {
-		margin     : 16pt auto 16pt auto;
+		margin-top : 8pt;
 		text-align : center;
 	}
 	div#divques {
@@ -119,8 +102,7 @@
 		position:relative;
 		border:solid 1px gray;
 		cursor:default;
-		margin-left:auto;
-		margin-right:auto;
+		margin:4pt;
 		padding:8px;
 	}
 	div#btnarea {

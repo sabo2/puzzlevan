@@ -84,49 +84,8 @@ window.ui = {
 	// ui.getBoardPadding() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
 	//---------------------------------------------------------------------------
 	adjustcellsize : function(){
-		var puzzle = ui.puzzle, pc = puzzle.painter;
-		var cols = pc.getCanvasCols() + ui.getBoardPadding()*2;
-		var wwidth = ui.windowWidth()-6, mwidth;	//  margin/borderがあるので、適当に引いておく
 		var uiconf = ui.menuconfig;
-
-		var cellsize, cellsizeval = uiconf.get('cellsizeval');
-		var cr = {base:1.0,limit:0.40}, ws = {base:0.80,limit:0.96}, ci=[];
-		ci[0] = (wwidth*ws.base )/(cellsizeval*cr.base );
-		ci[1] = (wwidth*ws.limit)/(cellsizeval*cr.base );
-		ci[2] = (wwidth*ws.limit)/(cellsizeval*cr.limit);
-
-		// 横幅いっぱいに広げたい場合
-		if(uiconf.get('fullwidth')){
-			mwidth = wwidth*0.98;
-			cellsize = (mwidth*0.92)/cols;
-		}
-		// 縮小が必要ない場合
-		else if(!uiconf.get('adjsize') || cols < ci[0]){
-			mwidth = wwidth*ws.base-4;
-			cellsize = cellsizeval*cr.base;
-		}
-		// ひとまずセルのサイズを変えずにmainの幅を調節する場合
-		else if(cols < ci[1]){
-			cellsize = cellsizeval*cr.base;
-			mwidth = cellsize*cols;
-		}
-		// base～limit間でサイズを自動調節する場合
-		else if(cols < ci[2]){
-			mwidth = wwidth*ws.limit-4;
-			cellsize = mwidth/cols; // 外枠ぎりぎりにする
-		}
-		// 自動調整の下限値を超える場合
-		else{
-			cellsize = cellsizeval*cr.limit;
-			mwidth = cellsize*cols;
-		}
-
-		// mainのサイズ変更
-		if(!pc.outputImage){
-			getEL('main').style.width = ''+(mwidth|0)+'px';
-		}
-
-		puzzle.setCanvasSizeByCellSize(cellsize);
+		ui.puzzle.setCanvasSizeByCellSize(uiconf.get('cellsizeval'));
 	},
 	getBoardPadding : function(){
 		var puzzle = ui.puzzle, padding = 0;
