@@ -21,9 +21,6 @@ ui.menuconfig = {
 		this.list = {};
 		
 		this.add('autocheck', pzpr.PLAYER);					/* 正解自動判定機能 */
-		
-		this.add('keypopup', false);						/* キーポップアップ (数字などのパネル入力) */
-		this.add('keyboard', false);						/* 盤面をキー入力のターゲットにする */
 
 		this.add('adjsize', true);							/* 自動横幅調節 */
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
@@ -65,7 +62,6 @@ ui.menuconfig = {
 	//---------------------------------------------------------------------------
 	setproper : Config.setproper,
 	valid : function(idname){
-		if(idname==="keypopup"){ return (ui.keypopup.paneltype[1]!==0 || ui.keypopup.paneltype[3]!==0);}
 		return !!this.list[idname];
 	},
 
@@ -75,14 +71,6 @@ ui.menuconfig = {
 	configevent : function(idname, newval){
 		ui.setdisplay(idname);
 		switch(idname){
-		case 'keypopup':
-			ui.keypopup.display();
-			break;
-			
-		case 'keyboard':
-			ui.misc.setkeyfocus();
-			break;
-			
 		case 'adjsize': case 'cellsizeval': case 'fullwidth':
 			ui.adjustcellsize();
 			break;

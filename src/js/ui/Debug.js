@@ -90,17 +90,6 @@ ui.debug =
 		this.addTA(text+" ave. "+(time/count)+"ms");
 	},
 
-	dispdatabase : function(){
-		var text = "";
-		for(var i=0;i<localStorage.length;i++){
-			var key = localStorage.key(i);
-			if(key.match(/^pzprv3/)){
-				text += (""+key+" "+localStorage[key]+"\n");
-			}
-		}
-		this.setTA(text);
-	},
-
 	getTA : function(){ return document.getElementById('testarea').value;},
 	setTA : function(str){ document.getElementById('testarea').value  = str;},
 	addTA : function(str){

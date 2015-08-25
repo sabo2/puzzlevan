@@ -24,7 +24,6 @@ window.ui = {
 	menuarea  : null,
 	toolarea  : null,
 	popupmgr  : null,
-	keypopup  : null,
 	timer     : null,
 	
 	debugmode : false,

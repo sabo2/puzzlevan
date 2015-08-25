@@ -95,7 +95,7 @@
 	/* パズル表示部 */
 	div#quesboard {
 		margin-top : 8pt;
-		text-align : center;
+		text-align : left;
 	}
 	div#divques {
 		display:inline-block;
@@ -107,7 +107,10 @@
 	}
 	div#btnarea {
 		position : relative;
+		margin:4pt;
 		margin-top : 1.0em;
+		padding-left:8px;
+		padding-right:8px;
 	}
 
 	/* OK/Cancel表示用 */
@@ -181,22 +184,6 @@
 		padding : 0pt;
 	}
 
-	div#popup_database label {
-		display: inline-block;
-		vertical-align : top;
-		min-width: 72px;
-	}
-	div#popup_database form div {
-		float : left;
-		margin-bottom: 6pt;
-	}
-	div#popup_database form textarea {
-		padding: 2pt;
-		font-size: 0.9em;
-	}
-	div#popup_database form div:not(:last-child) {
-		margin-right : 12pt;
-	}
 	div#credit3_1 {
 		margin  : 4pt 0pt 2pt 4pt;
 		line-height : 1.1;
@@ -214,26 +201,6 @@
 	#nb_shape_tawa #nb_shape_1 img { left:-32px;clip:rect(0px,64px,32px,32px);}
 	#nb_shape_tawa #nb_shape_2 img { left:-64px;clip:rect(0px,96px,32px,64px);}
 	#nb_shape_tawa #nb_shape_3 img { left:-96px;clip:rect(0px,128px,32px,96px);}
-
-	/* キーポップアップ用 */
-	div#keypopup { background-color:silver; line-height:1;}
-	div.panelbase{ margin:1pt;}
-
-	div.kpcell {
-		width  : 32px;
-		height : 32px;
-		margin : 1px;
-		position : relative;
-		float    : left;
-		cursor : pointer;
-		text-align  : center;
-		line-height : 32px;
-	}
-	div.kpcellempty { cursor:default;}
-	div.kpcellvalid { background-color:white;}
-
-	span.kpnum    { font-size:24px; vertical-align:middle;}
-	img.kpimg     { position:absolute; overflow:hidden;}
 
 	/* 置換要素 */
 	input, button, select, textarea{ font-size:1.0em; line-height:1;}

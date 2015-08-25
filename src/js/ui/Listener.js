@@ -41,9 +41,6 @@ ui.listener =
 			/* 以前設定済みのイベントを削除する */
 			ui.event.removeAllEvents();
 			
-			/* menuareaより先に キーポップアップを作成する必要がある */
-			ui.keypopup.create();
-			
 			/* メニュー用の設定を消去・再設定する */
 			ui.menuarea.reset();
 			ui.toolarea.reset();
@@ -58,8 +55,6 @@ ui.listener =
 		ui.currentpid = pid;
 		
 		ui.adjustcellsize();
-		ui.keypopup.display();
-		ui.misc.setkeyfocus();
 		
 		ui.timer.reset();					/* タイマーリセット(最後) */
 	},
@@ -161,10 +156,7 @@ ui.listener =
 		ui.setdisplay(idname);
 		
 		if(idname==='mode'){
-			ui.setdisplay('keypopup');
 			ui.setdisplay('bgcolor');
-			ui.keypopup.display();
-			ui.misc.setkeyfocus();
 		}
 		else if(idname==='language'){
 			ui.displayAll();
@@ -189,7 +181,5 @@ ui.listener =
 		if(pc.context.use.vml){
 			pc.context.translate(pc.x0+val, pc.y0+val);
 		}
-		
-		ui.keypopup.resizepanel();
 	}
 };

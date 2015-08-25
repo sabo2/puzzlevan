@@ -141,7 +141,6 @@ ui.toolarea = {
 				if(!!check){ check.checked = ui.getConfig(idname);}
 				
 				var disabled = null;
-				if(idname==="keypopup"){ disabled = !ui.keypopup.paneltype[ui.getConfig("mode")];}
 				if(idname==="bgcolor") { disabled = (ui.getConfig("mode")!==3);}
 				if(disabled!==null){ toolitem.checkbox.disabled = (!disabled ? "" : "true");}
 			}
