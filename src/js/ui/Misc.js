@@ -59,5 +59,16 @@ ui.misc = {
 	},
 	elementWalker : function(parent, func){
 		this.walker(parent, function(el){ if(el.nodeType===1){ func(el);}});
+	},
+
+	//--------------------------------------------------------------------------------
+	// misc.openpuzzle()  指定されたデータのパズルを開く　
+	// misc.openlocal()   指定されたローカルファイルやDataURLを開く
+	//--------------------------------------------------------------------------------
+	openpuzzle : function(data){
+		require('ipc').send('open-puzzle', data);
+	},
+	openlocal : function(localurl){
+		require('ipc').send('open-local', localurl);
 	}
 };

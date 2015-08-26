@@ -334,7 +334,7 @@ ui.popupmgr.addpopup('urloutput',
 	},
 	openurl : function(e){
 		if(this.form.ta.value!==''){
-			window.open(this.form.ta.value, '', '');
+			require('shell').openExternal(this.form.ta.value);
 		}
 	}
 });
@@ -345,10 +345,6 @@ ui.popupmgr.addpopup('urloutput',
 ui.popupmgr.addpopup('fileopen',
 {
 	formname : 'fileform',
-	
-	setFormEvent : function(){
-		this.form.action = ui.fileio;
-	},
 	
 	//------------------------------------------------------------------------------
 	// fileopen()  ファイルを開く
@@ -375,8 +371,6 @@ ui.popupmgr.addpopup('filesave',
 	setFormEvent : function(){
 		this.anchor = ((!ui.enableSaveBlob && pzpr.env.API.anchor_download) ? getEL("saveanchor") : null);
 		
-		this.form.action = ui.fileio;
-		
 		/* ファイル形式選択オプション */
 		var ispencilbox = pzpr.variety.info[ui.puzzle.pid].exists.pencilbox;
 		this.form.filetype.options[1].disabled = !ispencilbox;
@@ -400,8 +394,6 @@ ui.popupmgr.addpopup('filesave',
 	//------------------------------------------------------------------------------
 	filesaveurl : null,
 	filesave : function(){
-		if(ui.enableSaveBlob || !!this.anchor){ throw "Invalid browser error!";}
-
 		var form = this.form;
 		var filename = form.filename.value;
 		var prohibit = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
@@ -442,8 +434,6 @@ ui.popupmgr.addpopup('imagesave',
 	setFormEvent : function(){
 		this.anchor = ((!ui.enableSaveBlob && pzpr.env.API.anchor_download) ? getEL("saveanchor") : null);
 		this.showsize = getEL("showsize");
-		
-		this.form.action = ui.fileio;
 		
 		/* ファイル形式選択オプション */
 		var filetype = this.form.filetype, options = filetype.options;
@@ -492,8 +482,6 @@ ui.popupmgr.addpopup('imagesave',
  	//------------------------------------------------------------------------------
 	saveimageurl : null,
 	saveimage : function(){
-		if(ui.enableSaveBlob || !!this.anchor){ throw "Invalid browser error!";}
-
 		/* ファイル名チェックルーチン */
 		var form = this.form;
 		var filename = form.filename.value;
@@ -536,9 +524,7 @@ ui.popupmgr.addpopup('imagesave',
 		}
 		
 		/* 出力された画像を開くルーチン */
-		if(!!dataurl){
-			window.open(dataurl, '', '');
-		}
+		if(!!dataurl){ ui.misc.openlocal(dataurl);}
 	}
 });
 

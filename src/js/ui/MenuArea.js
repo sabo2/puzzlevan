@@ -165,7 +165,6 @@ ui.menuarea = {
 		
 		getEL("menu_imagesave").className = ((ui.enableSaveImage || ui.enableSaveSVG) ? "" : "disabled");
 		
-		getEL("menu_duplicate").className = (pzpr.env.storage.session ? "" : "disabled");
 		getEL("menu_subclear").style.display  = (!ui.puzzle.flags.disable_subclear ? "" : "none");
 		
 		for(var idname in this.menuitem){ this.setdisplay(idname);}
@@ -259,7 +258,7 @@ ui.menuarea = {
 	repaint : function(){ ui.puzzle.redraw();},
 	jumpexp : function(){
 		ui.saveConfig();	/* faq.htmlで言語設定を使用するので、一旦Config値を保存 */
-		window.open('./faq.html?'+ui.puzzle.pid+(pzpr.EDITOR?"_edit":""), '');
+		ui.misc.openlocal('faq.html?'+ui.puzzle.pid+(pzpr.EDITOR?"_edit":""));
 	},
 	disppopup : function(e){
 		var el = e.target;
@@ -277,15 +276,8 @@ ui.menuarea = {
 	//------------------------------------------------------------------------------
 	duplicate_board : function(){
 		if(getEL("menu_duplicate").className==="disabled"){ return;}
-		var filestr = ui.puzzle.getFileData(pzpr.parser.FILE_PZPH);
-		var url = './p.html?'+ui.puzzle.pid+(pzpr.PLAYER?"_play":"");
 		
-		var old = sessionStorage['filedata'];
-		sessionStorage['filedata'] = filestr;
-		window.open(url,'');
-		if(!!old){ sessionStorage['filedata'] = old;}
-		else     { delete sessionStorage['filedata'];}
-		
+		ui.misc.openpuzzle(ui.puzzle.getFileData(pzpr.parser.FILE_PZPH));
 		this.stopHovering();
 	},
 

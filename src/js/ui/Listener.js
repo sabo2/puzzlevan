@@ -71,8 +71,6 @@ ui.listener =
 //		ui.listener.setImportData('filedata', filestr);
 //	},
 //	setImportData : function(key, str){
-//		if(!pzpr.env.storage.localST || !pzpr.env.storage.session){ return null;}
-//
 //		delete localStorage['filedata'];
 //		delete localStorage['urldata'];
 //		if(str!==void 0){

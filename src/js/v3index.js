@@ -7,7 +7,6 @@ var v3index = {
 	current  : '',
 	doclang  : (!location.href.match("index_en.html")?"ja":"en"),
 	complete : false,
-	LS       : false,
 	captions : [],
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
@@ -61,9 +60,6 @@ v3index.extend({
 		self.disp();
 	},
 	input_init : function(){
-		// HTML5 - Web localStorage判定用(localStorage)
-		if(pzpr.env.storage.localST){ self.LS = true;}
-
 		var cnt=0;
 		if(self.urlif.init()) { cnt++;}
 		if(self.fileif.init()){ cnt++;}
@@ -99,6 +95,11 @@ v3index.extend({
 			}
 		}
 		// self.translate();
+	},
+
+	/* open new puzzle window as Electron manner */
+	openpuzzle : function(data){
+		require('ipc').send('open-puzzle', data);
 	}
 
 //	もし各パズルへのリンクのキャプションんを自動生成したくなったら以下を有効にする
@@ -155,24 +156,15 @@ function getEL(id){ return _doc.getElementById(id);}
 
 v3index.urlif.extend({
 	init : function(){
-		_form = _doc.urlinput;
+		_form = _doc.fileform;
 		if(!!_form){
-			if(v3index.LS){
-				v3index.addEvent(getEL("urlinput_btn"), "click", self.urlinput);
-				return true;
-			}
-			else{
-				_form.style.display = 'none';
-				return false;
-			}
+			v3index.addEvent(getEL("urlinput_btn"), "click", self.urlinput);
+			return true;
 		}
 	},
 	urlinput : function(e){
 		var url = getEL("urlinput_text").value;
-		if(!!url){
-			localStorage['pzprv3_urldata'] = url;
-			window.open('./p.html', '');
-		}
+		if(!!url){ v3index.openpuzzle(url);}
 	}
 });
 
@@ -197,14 +189,8 @@ v3index.fileif.extend({
 	init : function(){
 		_form = _doc.fileform;
 		if(!!_form){
-			if(v3index.LS){
-				v3index.addEvent(_form.filebox, "change", self.fileinput);
-				return true;
-			}
-			else{
-				_form.style.display = 'none';
-				return false;
-			}
+			v3index.addEvent(_form.filebox, "change", self.fileinput);
+			return true;
 		}
 	},
 
@@ -232,9 +218,7 @@ v3index.fileif.extend({
 				if(farray[i].match(/^http\:\/\//)){ break;}
 				fstr += (farray[i]+"\n");
 			}
-
-			localStorage['pzprv3_filedata'] = fstr;
-			window.open('./p.html', '');
+			v3index.openpuzzle(fstr);
 		}
 	}
 });

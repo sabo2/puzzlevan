@@ -15,6 +15,10 @@ window.ui = {
 	/* このサイトで使用するパズルのオブジェクト */
 	puzzle    : null,
 	
+	/* Electron用のオブジェクト */
+	remote    : require('remote'),
+	win       : require('remote').getCurrentWindow(),
+	
 	/* どの種類のパズルのメニューを表示しているか */
 	currentpid : '',
 	
@@ -109,7 +113,7 @@ window.ui = {
 	// ui.selectStr()  現在の言語に応じた文字列を返す
 	//--------------------------------------------------------------------------------
 	selectStr : function(strJP, strEN){
-		if(!strEN){ return strJP;}
+		if(!strEN || !ui.puzzle){ return strJP;}
 		return (ui.puzzle.getConfig('language')==='ja' ? strJP : strEN);
 	},
 
@@ -149,18 +153,14 @@ window.ui = {
 	//---------------------------------------------------------------------------
 	restoreConfig : function(){
 		/* 設定が保存されている場合は元に戻す */
-		if(pzpr.env.storage.localST && !!window.JSON){
-			var json_puzzle = localStorage['pzprv3_config:puzzle'];
-			var json_menu   = localStorage['pzprv3_config:ui'];
-			if(!!json_puzzle){ ui.puzzle.restoreConfig(json_puzzle);}
-			if(!!json_menu)  { ui.menuconfig.setAll(json_menu);}
-		}
+		var json_puzzle = localStorage['pzprv3_config:puzzle'];
+		var json_menu   = localStorage['pzprv3_config:ui'];
+		if(!!json_puzzle){ ui.puzzle.restoreConfig(json_puzzle);}
+		if(!!json_menu)  { ui.menuconfig.setAll(json_menu);}
 	},
 	saveConfig : function(){
-		if(pzpr.env.storage.localST && !!window.JSON){
-			localStorage['pzprv3_config:puzzle'] = ui.puzzle.saveConfig();
-			localStorage['pzprv3_config:ui']     = ui.menuconfig.getAll();
-		}
+		localStorage['pzprv3_config:puzzle'] = ui.puzzle.saveConfig();
+		localStorage['pzprv3_config:ui']     = ui.menuconfig.getAll();
 	},
 
 	//----------------------------------------------------------------------
