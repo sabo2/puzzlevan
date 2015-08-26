@@ -1,4 +1,4 @@
-/* global File:false */
+
 (function(){
 
 /* variables */

@@ -1,5 +1,5 @@
 // Boot.js v3.4.0
-/* global pzpr:false, ui:false, ActiveXObject:false */
+/* global pzpr:false, ui:false */
 
 (function(){
 /********************************/

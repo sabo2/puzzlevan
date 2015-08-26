@@ -20,14 +20,15 @@ var puzzleWindows = {
 	}
 };
 
-app.on('window-all-closed', function(){
-	//if(process.platform !== 'darwin'){ app.quit();}
-	app.quit();
-});
-app.on('browser-window-focus', function(e,win){ focusedWindow = win;});
-app.on('browser-window-blur',  function(e,win){ if(focusedWindow===win){ focusedWindow = null;}});
-app.on('ready', openMainWindow);
-
+function newPuzzleWindow(data){
+	if(!data){ require('dialog').showErrorBox("puzzlevan", "No Puzzle Data Error!!"); return;}
+	
+	var win = new BrowserWindow({width: 600, height: 600});
+	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data);});
+	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	win.loadUrl(srcdir + 'p.html');
+	puzzleWindows.add(win); // reference
+}
 function openMainWindow(){
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
@@ -40,17 +41,15 @@ function openMainWindow(){
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
 
-ipc.on('open-puzzle', function(e, data){ newPuzzleWindow(data);});
-function newPuzzleWindow(data){
-	if(!data){ require('dialog').showErrorBox("puzzlevan", "No Puzzle Data Error!!"); return;}
-	
-	var win = new BrowserWindow({width: 600, height: 600});
-	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data);});
-	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
-	win.loadUrl(srcdir + 'p.html');
-	puzzleWindows.add(win); // reference
-}
+app.on('ready', openMainWindow);
+app.on('window-all-closed', function(){
+	//if(process.platform !== 'darwin'){ app.quit();}
+	app.quit();
+});
+app.on('browser-window-focus', function(e,win){ focusedWindow = win;});
+app.on('browser-window-blur',  function(e,win){ if(focusedWindow===win){ focusedWindow = null;}});
 
+ipc.on('open-puzzle', function(e, data){ newPuzzleWindow(data);});
 ipc.on('open-local', function(e, localurl){
 	if(!localurl.match(/^data\:/)){
 		localurl = srcdir + localurl;

@@ -1,5 +1,5 @@
 // MenuArea.js v3.4.0
-/* global ui:false, getEL:false, _doc:false */
+/* global ui:false, getEL:false */
 
 // メニュー描画/取得/html表示系
 ui.menuarea = {
