@@ -14,4 +14,4 @@ app.on('ready', function(){
 	mainWindow = new BrowserWindow({width: 600, height: 600});
 	mainWindow.loadUrl('file://'+__dirname+'/src/index.html');
 	mainWindow.on('closed', function(){ mainWindow = null;});
-})
+});
