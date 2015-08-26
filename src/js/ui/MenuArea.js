@@ -165,8 +165,6 @@ ui.menuarea = {
 		
 		getEL("menu_imagesave").className = ((ui.enableSaveImage || ui.enableSaveSVG) ? "" : "disabled");
 		
-		getEL("menu_subclear").style.display  = (!ui.puzzle.flags.disable_subclear ? "" : "none");
-		
 		for(var idname in this.menuitem){ this.setdisplay(idname);}
 		this.setdisplay("operation");
 		this.setdisplay("toolarea");
@@ -240,16 +238,12 @@ ui.menuarea = {
 	// メニューがクリックされた時の動作を呼び出す
 	//---------------------------------------------------------------------------
 	// submenuから呼び出される関数たち
-	anscheck : function(){ this.answercheck();},
 	undo     : function(){ ui.undotimer.startButtonUndo();},
 	undostop : function(){ ui.undotimer.stopButtonUndo();},
 	undoall  : function(){ ui.puzzle.undoall();},
 	redo     : function(){ ui.undotimer.startButtonRedo();},
 	redostop : function(){ ui.undotimer.stopButtonRedo();},
 	redoall  : function(){ ui.puzzle.redoall();},
-	ansclear : function(){ this.ACconfirm();},
-	subclear : function(){ this.ASconfirm();},
-	duplicate: function(){ this.duplicate_board();},
 	toolarea : function(){
 		ui.setConfig("toolarea", (ui.getConfig("toolarea")===0?1:0));
 		ui.displayAll();
@@ -269,42 +263,25 @@ ui.menuarea = {
 			ui.popupmgr.open(idname, pos.px-8, pos.py-8);
 			this.stopHovering();
 		}
-	},
-
-	//------------------------------------------------------------------------------
-	// menuarea.duplicate_board() 盤面の複製を行う => 受取はBoot.jsのimportFileData()
-	//------------------------------------------------------------------------------
-	duplicate_board : function(){
-		if(getEL("menu_duplicate").className==="disabled"){ return;}
-		
-		ui.misc.openpuzzle(ui.puzzle.getFileData(pzpr.parser.FILE_PZPH));
-		this.stopHovering();
-	},
-
-	//------------------------------------------------------------------------------
-	// menuarea.answercheck()「正答判定」ボタンを押したときの処理
-	// menuarea.ACconfirm()  「回答消去」ボタンを押したときの処理
-	// menuarea.ASconfirm()  「補助消去」ボタンを押したときの処理
-	//------------------------------------------------------------------------------
-	answercheck : function(){
-		this.stopHovering();
-		ui.misc.alert(ui.puzzle.check(true).text());
-	},
-	ACconfirm : function(){
-		this.stopHovering();
-		ui.misc.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});
-	},
-	ASconfirm : function(){
-		this.stopHovering();
-		ui.misc.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
 	}
 };
 
 require('ipc').on('menu-req', function(req){
-	var menu = ui.menuarea;
+	var toolarea = ui.toolarea;
+	var parser = pzpr.parser;
+	var puzzle = ui.puzzle, pid = puzzle.pid;
 	switch(req){
-		case 'check':    menu.answercheck(); break;
-		case 'ansclear': menu.ACconfirm(); break;
-		case 'auxclear': menu.ASconfirm(); break;
+		case 'check':    toolarea.answercheck(); break;
+		case 'ansclear': toolarea.ACconfirm(); break;
+		case 'auxclear': toolarea.ASconfirm(); break;
+		case 'duplicate': 
+			ui.misc.openpuzzle(puzzle.getFileData(pzpr.parser.FILE_PZPH));
+			break;
+		case 'save-pzpr':
+			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PZPR), pid);
+			break;
+		case 'save-pbox':
+			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PBOX), pid);
+			break;
 	}
 });

@@ -54,6 +54,14 @@ ipc.on('open-local', function(e, localurl){
 	puzzleWindows.add(win); // reference
 });
 ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
+ipc.on('write-file', function(e, data, pid){
+	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
+	var option = {title:"Save File - puzzlevan", defaultPath:pid+'.txt'};
+	var filename = require('dialog').showSaveDialog(focusedWindow, option);
+	if(!!filename){
+		require('fs').writeFile(filename, data, {encoding:'utf8'});
+	}
+});
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -61,14 +69,26 @@ ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
 function openFile(){
 	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
 	var option = {title:"Open File - puzzlevan", properties:['openFile']};
-	function readfile(files){
-		if(files.length===0){ return;}
+	var files = require('dialog').showOpenDialog(focusedWindow, option);
+	if(!!files){
 		require('fs').readFile(files[0], {encoding:'utf8'}, function(error, data){
 			if(!error){ newPuzzleWindow(data, latest_pid);}
 		});
 	}
-	require('dialog').showOpenDialog(focusedWindow, option, readfile);
 }
+function saveFile(){
+	var focusedWindow = BrowserWindow.getFocusedWindow();
+	if(focusedWindow && focusedWindow!==mainWindow){
+		focusedWindow.webContents.send('menu-req', 'save-pzpr');
+	}
+}
+function saveKanpen(){
+	var focusedWindow = BrowserWindow.getFocusedWindow();
+	if(focusedWindow && focusedWindow!==mainWindow){
+		focusedWindow.webContents.send('menu-req', 'save-pbox');
+	}
+}
+
 function sendMenuReq(content){
 	var focusedWindow = BrowserWindow.getFocusedWindow();
 	if(focusedWindow && focusedWindow!==mainWindow){
@@ -109,14 +129,20 @@ function setMenu(){
 			{ label:'Quit puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
 		]},
 		{ label:'File', submenu: [
-			{ label:'Open File',    accelerator:'Cmd+O', click:openFile},
+			{ label:'Open File',       accelerator:'Cmd+O', click:openFile},
+			{ label:'Save File As...', submenu:[
+				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
+				{ label:'pencilbox format (text)',             click:saveKanpen},
+			]},
 			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
 		{ label:'Edit', submenu: [
 			{ label:'Check Answer', accelerator:'Cmd+E', click:function(){ sendMenuReq('check');}},
 			{ label:'Erase Answer',                      click:function(){ sendMenuReq('ansclear');}},
-			{ label:'Erase Aus.Mark',                    click:function(){ sendMenuReq('auxclear');}},
+			{ label:'Erase Aux.Mark',                    click:function(){ sendMenuReq('auxclear');}},
+			{ type: 'separator'},
+			{ label:'Duplicate the Board',               click:function(){ sendMenuReq('duplicate');}},
 		]},
 //		{ label:'View', submenu: [] },
 		{ label:'Window', submenu: [
@@ -130,16 +156,23 @@ function setMenu(){
 	] : [ /* Windows, Linux */
 		{ label:'&File', submenu: [
 			{ label:'&Open File',    accelerator:'Ctrl+O', click:openFile},
+			{ label:'&Save File As...', submenu:[
+				{ label:'&PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
+				{ label:'pencilbo&x format (text)',             click:saveKanpen},
+			]},
 			{ type: 'separator'},
 			{ label:'&Close Window', accelerator:'Ctrl+W', click:closeFocusedWindow},
 			{ type: 'separator'},
 			{ label:'Open &Main Window', accelerator:'Ctrl+I', click:openMainWindow},
+			{ type: 'separator'},
 			{ label:'&Quit puzzlevan',                     click:function(){ app.quit();}},
 		]},
 		{ label:'&Edit', submenu: [
 			{ label:'&Check Answer', accelerator:'Ctrl+E', click:function(){ sendMenuReq('check');}},
 			{ label:'Erase Answer',                        click:function(){ sendMenuReq('ansclear');}},
-			{ label:'Erase Aus.Mark',                      click:function(){ sendMenuReq('auxclear');}},
+			{ label:'Erase Aux.Mark',                      click:function(){ sendMenuReq('auxclear');}},
+			{ type: 'separator'},
+			{ label:'&Duplicate the Board',                click:function(){ sendMenuReq('duplicate');}},
 		]},
 //		{ label:'&View', submenu: [] },
 		{ label:'&Window', submenu: [

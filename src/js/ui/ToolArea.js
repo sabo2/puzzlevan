@@ -168,13 +168,13 @@ ui.toolarea = {
 	//---------------------------------------------------------------------------
 	// Canvas下にあるボタンが押された/放された時の動作
 	//---------------------------------------------------------------------------
-	answercheck : function(){ ui.menuarea.answercheck();},
+	answercheck : function(){ ui.toolarea.anscheck();},
 	undo     : function(){ ui.undotimer.startButtonUndo();},
 	undostop : function(){ ui.undotimer.stopButtonUndo();},
 	redo     : function(){ ui.undotimer.startButtonRedo();},
 	redostop : function(){ ui.undotimer.stopButtonRedo();},
-	ansclear : function(){ ui.menuarea.ACconfirm();},
-	subclear : function(){ ui.menuarea.ASconfirm();},
+	ansclear : function(){ ui.toolarea.ACconfirm();},
+	subclear : function(){ ui.toolarea.ASconfirm();},
 	irowake  : function(){ ui.puzzle.irowake();},
 	encolorall : function(){ ui.puzzle.board.encolorall();}, /* 天体ショーのボタン */
 
@@ -184,5 +184,20 @@ ui.toolarea = {
 	toggledisp : function(){
 		var current = ui.puzzle.getConfig('disptype_pipelinkr');
 		ui.puzzle.setConfig('disptype_pipelinkr', (current===1?2:1));
+	},
+
+	//------------------------------------------------------------------------------
+	// toolarea.anscheck()   「正答判定」ボタンを押したときの処理
+	// toolarea.ACconfirm()  「回答消去」ボタンを押したときの処理
+	// toolarea.ASconfirm()  「補助消去」ボタンを押したときの処理
+	//------------------------------------------------------------------------------
+	anscheck : function(){
+		ui.misc.alert(ui.puzzle.check(true).text());
+	},
+	ACconfirm : function(){
+		ui.misc.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});
+	},
+	ASconfirm : function(){
+		ui.misc.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
 	}
 };

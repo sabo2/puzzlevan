@@ -19,9 +19,6 @@
      <li data-popup="urlinput"><span>__URL入力__Import from URL__</span></li>
      <li data-popup="urloutput"><span>__URL出力__Export URL__</span></li>
      <hr>
-     <li data-popup="fileopen"><span>__ファイルを開く__Open file__</span></li>
-     <li data-popup="filesave"><span>__ファイル保存__Save file as ...__</span></li>
-     <hr>
      <li data-popup="imagesave" id="menu_imagesave"><span>__画像を保存__Save as image file__</span></li>
    </menu></li>
    <li><span>__編集__Edit__</span><menu label="__編集__Edit__">
@@ -31,16 +28,9 @@
        <li id="menu_redo" data-press-exec="redo,redostop"><span>__やり直し/Redo__Redo__</span></li>
        <li id="menu_latest" data-menu-exec="redoall"><span>__最後にジャンプ__Jump to latest__</span></li>
      </menu></li>
-     <li><span>__盤面__Board__</span> -&gt;<menu label="__盤面__Board__">
-       <li data-menu-exec="anscheck"><span>__チェック__Check the Answer__</span></li>
-       <li data-menu-exec="ansclear"><span>__回答消去__Erase answer__</span></li>
-       <li data-menu-exec="subclear" id="menu_subclear"><span>__補助記号消去__Erase auxiliary marks__</span></li>
-     </menu></li>
      <hr>
      <li data-popup="adjust"><span>__盤面の調整__Adjust the Board__</span></li>
      <li data-popup="turnflip"><span>__反転・回転__Filp/Turn the Board__</span></li>
-     <hr>
-     <li data-menu-exec="duplicate" id="menu_duplicate"><span>__盤面の複製__Duplicate the Board__</span></li>
    </menu></li>
    <li><span>__表示__Display__</span><menu label="__表示__Display__">
      <li data-config="cellsizeval"><span>__表示サイズ__Cell Size__</span> -&gt;<menu label="__表示サイズ__Cell Size__">
@@ -308,41 +298,6 @@
       <textarea name="ta" cols=48 rows=8 wrap="hard" readonly></textarea>
       <br />
       <button type="button" class="btn btn-info" data-button-exec="openurl">__このURLを開く__Open this URL on another window/tab__</button>
-      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
-    </form>
-  </div>
-
-  <div class="popup">
-    <div class="titlebar">__ファイルを開く__Open File__</div>
-    <form name="fileform">
-      <input type="hidden" name="operation" value="open" />
-      <input type="hidden" name="pencilbox" value="0" />
-      <span>__ファイル選択__Choose file__</span>
-      <br />
-      <input type="file" name="filebox" data-change-exec="fileopen" class="btn btn-info" id="filebox" value="" />
-      <br />
-      <button type="button" class="btn" data-button-exec="close">__キャンセル__Cancel__</button>
-    </form>
-  </div>
-
-  <div class="popup">
-    <div class="titlebar">__ファイルを保存する__Save File__</div>
-    <form name="filesave">
-      <input type="hidden" name="operation" value="save" />
-      <input type="hidden" name="ques" value="" />
-      <input type="hidden" name="urlstr" value="" />
-      <span>__ファイル形式__File format__</span>
-      <select name="filetype">
-        <option value="filesave">__ぱずぷれv3形式__Puz-Pre v3 format__</option>
-   <!-- <option value="filesave3">__ぱずぷれv3(履歴つき)__Puz-Pre v3 with history__</option> -->
-        <option value="filesave2">__pencilbox形式__Pencilbox format__</option>
-      </select>
-      <br />
-      <span>__ファイル名__Filename__</span>
-      <input type="text" name="filename" value="" />
-      <br />
-      <br />
-      <button type="button" class="btn btn-ok" data-button-exec="filesave">__保存__Save__</button>
       <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
     </form>
   </div>
