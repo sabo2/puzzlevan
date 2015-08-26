@@ -15,8 +15,7 @@
 		"ui/PopupMenu",
 		"ui/ToolArea",
 		"ui/Notify",
-		"ui/Timer",
-		"ui/Debug"
+		"ui/Timer"
 	];
 
 	var isbrowser = true;

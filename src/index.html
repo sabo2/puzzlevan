@@ -87,8 +87,7 @@
     <input type="reset" class="btn" id="urlinput_clr" value="リセット"><br>
    </form>
    <hr>
-   <form name="fileform" id="fileform" action="fileio.cgi" method="post"
-         target="fileiopanel" enctype="multipart/form-data" onsubmit="return false;">
+   <form name="fileform" id="fileform">
     <h4 class="notice_item">ファイルを読み込む</h4>
     <input type="file" name="filebox" class="btn btn-info" id="filebox"><br>
     <input type="hidden" name="pencilbox" value="0">
@@ -559,12 +558,6 @@
 
 </div><!-- <div id="design1"> -->
 
-</div>
-
-<!-- 隠し要素 -->
-<div id="hidden_element">
-  <!-- ファイル入力用インラインフレーム -->
-  <iframe name="fileiopanel" id="fileiopanel" src="about:blank"></iframe>
 </div>
 
 </BODY>

@@ -210,9 +210,6 @@
 	/* (ファイル入出力用)隠しエレメント */
 	div#hidden_element { position:absolute; top: 0px; left:-10000px;}
 
-	iframe#fileiopanel { width:200px; height:200px;}
-	form#fileform2     { width:100px; height:100px;}
-
 	/* ============================================================= */
 	/* メニュー領域 */
 	#menupanel {

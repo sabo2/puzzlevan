@@ -26,8 +26,6 @@ window.ui = {
 	popupmgr  : null,
 	timer     : null,
 	
-	debugmode : false,
-	
 	enableGetText   : false,	// FileReader APIの旧仕様でファイルが読めるか
 	enableReadText  : false,	// HTML5 FileReader APIでファイルが読めるか
 	reader : null,				// FileReaderオブジェクト
@@ -36,7 +34,6 @@ window.ui = {
 	enableSaveSVG   : false,	// 画像保存(SVG形式)が可能か
 	
 	enableSaveBlob  : false,	// saveBlobが使用できるか
-	fileio : 'fileio.cgi',		// fileio.cgiのファイル名
 
 	//---------------------------------------------------------------------------
 	// ui.displayAll()     全てのメニュー、ボタン、ラベルに対して文字列を設定する
@@ -194,6 +191,5 @@ window.ui = {
 		}
 		
 		this.enableSaveBlob = (!!window.navigator.saveBlob);
-		this.fileio = (_doc.domain==='indi.s58.xrea.com'?"fileio.xcg":"fileio.cgi");
 	}
 };

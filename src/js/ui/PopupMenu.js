@@ -153,7 +153,7 @@ ui.popupmgr.addpopup('template',
 			if(el.nodeType!==1){ return;}
 			var role = ui.customAttr(el,"buttonExec");
 			if(!!role){
-				pzpr.util.addEvent(el, (!pzpr.env.API.touchevent ? "click" : "mousedown"), popup, popup[role]);
+				pzpr.util.addEvent(el, "click", popup, popup[role]);
 			}
 			role = ui.customAttr(el,"changeExec");
 			if(!!role){
@@ -354,19 +354,12 @@ ui.popupmgr.addpopup('fileopen',
 	// fileopen()  ファイルを開く
 	//------------------------------------------------------------------------------
 	fileopen : function(e){
-		var fileEL = this.form.filebox;
-		if(!!ui.reader || ui.enableGetText){
-			var fitem = fileEL.files[0];
-			if(!fitem){ return;}
-			
-			if(!!ui.reader){ ui.reader.readAsText(fitem);}
-			else           { ui.puzzle.open(fitem.getAsText(''));}
-		}
-		else{
-			if(!fileEL.value){ return;}
-			this.form.action = ui.fileio;
-			this.form.submit();
-		}
+		var fitem = this.form.filebox.files[0];
+		if(!fitem){ return;}
+		
+		if(!!ui.reader){ ui.reader.readAsText(fitem);}
+		else           { ui.puzzle.open(fitem.getAsText(''));}
+		
 		this.form.reset();
 		this.close();
 	}
@@ -407,6 +400,8 @@ ui.popupmgr.addpopup('filesave',
 	//------------------------------------------------------------------------------
 	filesaveurl : null,
 	filesave : function(){
+		if(ui.enableSaveBlob || !!this.anchor){ throw "Invalid browser error!";}
+
 		var form = this.form;
 		var filename = form.filename.value;
 		var prohibit = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
@@ -420,29 +415,18 @@ ui.popupmgr.addpopup('filesave',
 			case 'filesave3': filetype = parser.FILE_PZPH; break;
 		}
 
-		var blob = null, filedata = null;
-		if(ui.enableSaveBlob || !!this.anchor){
-			blob = new Blob([ui.puzzle.getFileData(filetype)], {type:'text/plain'});
-		}
-		else{
-			filedata = ui.puzzle.getFileData(filetype);
-		}
+		var blob = new Blob([ui.puzzle.getFileData(filetype)], {type:'text/plain'});
 
 		if(ui.enableSaveBlob){
 			navigator.saveBlob(blob, filename);
 			this.close();
 		}
-		else if(!!this.anchor){
+		else{ // anchor
 			if(!!this.filesaveurl){ URL.revokeObjectURL(this.filesaveurl);}
 			this.filesaveurl = URL.createObjectURL(blob);
 			this.anchor.href = this.filesaveurl;
 			this.anchor.download = filename;
 			this.anchor.click();
-		}
-		else{
-			form.ques.value = filedata;
-			form.submit();
-			this.close();
 		}
 	}
 });
@@ -508,6 +492,8 @@ ui.popupmgr.addpopup('imagesave',
  	//------------------------------------------------------------------------------
 	saveimageurl : null,
 	saveimage : function(){
+		if(ui.enableSaveBlob || !!this.anchor){ throw "Invalid browser error!";}
+
 		/* ファイル名チェックルーチン */
 		var form = this.form;
 		var filename = form.filename.value;
@@ -517,38 +503,19 @@ ui.popupmgr.addpopup('imagesave',
 		}
 
 		/* 画像出力ルーチン */
-		var cellsize = +form.cellsize.value;
-		var type = (form.filetype.value!=='svg'?'png':'svg');
-
-		var blob = null, filedata = null;
-		try{
-			if(ui.enableSaveBlob || !!this.anchor){
-				blob = ui.puzzle.toBlob(type,cellsize);
-			}
-			else{
-				filedata = ui.puzzle.toDataURL(type,cellsize).replace(/data:.*;base64,/, '');
-			}
-		}
-		catch(e){
-			ui.notify.alert('画像の出力に失敗しました','Fail to Output the Image');
-		}
+		var blob = ui.puzzle.toBlob((form.filetype.value!=='svg'?'png':'svg'), +form.cellsize.value);
 
 		/* 出力された画像の保存ルーチン */
 		if(ui.enableSaveBlob){
 			navigator.saveBlob(blob, filename);
 			this.close();
 		}
-		else if(!!this.anchor){
+		else{ // anchor
 			if(!!this.filesaveurl){ URL.revokeObjectURL(this.filesaveurl);}
 			this.filesaveurl = URL.createObjectURL(blob);
 			this.anchor.href = this.filesaveurl;
 			this.anchor.download = filename;
 			this.anchor.click();
-		}
-		else{
-			form.urlstr.value = filedata;
-			form.submit();
-			this.close();
 		}
 	},
 	
@@ -569,20 +536,8 @@ ui.popupmgr.addpopup('imagesave',
 		}
 		
 		/* 出力された画像を開くルーチン */
-		if(!dataurl){ /* dataurlが存在しない */}
-		else if(!pzpr.env.browser.IE9){
+		if(!!dataurl){
 			window.open(dataurl, '', '');
-		}
-		else{
-			// IE9だとアドレスバーの長さが2KBだったり、
-			// そもそもDataURL入れても何も起こらなかったりする対策
-			var cdoc = window.open('', '', '').document;
-			cdoc.open();
-			cdoc.writeln("<!DOCTYPE html>\n<HTML LANG=\"ja\">\n<HEAD>");
-			cdoc.writeln("<META CHARSET=\"utf-8\">");
-			cdoc.writeln("<TITLE>ぱずぷれv3<\/TITLE>\n<\/HEAD>");
-			cdoc.writeln("<BODY><img src=\"", dataurl, "\"><\/BODY>\n<\/HTML>");
-			cdoc.close();
 		}
 	}
 });

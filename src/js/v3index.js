@@ -217,16 +217,9 @@ v3index.fileif.extend({
 			};
 			reader.readAsText(fileEL.files[0]);
 		}
-		else if(typeof FileList !== 'undefined' &&
-			    typeof File.prototype.getAsText !== 'undefined')
-		{
+		else{
 			if(!fileEL.files[0]){ return;}
 			this.fileonload(fileEL.files[0].getAsText(''));
-		}
-		else{
-			if(!fileEL.value){ return;}
-			_doc.fileform.action = (_doc.domain==='indi.s58.xrea.com'?"fileio.xcg":"fileio.cgi");
-			_doc.fileform.submit();
 		}
 
 		_doc.fileform.reset();

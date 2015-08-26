@@ -1,5 +1,5 @@
 // Boot.js v3.4.0
-/* global ui:false, ActiveXObject:false */
+/* global pzpr:false, ui:false, ActiveXObject:false */
 
 (function(){
 /********************************/
@@ -9,7 +9,6 @@ if(!window.pzpr){ setTimeout(arguments.callee,0); return;}
 
 window.navigator.saveBlob = window.navigator.saveBlob || window.navigator.msSaveBlob;
 
-var require_accesslog = true;
 var onload_pzl = null;
 var onload_option = {imagesave:true};
 
@@ -17,8 +16,7 @@ var onload_option = {imagesave:true};
 // ★boot() window.onload直後の処理
 //---------------------------------------------------------------------------
 function boot(){
-	if(location.href.match(/^(file|http:\/\/(192.168|10)\.).+\/tests\//)||!!window.v3index){}
-	else if(importData() && includeDebugFile()){ startPuzzle();}
+	if(importData()){ startPuzzle();}
 	else{ setTimeout(boot,0);}
 }
 pzpr.addLoadListener(boot);
@@ -42,30 +40,8 @@ function importData(){
 	return true;
 }
 
-function includeDebugFile(){
-	var pid = onload_pzl.id, result = true;
-	
-	/* 必要な場合、テスト用ファイルのinclude         */
-	/* importURL()後でないと必要かどうか判定できない */
-	if(ui.debugmode){
-		if(!ui.debug){
-			result = false;
-		}
-		else if(!ui.debug.urls){
-			ui.debug.includeDebugScript("for_test.js");
-			result = false;
-		}
-		else if(!ui.debug.urls[pid]){
-			ui.debug.includeDebugScript("test_"+pid+".js");
-			result = false;
-		}
-	}
-	
-	return result;
-}
-
 function startPuzzle(){
-	var pzl = onload_pzl, pid = pzl.id;
+	var pzl = onload_pzl;
 	
 	/* パズルオブジェクトの作成 */
 	var element = document.getElementById('divques');
@@ -76,16 +52,7 @@ function startPuzzle(){
 	ui.event.onload_func();
 	
 	// 単体初期化処理のルーチンへ
-	if(!ui.debugmode){
-		puzzle.open(pzl, accesslog);
-	}
-	else{
-		var inputdata = (!!pzl.qdata ? pzl : pid+"/"+ui.debug.urls[pid]);
-		puzzle.open(inputdata, function(puzzle){
-			ui.setConfig("mode", puzzle.MODE_PLAYER);
-			ui.setConfig('autocheck', true);
-		});
-	}
+	puzzle.open(pzl);
 	
 	return true;
 }
@@ -96,7 +63,6 @@ function startPuzzle(){
 function importURL(){
 	/* index.htmlからURLが入力されたかチェック */
 	var search = getStorageData('pzprv3_urldata', 'urldata');
-	if(!!search){ require_accesslog = false;}  /* index.htmlからのURL読み込み時はアクセスログをとらない */
 	
 	/* index.htmlからURLが入力されていない場合は現在のURLの?以降をとってくる */
 	search = search || location.search;
@@ -110,20 +76,11 @@ function importURL(){
 		search = RegExp.$3;
 	}
 	
-	// エディタモードかplayerモードか、等を判定する
-	if(search==="test"){ search = 'country_test';}
-	
-	var startmode = '';
-	if     (search.match(/_test/)){ startmode = 'EDITOR'; ui.debugmode = true;}
-	else if(search.match(/^m\+/)) { startmode = 'EDITOR';}
-	else if(search.match(/_edit/)){ startmode = 'EDITOR';}
-	else if(search.match(/_play/)){ startmode = 'PLAYER';}
-
 	var pzl = pzpr.parser.parseURL(search);
-
-	startmode = startmode || (!pzl.bstr ? 'EDITOR' : 'PLAYER');
-	pzpr.EDITOR = (startmode==='EDITOR');
-	pzpr.PLAYER = !pzpr.EDITOR;
+	
+	// エディタモードかplayerモードかの設定
+	pzpr.EDITOR = true;
+	pzpr.PLAYER = false;
 
 	return pzl;
 }
@@ -141,7 +98,6 @@ function importFileData(){
 
 	pzpr.EDITOR = true;
 	pzpr.PLAYER = false;
-	require_accesslog = false;
 	
 	return pzl;
 }
@@ -161,44 +117,6 @@ function getStorageData(key, key2){
 
 	str = sessionStorage[key2];
 	return (typeof str==="string" ? str : null);
-}
-
-//---------------------------------------------------------------------------
-// ★accesslog() playerのアクセスログをとる
-//---------------------------------------------------------------------------
-function accesslog(){
-	if(pzpr.EDITOR || !onload_pzl.id || !require_accesslog){ return;}
-
-	if(document.domain!=='indi.s58.xrea.com' &&
-	   document.domain!=='pzprv3.sakura.ne.jp' &&
-	   !document.domain.match(/pzv\.jp/)){ return;}
-
-	var refer = document.referrer.replace(/\?/g,"%3f").replace(/\&/g,"%26")
-								 .replace(/\=/g,"%3d").replace(/\//g,"%2f");
-	if(refer.match(/http\:\%2f\%2f(www\.)?pzv.jp/)){ return;}
-
-	// 送信
-	var xmlhttp = false;
-	if(typeof ActiveXObject !== "undefined"){
-		try { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");}
-		catch (e) { xmlhttp = false;}
-	}
-	if(!xmlhttp && typeof XMLHttpRequest !== "undefined") {
-		xmlhttp = new XMLHttpRequest();
-	}
-	if(xmlhttp){
-		var data = [
-			("scr="     + "pzprv3"),
-			("pid="     + onload_pzl.id),
-			("referer=" + refer),
-			("pzldata=" + onload_pzl.qdata)
-		].join('&');
-
-		xmlhttp.open("POST", "./record.cgi");
-		xmlhttp.onreadystatechange = function(){};
-		xmlhttp.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
-		xmlhttp.send(data);
-	}
 }
 
 })();

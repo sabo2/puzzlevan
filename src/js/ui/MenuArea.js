@@ -21,7 +21,7 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	createMenu : function(){
 		if(this.menuitem===null){
-			this.modifySelector();
+			// this.modifySelector();
 			
 			this.menuitem = {};
 			this.walkElement(getEL("menupanel"));
@@ -118,23 +118,23 @@ ui.menuarea = {
 	//--------------------------------------------------------------------------------
 	// menuarea.modifySelector()  MenuAreaに関するCSSセレクタテキストを変更する (Android向け)
 	//--------------------------------------------------------------------------------
-	modifySelector : function(){
-		/* Android 4.0以上向け処理です */
-		if(!pzpr.env.OS.Android || !getEL("menupanel").classList){ return;}
-		var sheet = _doc.styleSheets[0];
-		var rules = sheet.cssRules || sheet.rules;
-		if(rules===null){} // Chromeでローカルファイルを開くとおかしくなるので、とりあえず何もしないようにします
-		
-		for(var i=0,len=rules.length;i<len;i++){
-			var rule = rules[i];
-			if(!rule.selectorText){ continue;}
-			if(rule.selectorText.match(/\#menupanel.+\:hover.*/)){
-				sheet.insertRule(rule.cssText.replace(":hover",".hovering"), i);
-				sheet.deleteRule(i+1);
-			}
-		}
-		this.nohover = true;
-	},
+//	modifySelector : function(){
+//		/* Android 4.0以上向け処理です */
+//		if(!pzpr.env.OS.Android || !getEL("menupanel").classList){ return;}
+//		var sheet = _doc.styleSheets[0];
+//		var rules = sheet.cssRules || sheet.rules;
+//		if(rules===null){} // Chromeでローカルファイルを開くとおかしくなるので、とりあえず何もしないようにします
+//		
+//		for(var i=0,len=rules.length;i<len;i++){
+//			var rule = rules[i];
+//			if(!rule.selectorText){ continue;}
+//			if(rule.selectorText.match(/\#menupanel.+\:hover.*/)){
+//				sheet.insertRule(rule.cssText.replace(":hover",".hovering"), i);
+//				sheet.deleteRule(i+1);
+//			}
+//		}
+//		this.nohover = true;
+//	},
 	
 	//--------------------------------------------------------------------------------
 	// menuarea.showHovering()  MenuAreaのポップアップを表示する (Android向け)
@@ -271,10 +271,6 @@ ui.menuarea = {
 			this.stopHovering();
 		}
 	},
-	dispdebug : function(){
-		ui.popupmgr.open("debug", 0, 0);
-		this.stopHovering();
-	},
 
 	//------------------------------------------------------------------------------
 	// menuarea.duplicate_board() 盤面の複製を行う => 受取はBoot.jsのimportFileData()
@@ -283,17 +279,13 @@ ui.menuarea = {
 		if(getEL("menu_duplicate").className==="disabled"){ return;}
 		var filestr = ui.puzzle.getFileData(pzpr.parser.FILE_PZPH);
 		var url = './p.html?'+ui.puzzle.pid+(pzpr.PLAYER?"_play":"");
-		if(!pzpr.env.browser.Presto){
-			var old = sessionStorage['filedata'];
-			sessionStorage['filedata'] = filestr;
-			window.open(url,'');
-			if(!!old){ sessionStorage['filedata'] = old;}
-			else     { delete sessionStorage['filedata'];}
-		}
-		else{
-			localStorage['pzprv3_filedata'] = filestr;
-			window.open(url,'');
-		}
+		
+		var old = sessionStorage['filedata'];
+		sessionStorage['filedata'] = filestr;
+		window.open(url,'');
+		if(!!old){ sessionStorage['filedata'] = old;}
+		else     { delete sessionStorage['filedata'];}
+		
 		this.stopHovering();
 	},
 

@@ -97,9 +97,6 @@ ui.listener =
 				if     (puzzle.editmode && c==='F2'      ){ puzzle.setConfig("mode", puzzle.MODE_PLAYER); result = false;}
 				else if(puzzle.playmode && c==='shift+F2'){ puzzle.setConfig("mode", puzzle.MODE_EDITOR); result = false;}
 			}
-
-			/* デバッグ用ルーチンを通す */
-			if(ui.debug.keydown(c)){ result = false;}
 		}
 		else if(kc.keyup){
 			/* TimerのUndo/Redoを停止する */

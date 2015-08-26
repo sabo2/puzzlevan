@@ -52,7 +52,7 @@ ui.toolarea = {
 				/* ボタン領域 */
 				var role = ui.customAttr(el,"buttonExec");
 				if(!!role){
-					pzpr.util.addEvent(el, (!pzpr.env.API.touchevent ? "click" : "mousedown"), toolarea, toolarea[role]);
+					pzpr.util.addEvent(el, "click", toolarea, toolarea[role]);
 				}
 				role = ui.customAttr(el,"pressExec");
 				if(!!role){
