@@ -20,11 +20,11 @@ var puzzleWindows = {
 	}
 };
 
-function newPuzzleWindow(data){
+function newPuzzleWindow(data, pid){
 	if(!data){ require('dialog').showErrorBox("puzzlevan", "No Puzzle Data Error!!"); return;}
 	
 	var win = new BrowserWindow({width: 600, height: 600});
-	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data);});
+	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
 	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
 	win.loadUrl(srcdir + 'p.html');
 	puzzleWindows.add(win); // reference
@@ -49,7 +49,7 @@ app.on('window-all-closed', function(){
 app.on('browser-window-focus', function(e,win){ focusedWindow = win;});
 app.on('browser-window-blur',  function(e,win){ if(focusedWindow===win){ focusedWindow = null;}});
 
-ipc.on('open-puzzle', function(e, data){ newPuzzleWindow(data);});
+ipc.on('open-puzzle', function(e, data, pid){ newPuzzleWindow(data, pid);});
 ipc.on('open-local', function(e, localurl){
 	if(!localurl.match(/^data\:/)){
 		localurl = srcdir + localurl;

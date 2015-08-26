@@ -14,13 +14,16 @@ var onload_option = {imagesave:true};
 //---------------------------------------------------------------------------
 // window.onload直後の処理
 //---------------------------------------------------------------------------
-require('ipc').once('initial-data', function(data){
-	var onload_pzl = (importFileData(data) || importURL(data));
+require('ipc').once('initial-data', function(data, pid){
+	var onload_pzl = (importFileData(data) || importURL(data) || importFileData2(data, pid));
 	if(!onload_pzl || !onload_pzl.id){
 		ui.notify.erralert("Fail to import puzzle data or URL.");
 		ui.win.destroy();
 	}
 	else{
+		pzpr.EDITOR = true;
+		pzpr.PLAYER = false;
+		
 		startPuzzle(onload_pzl);
 	}
 });
@@ -56,11 +59,7 @@ function importURL(search){
 	}
 	
 	var pzl = pzpr.parser.parseURL(search);
-	if(!pzl){ return null;}
-	
-	// エディタモードかplayerモードかの設定
-	pzpr.EDITOR = true;
-	pzpr.PLAYER = false;
+	if(!pzl || !pzl.id){ return null;}
 
 	return pzl;
 }
@@ -73,11 +72,18 @@ function importFileData(fstr){
 	if(!fstr){ return null;}
 
 	var pzl = pzpr.parser.parseFile(fstr, '');
-	if(!pzl){ return null;}
+	if(!pzl || !pzl.id){ return null;}
 
-	pzpr.EDITOR = true;
-	pzpr.PLAYER = false;
-	
+	return pzl;
+}
+
+function importFileData2(fstr, variety){
+	/* index.htmlや盤面の複製等でファイルorブラウザ保存データが入力されたかチェック */
+	if(!fstr){ return null;}
+
+	var pzl = pzpr.parser.parseFile(fstr, variety);
+	if(!pzl || !pzl.id){ return null;}
+
 	return pzl;
 }
 

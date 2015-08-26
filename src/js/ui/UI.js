@@ -170,7 +170,7 @@ window.ui = {
 		// File Reader (あれば)の初期化処理
 		if(typeof FileReader !== 'undefined'){
 			this.reader = new FileReader();
-			this.reader.onload = function(e){ ui.puzzle.open(e.target.result);};
+			this.reader.onload = function(e){ ui.misc.openpuzzle(e.target.result, ui.puzzle.pid);};
 			this.enableReadText = true;
 		}
 		else{
