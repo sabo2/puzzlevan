@@ -70,5 +70,25 @@ ui.misc = {
 	},
 	openlocal : function(localurl){
 		require('ipc').send('open-local', localurl);
+	},
+
+	//--------------------------------------------------------------------------------
+	// misc.alert()    現在の言語に応じたダイアログを表示する
+	// misc.confirm()  現在の言語に応じた選択ダイアログを表示し、結果を返す
+	// misc.erralert() 現在の言語に応じたエラーダイアログを表示する
+	//--------------------------------------------------------------------------------
+	alert : function(strJP, strEN){
+		var msg = ui.selectStr(strJP, strEN);
+		var option = {type:'info', message:msg, buttons:['OK']};
+		ui.remote.require('dialog').showMessageBox(ui.win, option);
+	},
+	confirm : function(strJP, strEN, func){
+		var msg = ui.selectStr(strJP, strEN);
+		var option = {type:'question', message:msg, buttons:['OK','cancel']};
+		function onconfirm(response){ if(response===0){ func();}}
+		ui.remote.require('dialog').showMessageBox(ui.win, option, onconfirm);
+	},
+	erralert : function(strJP, strEN){
+		ui.remote.require('dialog').showErrorBox("puzzlevan", ui.selectStr(strJP, strEN));
 	}
 };

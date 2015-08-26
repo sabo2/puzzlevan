@@ -17,7 +17,7 @@ var onload_option = {imagesave:true};
 require('ipc').once('initial-data', function(data, pid){
 	var onload_pzl = (importFileData(data) || importURL(data) || importFileData2(data, pid));
 	if(!onload_pzl || !onload_pzl.id){
-		ui.notify.erralert("Fail to import puzzle data or URL.");
+		ui.misc.erralert("Fail to import puzzle data or URL.");
 		ui.win.destroy();
 	}
 	else{

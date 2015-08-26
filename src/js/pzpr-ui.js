@@ -14,7 +14,6 @@
 		"ui/MenuArea",
 		"ui/PopupMenu",
 		"ui/ToolArea",
-		"ui/Notify",
 		"ui/Timer"
 	];
 

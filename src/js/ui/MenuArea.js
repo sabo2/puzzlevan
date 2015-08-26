@@ -288,14 +288,14 @@ ui.menuarea = {
 	//------------------------------------------------------------------------------
 	answercheck : function(){
 		this.stopHovering();
-		ui.notify.alert(ui.puzzle.check(true).text());
+		ui.misc.alert(ui.puzzle.check(true).text());
 	},
 	ACconfirm : function(){
 		this.stopHovering();
-		ui.notify.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});
+		ui.misc.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});
 	},
 	ASconfirm : function(){
 		this.stopHovering();
-		ui.notify.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
+		ui.misc.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
 	}
 };

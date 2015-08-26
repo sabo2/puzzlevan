@@ -113,44 +113,6 @@
 		padding-right:8px;
 	}
 
-	/* OK/Cancel表示用 */
-	div#notifies {
-		position : absolute;
-		width : 100%;
-		top : 0;
-	}
-	div.notify {
-		display    : none;
-		position   : fixed;
-		background : #f7f7f7;
-		min-width : 240px;
-		max-width : 480px;
-		border  : 2px gray solid;
-		
-		text-align : left;
-		z-index : 61; /* ポップアップウィンドウより上 */
-	}
-	div.notify div.content {
-		padding : 8px 6px 6px 12px;
-	}
-	div.notify div.buttons {
-		margin-top: 4pt;
-		text-align:right;
-	}
-
-	div#notifybg {
-		display    : none;
-		position   : fixed;
-		background : black;
-		opacity    : 0.2;
-		top    : 0;
-		left   : 0;
-		width  : 100%;
-		height : 100%;
-		z-index : 60;
-		cursor : not-allowed;
-	}
-
 	/* ポップアップウィンドウ */
 	div.popup {
 		display    : none;
