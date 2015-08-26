@@ -48,7 +48,10 @@ ui.event =
 		}
 
 		// onBlurにイベントを割り当てる
-		this.addEvent(_doc, 'blur', this, this.onblur_func);
+		this.addEvent(window, 'blur', this, this.onblur_func);
+
+		// onFocusにイベントを割り当てる
+		this.addEvent(window, 'focus', this, this.onfocus_func);
 
 		// onresizeイベントを割り当てる
 		this.addEvent(window, 'resize', this, this.onresize_func);
@@ -58,6 +61,9 @@ ui.event =
 
 		// onunloadイベントを割り当てる
 		this.addEvent(window, 'unload', this, this.onunload_func);
+
+		// 1回だけfocusイベントを発生させる
+		ui.event.onfocus_func();
 	},
 
 	//---------------------------------------------------------------------------
@@ -79,6 +85,7 @@ ui.event =
 	//---------------------------------------------------------------------------
 	// event.onresize_func() ウィンドウリサイズ時に呼ばれる関数
 	// event.onblur_func()   ウィンドウからフォーカスが離れた時に呼ばれる関数
+	// event.onfocus_func()  ウィンドウがフォーカスされた時に呼ばれる関数
 	// event.onbeforeunload_func()  ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
 	onresize_func : function(){
@@ -88,6 +95,10 @@ ui.event =
 	onblur_func : function(){
 		ui.puzzle.key.keyreset();
 		ui.puzzle.mouse.mousereset();
+	},
+	onfocus_func : function(){
+		/* pencilboxのファイル向け */
+		require('ipc').send('update-pid', ui.puzzle.pid);
 	},
 	onbeforeunload_func : function(e){
 		if(pzpr.PLAYER || !ui.puzzle.ismodified()){ return;}

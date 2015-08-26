@@ -65,8 +65,8 @@ ui.misc = {
 	// misc.openpuzzle()  指定されたデータのパズルを開く　
 	// misc.openlocal()   指定されたローカルファイルやDataURLを開く
 	//--------------------------------------------------------------------------------
-	openpuzzle : function(data, pid){
-		require('ipc').send('open-puzzle', data, pid);
+	openpuzzle : function(data){
+		require('ipc').send('open-puzzle', data);
 	},
 	openlocal : function(localurl){
 		require('ipc').send('open-local', localurl);

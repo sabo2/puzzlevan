@@ -299,3 +299,12 @@ ui.menuarea = {
 		ui.misc.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
 	}
 };
+
+require('ipc').on('menu-req', function(req){
+	var menu = ui.menuarea;
+	switch(req){
+		case 'check':    menu.answercheck(); break;
+		case 'ansclear': menu.ACconfirm(); break;
+		case 'auxclear': menu.ASconfirm(); break;
+	}
+});
