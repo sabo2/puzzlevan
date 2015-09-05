@@ -47,24 +47,6 @@ window.ui = {
 	},
 
 	//---------------------------------------------------------------------------
-	// ui.customAttr()   エレメントのカスタムattributeの値を返す
-	//---------------------------------------------------------------------------
-	customAttr : function(el, name){
-		var value = "";
-		if(el.dataset!==void 0){ value = el.dataset[name];}
-		/* IE10, Firefox5, Chrome7, Safari5.1以下のフォールバック */
-		else{
-			var lowername = "data-";
-			for(var i=0;i<name.length;i++){
-				var ch = name[i] || name.charAt(i);
-				lowername += ((ch>="A" && ch<="Z") ? ("-" + ch.toLowerCase()) : ch);
-			}
-			value = el[lowername] || el.getAttribute(lowername) || "";
-		}
-		return value;
-	},
-
-	//---------------------------------------------------------------------------
 	// ui.adjustcellsize()  resizeイベント時に、pc.cw, pc.chのサイズを(自動)調節する
 	// ui.getBoardPadding() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
 	//---------------------------------------------------------------------------

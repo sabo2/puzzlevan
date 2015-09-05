@@ -27,11 +27,11 @@ ui.toolarea = {
 		ui.misc.walker(parent, function(el){
 			if(el.nodeType===1){
 				/* ボタン領域 */
-				var role = ui.customAttr(el,"buttonExec");
+				var role = el.dataset.buttonExec;
 				if(!!role){
 					pzpr.util.addEvent(el, "click", toolarea, toolarea[role]);
 				}
-				role = ui.customAttr(el,"pressExec");
+				role = el.dataset.pressExec;
 				if(!!role){
 					var roles = role.split(/,/);
 					pzpr.util.addEvent(el, "mousedown", toolarea, toolarea[roles[0]]);

@@ -42,7 +42,7 @@ ui.menuarea = {
 		ui.misc.walker(parent, function(el){
 			if(el.nodeType===1 && el.nodeName==="LI"){
 				var setevent = false;
-				var idname = ui.customAttr(el,"config");
+				var idname = el.dataset.config;
 				if(!!idname){
 					menuarea.menuitem[idname] = {el:el};
 					if(el.className==="check"){
@@ -50,9 +50,9 @@ ui.menuarea = {
 						setevent = true;
 					}
 				}
-				var value = ui.customAttr(el,"value");
+				var value = el.dataset.value;
 				if(!!value){
-					var parent = el.parentNode.parentNode, idname = ui.customAttr(parent,"config");
+					var parent = el.parentNode.parentNode, idname = parent.dataset.config;
 					var item = menuarea.menuitem[idname];
 					if(!item.children){ item.children=[];}
 					item.children.push(el);
@@ -61,12 +61,12 @@ ui.menuarea = {
 					setevent = true;
 				}
 				
-				var role = ui.customAttr(el,"menuExec");
+				var role = el.dataset.menuExec;
 				if(!!role){
 					addmdevent(el, mdfactory(role));
 					setevent = true;
 				}
-				role = ui.customAttr(el,"pressExec");
+				role = el.dataset.pressExec;
 				if(!!role){
 					var roles = role.split(/,/);
 					addmdevent(el, mdfactory(roles[0]));
@@ -75,7 +75,7 @@ ui.menuarea = {
 					}
 					setevent = true;
 				}
-				role = ui.customAttr(el,"popup");
+				role = el.dataset.popup;
 				if(!!role){
 					addmdevent(el, mdfactory("disppopup"));
 					setevent = true;
@@ -109,7 +109,7 @@ ui.menuarea = {
 	walkElement2 : function(parent){
 		ui.misc.walker(parent, function(el){
 			if(el.nodeType===1 && el.nodeName==="SPAN"){
-				var disppid = ui.customAttr(el,"dispPid");
+				var disppid = el.dataset.dispPid;
 				if(!!disppid){ el.style.display = (pzpr.util.checkpid(disppid, ui.puzzle.pid) ? "" : "none");}
 			}
 		});
@@ -193,7 +193,7 @@ ui.menuarea = {
 			if(!!menuitem.children){
 				var children = menuitem.children;
 				for(var i=0;i<children.length;i++){
-					var child = children[i], selected = (ui.customAttr(child,"value")===""+ui.getConfig(idname));
+					var child = children[i], selected = (child.dataset.value===""+ui.getConfig(idname));
 					child.className = (selected ? "checked" : "");
 				}
 			}
@@ -215,7 +215,7 @@ ui.menuarea = {
 		var el = e.target;
 		if(el.nodeName==="SPAN"){ el = el.parentNode;}
 		
-		var idname = ui.customAttr(el,"config");
+		var idname = el.dataset.config;
 		ui.setConfig(idname, !ui.getConfig(idname));
 	},
 	childclick : function(e){
@@ -223,7 +223,7 @@ ui.menuarea = {
 		if(el.nodeName==="SPAN"){ el = el.parentNode;}
 		
 		var parent = el.parentNode.parentNode;
-		ui.setConfig(ui.customAttr(parent,"config"), ui.customAttr(el,"value"));
+		ui.setConfig(parent.dataset.config, el.dataset.value);
 	},
 
 	//---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ ui.menuarea = {
 		var el = e.target;
 		if(el.nodeName==="SPAN"){ el = el.parentNode;}
 		if(el.className!=="disabled"){
-			var idname = ui.customAttr(el,"popup");
+			var idname = el.dataset.popup;
 			var pos = pzpr.util.getPagePos(e);
 			ui.popupmgr.open(idname, pos.px-8, pos.py-8);
 			this.stopHovering();
