@@ -72,7 +72,9 @@ module.exports = function(grunt){
         src: [
           '*.js',
           'src/js/*.js',
-          'src/js/ui/*.js'
+          'src/js/ui/*.js',
+          'src/popup/*.js',
+          'src/popup/*.html'
         ]
       }
     }

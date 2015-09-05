@@ -1,0 +1,87 @@
+@charset "UTF-8" ;
+
+	body {
+		margin  : 0pt;
+		padding : 0pt;
+		color : black;
+		font-size   : 1.0em;
+		line-height : 120%;
+		font-family: 'MS PGothic';
+		background-color:#efefef;
+	}
+	input, button, select, textarea{ font-size:1.0em; line-height:1;}
+	input[type="button"], button { font-size:0.9em; line-height:1.2;}
+	input[type="checkbox"] { width:0.9em; height:0.9em;}
+
+	#main {
+		display:inline-block;
+		padding:12px;
+	}
+
+	.btn {
+		display : inline;
+		margin  : 2pt;
+		padding : 2pt 4pt 2pt 4pt;
+		border-radius : 4pt;
+		border        : solid 1pt gray;
+		
+		background     : silver;
+		background     : linear-gradient(to bottom, white, silver);
+		text-align     : center;
+		vertical-align : middle;
+		font   : 90%/1.2 sans-serif;
+		cursor : default;
+	}
+	.btn:active {
+		background : #afafaf;
+		background : linear-gradient(to bottom, #afafaf, #cccccc);
+	}
+	
+	.btn-ok {
+		background : blue;
+		background : linear-gradient(to bottom, #afafff, blue);
+		color : white;
+	}
+	.btn-ok:active {
+		background : navy;
+		background : linear-gradient(to bottom, navy, blue);
+	}
+	
+	.btn-info {
+		background : #993366;
+		background : linear-gradient(to bottom, #cc6699, #993366);
+		color : white;
+	}
+	.btn-info:active {
+		background : #66334f;
+		background : linear-gradient(to bottom, #99334f, #993366);
+	}
+	
+	.btn-warn {
+		background : yellow;
+		background : linear-gradient(to bottom, yellow, #cccc00);
+	}
+	.btn-warn:active {
+		background : #999900;
+		background : linear-gradient(to bottom, #999900, #cccc00);
+	}
+	
+	.btn-danger {
+		background : red;
+		background : linear-gradient(to bottom, #ffafaf, red);
+		color:white;
+	}
+	.btn-danger:active {
+		background : #cc0000;
+		background : linear-gradient(to bottom, #cc0000, red);
+	}
+
+	/* cw=32, margin=2, width&height=cw+(margin*2)=36 */
+	#nb_shape_tawa { margin-top:4pt; margin-bottom:4pt;}
+	#nb_shape_tawa tr  { padding-bottom:2pt;}
+	#nb_shape_tawa div { display:block; position:relative; width:36px; height:36px;}
+	#nb_shape_tawa img { position:absolute; margin:2px; width:128px; height:32px; top:0px;}
+	#nb_shape_tawa #nb_shape_0 img { left:-0px; clip:rect(0px,32px,32px,0px);}
+	#nb_shape_tawa #nb_shape_1 img { left:-32px;clip:rect(0px,64px,32px,32px);}
+	#nb_shape_tawa #nb_shape_2 img { left:-64px;clip:rect(0px,96px,32px,64px);}
+	#nb_shape_tawa #nb_shape_3 img { left:-96px;clip:rect(0px,128px,32px,96px);}

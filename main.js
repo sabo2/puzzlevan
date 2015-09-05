@@ -19,6 +19,16 @@ var puzzleWindows = {
 		if(idx>=0){ this.list.splice(idx,1);}
 	}
 };
+var utilWindows = {
+	list : [],
+	add : function(w){
+		this.list.push(w);
+	},
+	remove : function(w){
+		var idx = this.list.indexOf(w);
+		if(idx>=0){ this.list.splice(idx,1);}
+	}
+};
 
 var pzprversion = '';
 var latest_pid = '';
@@ -54,9 +64,9 @@ ipc.on('open-local', function(e, localurl){
 	}
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
 	openpos.modify();
-	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(localurl);
-	puzzleWindows.add(win); // reference
+	utilWindows.add(win); // reference
 });
 ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
 ipc.on('write-file', function(e, data, pid){
@@ -122,10 +132,11 @@ function toggleDevTool() {
 }
 
 function openExplain(){
-	var win = new BrowserWindow({width: 600, height: 600});
-	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
+	openpos.modify();
+	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
-	puzzleWindows.add(win); // reference
+	utilWindows.add(win); // reference
 }
 function versionInfo(){
 	var msg = [
@@ -139,6 +150,31 @@ function versionInfo(){
 	var option = {type:'none', message:msg, buttons:['OK']};
 	require('dialog').showMessageBox(option);
 }
+
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+function openPopupWindow(url){
+	var focusedWindow = BrowserWindow.getFocusedWindow(), x = 24, y = 24;
+	if(!!focusedWindow){
+		var bounds = focusedWindow.getBounds();
+		x = bounds.x + 24;
+		y = bounds.y + 24;
+	}
+	var win = new BrowserWindow({x, y, width:360, height:360, frame:false, 'always-on-top':true});
+	win.on('closed', function(){ utilWindows.remove(win);}); // reference
+	win.loadUrl(srcdir+'popups/'+url);
+	utilWindows.add(win); // reference
+}
+function popupNewBoard(){
+	if(!latest_pid){ return;}
+	openPopupWindow('newboard.html?'+latest_pid);
+}
+function popupURLImport(){
+	openPopupWindow('urlinput.html');
+}
+
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 function setMenu(){
 	var template = (process.platform==='darwin' ? [
@@ -156,11 +192,15 @@ function setMenu(){
 			{ label:'Quit Puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
 		]},
 		{ label:'File', submenu: [
+			{ label:'New Board',       accelerator:'Cmd+N', click:popupNewBoard},
+			{ type: 'separator'},
 			{ label:'Open File',       accelerator:'Cmd+O', click:openFile},
 			{ label:'Save File As...', submenu:[
 				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
 				{ label:'pencilbox format (text)',             click:saveKanpen},
 			]},
+			{ type: 'separator'},
+			{ label:'URL Import',                           click:popupURLImport},
 			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
@@ -185,6 +225,7 @@ function setMenu(){
 		]},
 	] : [ /* Windows, Linux */
 		{ label:'&File', submenu: [
+			{ label:'&New Board',    accelerator:'Ctrl+N', click:popupNewBoard},
 			{ label:'&Open File',    accelerator:'Ctrl+O', click:openFile},
 			{ label:'&Save File As...', submenu:[
 				{ label:'&PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},

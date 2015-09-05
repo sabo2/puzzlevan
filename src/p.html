@@ -15,8 +15,6 @@
 <div id="menuboard" class="outofboard">
   <menu id="menupanel" style="display:none;">
    <li><span>__ファイル__File__</span><menu label="__ファイル__File__">
-     <li data-popup="newboard"><span>__新規作成__New Board__</span></li>
-     <li data-popup="urlinput"><span>__URL入力__Import from URL__</span></li>
      <li data-popup="urloutput"><span>__URL出力__Export URL__</span></li>
      <hr>
      <li data-popup="imagesave" id="menu_imagesave"><span>__画像を保存__Save as image file__</span></li>
@@ -126,51 +124,6 @@
 
 <!-- ポップアップメニュー(＋キーポップアップ/for_test)用 -->
 <div id="popup_parent" class="outofboard">
-
-  <div class="popup">
-    <div class="titlebar">__盤面の新規作成__New Board__</div>
-    <form name="newboard">
-      <span>__盤面を新規作成します。__Create New Board.__</span>
-      <br />
-      <div id="nb_size">
-        <span id="nb_cols">__よこ__Cols__</span>
-        <input type="number" name="col" value="1" size=4 maxlength=3 min=1 max=999 />
-        <span id="nb_cols_tawa">__横幅 (黄色の数)__Width (Yellows)__</span>
-        <br />
-        <span id="nb_rows">__たて__Rows__</span>
-        <input type="number" name="row" value="1" size=4 maxlength=3 min=1 max=999 />
-        <span id="nb_rows_tawa">__高さ__Height__</span>
-      </div>
-      <div id="nb_size_sudoku">
-        <input type="radio" name="size" id="nb_size_sudoku_0" value="0" /> 4x4<br />
-        <input type="radio" name="size" id="nb_size_sudoku_4" value="4" /> 6x6<br />
-        <input type="radio" name="size" id="nb_size_sudoku_1" value="1" checked /> 9x9<br />
-        <input type="radio" name="size" id="nb_size_sudoku_2" value="2" /> 16x16<br />
-        <input type="radio" name="size" id="nb_size_sudoku_3" value="3" /> 25x25
-      </div>
-      <br />
-      <table id="nb_shape_tawa" border=0 cell-padding=0 cell-spaceing=2><tr>
-        <td><div id="nb_shape_0"><img src="" data-button-exec="clickshape" /></div></td>
-        <td><div id="nb_shape_1"><img src="" data-button-exec="clickshape" /></div></td>
-        <td><div id="nb_shape_2"><img src="" data-button-exec="clickshape" /></div></td>
-        <td><div id="nb_shape_3"><img src="" data-button-exec="clickshape" /></div></td>
-      </tr></table>
-      <button type="button" class="btn btn-ok" data-button-exec="execute">__新規作成__Create__</button>
-      <button type="button" class="btn" data-button-exec="close">__キャンセル__Cancel__</button>
-    </form>
-  </div>
-
-  <div class="popup">
-    <div class="titlebar">__URL入力__Import from URL__</div>
-    <form name="urlinput">
-      <span>__URLから問題を読み込みます。__Import a question from URL.__</span>
-      <br />
-      <textarea name="ta" cols=48 rows=8 wrap="hard"></textarea>
-      <br />
-      <button type="button" class="btn btn-ok" data-button-exec="urlinput">__読み込む__Import__</button>
-      <button type="button" class="btn" data-button-exec="close">__キャンセル__Cancel__</button>
-    </form>
-  </div>
 
   <div class="popup">
     <div class="titlebar">__URL出力__Export URL__</div>
