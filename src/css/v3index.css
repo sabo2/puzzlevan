@@ -1,10 +1,16 @@
 
 	/* commmon */
 	body {
-		background:url(data:image/gif;base64,R0lGODdhEAAQAIACAMD/wPD/8CwAAAAAEAAQAAACKYQTpogKnFxbMDpa7W18yjhp1yGO1OidW5mSKFuaTyy585t0ctZ+EFAAADs=);
 		text-align:center;
 		color:black;
 		line-height:120%;
+		font-family: 'MS PGothic';
+	}
+
+	h2#title {
+		margin-top : 12pt;
+		margin-bottom: 0pt;
+		text-align : center;
 	}
 
 	p.back{ text-align:left; margin: 4pt auto 6pt 12pt;}
@@ -15,20 +21,10 @@
 	a:hover{ color:aqua}
 
 	/* for index.html, index_en.html */
-	div.main {
-		position : relative;
-		width    : 90%;
-		background-color : white;
-		margin     : auto;
-		margin-top : 24pt;
-		border : 2pt green solid;
-		text-align : center;
-	}
 	div#design1 {
-		width   : 90%;
+		width   : 98%;
 		margin  : auto;
 		margin-bottom : 12pt;
-		padding : 6pt;
 	}
 
 	menu#puztypes {
@@ -89,8 +85,8 @@
 	li.testa { color:navy; }
 	li.nigun { color:blue; }
 	li.trial { color:green;}
-	li.omopa { color:gray; }
-	li.orig  { color:#afafaf; }
+	li.omopa { color:#00cc00; }
+	li.orig  { color:red; }
 	li.genre { color:red; }
 	td.lists { padding:4pt 0pt 12pt 4pt; vertical-align:top; width:34%;}
 	td.blocks  { background-color:#ffdfdf;}
@@ -100,6 +96,7 @@
 	td.numbers { background-color:#dfdfdf;}
 	td.pics    { background-color:#efefef;}
 	td.others  { background-color:#ffffcc;}
+	td.infotbl { background-color:#f8f8f8;}
 
 	input, button, textarea, select{
 		font-size : 0.9em;
@@ -141,6 +138,35 @@
 	.btn-info:active {
 		background : #66334f;
 		background : linear-gradient(to bottom, #66334f, #993366);
+	}
+
+	tr.accordion {
+		width : 100%;
+		cursor: pointer;
+	}
+	tr.accordion td {
+		padding : 4px;
+		font-weight : 900;
+	}
+	span.triangle-open {
+		display:inline-block;
+		margin-left: 2px;
+		margin-right: 4px;
+		width:0;
+		height:0;
+		border-left:6px solid transparent;
+		border-right:6px solid transparent;
+		border-top:12px solid black;
+	}
+	span.triangle-close {
+		display:inline-block;
+		margin-left: 2px;
+		margin-right: 4px;
+		width:0;
+		height:0;
+		border-top:6px solid transparent;
+		border-bottom:6px solid transparent;
+		border-left:12px solid gray;
 	}
 
 	/* for index_test.html */

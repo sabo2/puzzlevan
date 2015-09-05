@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="./css/sc8.css" type="text/css" />
 <script type="text/javascript" src="./js/lib/pzpr.js"></script>
 <script type="text/javascript" src="./js/pzpr-ui.js"></script>
-<TITLE>ぱずぷれv3</TITLE>
+<TITLE>puzzlevan</TITLE>
 </HEAD>
 
 <BODY>
@@ -107,10 +107,6 @@
        <li class="child" data-value="ja"><span>日本語</span></li>
        <li class="child" data-value="en"><span>English</span></li>
      </menu></li>
-   </menu></li>
-   <li><span>__その他__Others__</span><menu label="__その他__Others__">
-     <li data-popup="credit"><span>__ぱずぷれv3について__About PUZ-PRE v3__</span></li>
-     <li data-menu-exec="jumpexp"><span>__操作説明__How to Input__</span></li>
    </menu></li>
   </menu>
   <div id="usepanel" style="display:none;">
@@ -290,10 +286,8 @@
     <div class="titlebar">__URL出力__Export URL__</div>
     <form name="urloutput">
       <button type="button" class="btn" data-button-exec="urloutput" name="pzprv3" >__ぱずぷれv3のURLを出力する__Output PUZ-PRE v3 URL__</button><br />
- <!-- <button type="button" class="btn" data-button-exec="urloutput" name="pzprapp">__ぱずぷれ(アプレット)のURLを出力する__Output PUZ-PRE(JavaApplet) URL__</button><br /> -->
       <button type="button" class="btn" data-button-exec="urloutput" name="kanpen" >__カンペンのURLを出力する__Output Kanpen URL__</button><br />
       <button type="button" class="btn" data-button-exec="urloutput" name="heyaapp">__へやわけアプレットのURLを出力する__Output Heyawake-Applet URL__</button><br />
-      <button type="button" class="btn" data-button-exec="urloutput" name="pzprv3e">__ぱずぷれv3の再編集用URLを出力する__Output PUZ-PRE v3 Re-Edit URL__</button><br />
       <br />
       <textarea name="ta" cols=48 rows=8 wrap="hard" readonly></textarea>
       <br />
@@ -387,18 +381,6 @@
       <button type="button" class="btn btn-warn" data-color-target="qanscolor" data-button-exec="clearcolor">__クリア__Reset__</button>
       <br />
       <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
-    </form>
-  </div>
-
-  <div class="popup" id="credit3_1">
-    <div class="titlebar">credit</div>
-    <form name="credit">
-      <span>__ぱずぷれv3__PUZ-PRE v3__</span> <%= pkg.version %>
-      <br />
-      <br />
-      <span>__ぱずぷれv3は はっぱ/連続発破が作成しています。__PUZ-PRE v3 is made by happa.__</span>
-      <br />
-      <button type="button" class="btn btn-ok" data-button-exec="close">OK</button>
     </form>
   </div>
 

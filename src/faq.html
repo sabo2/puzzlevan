@@ -262,7 +262,7 @@
    <hr>
    <h4>[Other] menu</h4>
    <dl>
-    <dt>About PUZ-PRE v3</dt><dd>Show credit and version.</dd>
+    <dt>About Puzzlevan</dt><dd>Show credit and version.</dd>
     <dt>How to Use</dt><dd>Open this page.</dd>
    </dl>
   </td>
@@ -312,7 +312,7 @@ function onload_func_FAQ(){
 		PLAYER = true;
 	}
 
-	if(!EDITOR && !PLAYER){
+	if(!puzzleid || (!EDITOR && !PLAYER)){
 		removeEL('puzmenu_expression');
 		removeEL('table_expression');
 		v3index.reset_func();
@@ -332,11 +332,11 @@ function onload_func_FAQ(){
 }
 
 function dispExpression(){
-	var title = {ja:"ぱずぷれv3 操作方法", en:"PUZ-PRE v3 - How to Input"}[langcode];
+	var title = {ja:"Puzzlevan 操作方法", en:"Puzzlevan - How to Input"}[langcode];
 	document.title = title;
 	setText("title", title);
 
-	if(EDITOR || PLAYER){
+	if(!!puzzleid && (EDITOR || PLAYER)){
 		document.getElementById('pzlname').innerHTML = pzpr.variety.info[puzzleid][langcode]
 										+ {ja:"の操作方法", en:" - How to Input"}[langcode];
 

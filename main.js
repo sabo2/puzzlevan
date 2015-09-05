@@ -20,6 +20,7 @@ var puzzleWindows = {
 	}
 };
 
+var pzprversion = '';
 var latest_pid = '';
 
 function newPuzzleWindow(data, pid){
@@ -43,6 +44,7 @@ function openMainWindow(){
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
 
+// IPCs from puzzle Windows
 ipc.on('open-puzzle', function(e, data){ newPuzzleWindow(data, latest_pid);});
 ipc.on('open-local', function(e, localurl){
 	if(!localurl.match(/^data\:/)){
@@ -62,6 +64,9 @@ ipc.on('write-file', function(e, data, pid){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
 });
+
+// IPCs from main Window
+ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -113,12 +118,31 @@ function toggleDevTool() {
 	if(focusedWindow){ focusedWindow.toggleDevTools();}
 }
 
+function openExplain(){
+	var win = new BrowserWindow({width: 600, height: 600});
+	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
+	puzzleWindows.add(win); // reference
+}
+function versionInfo(){
+	var msg = [
+		'Puzzlevan v'+app.getVersion(),
+		'Puzzlevan is made by sabo2.',
+		'',
+		'This application is based on:',
+		'Electron v'+process.versions.electron+' (Chromium v'+process.versions.chrome+')',
+		'PUZ-PRE v'+pzprversion
+	].join('\n');
+	var option = {type:'none', message:msg, buttons:['OK']};
+	require('dialog').showMessageBox(option);
+}
+
 function setMenu(){
 	var template = (process.platform==='darwin' ? [
 		{ label:'puzzlevan', submenu: [
 			{ label:'About puzzlevan', selector: 'orderFrontStandardAboutPanel:'},
 			{ type: 'separator'},
-			{ label:'Open Main Window', accelerator:'Cmd+I', click:openMainWindow},
+			{ label:'Open Puzzle List', accelerator:'Cmd+L', click:openMainWindow},
 			{ type: 'separator'},
 			{ label:'Services', submenu:[]},
 			{ type: 'separator'},
@@ -152,7 +176,10 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Bring All to Front', selector:'arrangeInFront:'},
 		]},
-		{ label:'Help', submenu: [] },
+		{ label:'Help', submenu: [
+			{ label:'About Puzzlevan', click:versionInfo},
+			{ label:'How to Input',    click:openExplain},
+		]},
 	] : [ /* Windows, Linux */
 		{ label:'&File', submenu: [
 			{ label:'&Open File',    accelerator:'Ctrl+O', click:openFile},
@@ -163,7 +190,7 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'&Close Window', accelerator:'Ctrl+W', click:closeFocusedWindow},
 			{ type: 'separator'},
-			{ label:'Open &Main Window', accelerator:'Ctrl+I', click:openMainWindow},
+			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},
 			{ label:'&Quit puzzlevan',                     click:function(){ app.quit();}},
 		]},
@@ -180,7 +207,10 @@ function setMenu(){
 			{ label:'&Reload',          accelerator:'Ctrl+R', click:reloadFocusedWindow},
 			{ label:'Toggle &DevTools', accelerator:'F12',    click:toggleDevTool},
 		]},
-		{ label:'&Help', submenu: [] },
+		{ label:'Help', submenu: [
+			{ label:'About Puzzlevan', click:versionInfo},
+			{ label:'How to Input',    click:openExplain},
+		]},
 	]);
 	
 	var menu = appmenu.buildFromTemplate(template);

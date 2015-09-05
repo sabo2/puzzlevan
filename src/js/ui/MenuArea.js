@@ -250,10 +250,6 @@ ui.menuarea = {
 		ui.puzzle.adjustCanvasPos();
 	},
 	repaint : function(){ ui.puzzle.redraw();},
-	jumpexp : function(){
-		ui.saveConfig();	/* faq.htmlで言語設定を使用するので、一旦Config値を保存 */
-		ui.misc.openlocal('faq.html?'+ui.puzzle.pid+(pzpr.EDITOR?"_edit":""));
-	},
 	disppopup : function(e){
 		var el = e.target;
 		if(el.nodeName==="SPAN"){ el = el.parentNode;}

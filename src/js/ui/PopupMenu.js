@@ -312,7 +312,7 @@ ui.popupmgr.addpopup('urloutput',
 	
 	setFormEvent : function(){
 		var form = this.form, pid = ui.puzzle.pid, exists = pzpr.variety.info[pid].exists;
-		// form.pzprapp.style.display = form.pzprapp.nextSibling.style.display = (exists.pzprapp ? "" : "none");
+		
 		form.kanpen.style.display  = form.kanpen.nextSibling.style.display  = (exists.kanpen ? "" : "none");
 		form.heyaapp.style.display = form.heyaapp.nextSibling.style.display = ((pid==="heyawake") ? "" : "none");
 	},
@@ -325,9 +325,7 @@ ui.popupmgr.addpopup('urloutput',
 		var url = '', parser = pzpr.parser;
 		switch(e.target.name){
 			case "pzprv3":     url = ui.puzzle.getURL(parser.URL_PZPRV3);  break;
-			// case "pzprapp": url = ui.puzzle.getURL(parser.URL_PZPRAPP); break;
 			case "kanpen":     url = ui.puzzle.getURL(parser.URL_KANPEN);  break;
-			case "pzprv3e":    url = ui.puzzle.getURL(parser.URL_PZPRV3E); break;
 			case "heyaapp":    url = ui.puzzle.getURL(parser.URL_HEYAAPP); break;
 		}
 		this.form.ta.value = url;
@@ -535,12 +533,4 @@ ui.popupmgr.addpopup('dispsize',
 		if(csize>0){ ui.menuconfig.set('cellsizeval', (csize|0));}
 		this.close();
 	}
-});
-
-//---------------------------------------------------------------------------
-// ★Popup_Creditクラス Creditやバージョン情報を表示します
-//---------------------------------------------------------------------------
-ui.popupmgr.addpopup('credit',
-{
-	formname : 'credit'
 });

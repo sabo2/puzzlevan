@@ -5,6 +5,7 @@
 		padding : 0pt;
 		color : black;
 		line-height : 120%;
+		font-family: 'MS PGothic';
 	}
 
 	/* 盤面外の表示部分(管理領域・メニュー・ポップアップ・ボタン) */
@@ -77,7 +78,8 @@
 	div#menuboard{
 		width     : 100%;
 		margin-bottom : 4pt;
-		border : 1px red solid;
+		border-top    : 1px red solid;
+		border-bottom : 1px red solid;
 		text-align : left;
 	}
 
@@ -94,21 +96,18 @@
 
 	/* パズル表示部 */
 	div#quesboard {
-		margin-top : 8pt;
 		text-align : left;
 	}
 	div#divques {
 		display:inline-block;
 		position:relative;
-		border:solid 1px gray;
+		/* border:solid 1px gray; */
 		cursor:default;
 		margin:4pt;
 		padding:8px;
 	}
 	div#btnarea {
 		position : relative;
-		margin:4pt;
-		margin-top : 1.0em;
 		padding-left:8px;
 		padding-right:8px;
 	}

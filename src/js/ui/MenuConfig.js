@@ -24,7 +24,7 @@ ui.menuconfig = {
 
 		this.add('adjsize', true);							/* 自動横幅調節 */
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
-		this.add('fullwidth', (ui.windowWidth()<600));		/* キャンバスを横幅いっぱいに広げる */
+		this.add('fullwidth', false);						/* キャンバスを横幅いっぱいに広げる */
 		
 		this.add('toolarea', 0, [0,1]);						/* ツールエリアの表示 */
 	},

@@ -5,7 +5,7 @@
 var v3index = {
 	typelist : [],
 	current  : '',
-	doclang  : (!location.href.match("index_en.html")?"ja":"en"),
+	doclang  : 'ja',
 	complete : false,
 	captions : [],
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
@@ -34,37 +34,18 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
+		// self.doclang = pzpr.util.getUserLang();
 		if(!self.current){
-			if(!window.pzprfaq && !self.input_init()){
-				var el = getEL("puzmenu_input");
-				el.parentNode.removeChild(el);
-				getEL("table_input").style.display = 'none';
-			}
-
-			var el = getEL("puztypes").firstChild;
-			while(!!el){
-				if(!!el.tagName && el.tagName.toLowerCase()==='li' &&
-				   !!el.id      && el.id.match(/puzmenu_(.+)$/)){
-					var typename = RegExp.$1;
-					typelist.push(typename);
-					self.addEvent(el,"click",self.click_tab);
-					if(el.className==="puzmenusel"){ self.current = typename;}
-				}
-				el = el.nextSibling;
-			}
-			if(!self.current && typelist.length>0){ self.current = typelist[0];}
-			getEL("puztypes").style.display = "block";
-
-			// self.setTranslation();
+			self.input_init();
+			self.setTabEvent();
+			self.setTranslation();
+			self.setAccordion();
+			require('ipc').send('pzpr-version', pzpr.version);
 		}
 		self.disp();
 	},
 	input_init : function(){
-		var cnt=0;
-		if(self.urlif.init()) { cnt++;}
-		if(self.fileif.init()){ cnt++;}
-
-		return (cnt>0);
+		return +self.urlif.init();
 	},
 
 	reset_func : function(){
@@ -86,47 +67,83 @@ v3index.extend({
 			var table = getEL("table_"+typelist[i]);
 			if(typelist[i]===self.current){
 				el.className = "puzmenusel";
-				try     { table.style.display = 'table';}
-				catch(e){ table.style.display = 'block';} //IE raises error
+				table.style.display = 'table';
 			}
 			else{
 				el.className = "puzmenu";
 				table.style.display = 'none';
 			}
 		}
-		// self.translate();
+		self.translate();
 	},
 
 	/* open new puzzle window as Electron manner */
 	openpuzzle : function(data){
 		require('ipc').send('open-puzzle', data);
-	}
+	},
 
-//	もし各パズルへのリンクのキャプションんを自動生成したくなったら以下を有効にする
-//	setTranslation : function(){
-//		var tables = [_doc.getElementById("table_all"),
-//					  _doc.getElementById("table_lunch"),
-//					  _doc.getElementById("table_nigun"),
-//					  _doc.getElementById("table_omopa"),
-//					  _doc.getElementById("table_other")];
-//		for(var i=0;i<tables.length;i++){
-//			if(!tables[i]){ continue;}
-//			ui.misc.walker(tables[i], function(el){
-//				if(el.nodeType===1 && el.nodeName==="LI"){
-//					var href = el.firstChild.href;
-//					var pid  = pzpr.variety.toPID(href.substr(href.indexOf("?")+1));
-//					self.captions.push({textnode:el.firstChild.firstChild, str_jp:pzpr.variety.info[pid].ja, str_en:pzpr.variety.info[pid].en});
-//				}
-//			});
-//		}
-//	},
-//	translate : function(){
-//		/* キャプションの設定 */
-//		for(var i=0;i<this.captions.length;i++){
-//			var obj = this.captions[i];
-//			if(!!obj.textnode) { obj.textnode.data = (self.doclang==="ja" ? obj.str_jp : obj.str_en);}
-//		}
-//	}
+	setTabEvent : function(){
+		if(!getEL("puztypes")){
+			getEL("table_all").style.display = "table";
+			return;
+		}
+		var el = getEL("puztypes").firstChild;
+		while(!!el){
+			if(!!el.tagName && el.tagName.toLowerCase()==='li' &&
+				!!el.id      && el.id.match(/puzmenu_(.+)$/)){
+				var typename = RegExp.$1;
+				typelist.push(typename);
+				self.addEvent(el,"click",self.click_tab);
+				if(el.className==="puzmenusel"){ self.current = typename;}
+			}
+			el = el.nextSibling;
+		}
+		if(!self.current && typelist.length>0){ self.current = typelist[0];}
+		getEL("puztypes").style.display = "block";
+	},
+
+	setTranslation : function(){
+		var els = [_doc.getElementById("table_all")];
+		while(els.length>0){
+			var el = els.pop();
+			if(!el){ continue;}
+			if(el.nodeType===1 && el.nodeName==="LI"){
+				var href = el.firstChild.href;
+				var pid  = pzpr.variety.toPID(href.substr(href.indexOf("?")+1));
+				self.captions.push({textnode:el.firstChild.firstChild, str_ja:pzpr.variety.info[pid].ja, str_en:pzpr.variety.info[pid].en});
+			}
+			else if(el.nodeType===3 && el.data.match(/^__(.+)__(.+)__$/)){
+				self.captions.push({textnode:el, str_ja:RegExp.$1, str_en:RegExp.$2});
+			}
+			if(!!el.nextSibling){ els.push(el.nextSibling);}
+			if(el.childNodes.length>0){ els.push(el.firstChild);}
+		}
+	},
+	translate : function(){
+		/* キャプションの設定 */
+		for(var i=0;i<this.captions.length;i++){
+			var obj = this.captions[i];
+			if(!!obj.textnode){ obj.textnode.data = obj['str_'+self.doclang];}
+		}
+	},
+
+	setAccordion : function(){
+		var trs = Array.prototype.slice.call(_doc.querySelectorAll('.accordion'));
+		trs.forEach(function(tr){
+			tr.addEventListener('click', function(e){
+				var next = tr.nextElementSibling;
+				if(next.style.display==='none'){
+					tr.querySelector('span').className = 'triangle-open';
+					next.style.display = '';
+				}
+				else{
+					tr.querySelector('span').className = 'triangle-close';
+					next.style.display = 'none';
+				}
+				e.stopPropagation();
+			}, true);
+		});
+	}
 });
 
 /* addEventListener */
@@ -156,7 +173,7 @@ function getEL(id){ return _doc.getElementById(id);}
 
 v3index.urlif.extend({
 	init : function(){
-		_form = _doc.fileform;
+		_form = _doc.urlinput;
 		if(!!_form){
 			v3index.addEvent(getEL("urlinput_btn"), "click", self.urlinput);
 			return true;
@@ -165,61 +182,6 @@ v3index.urlif.extend({
 	urlinput : function(e){
 		var url = getEL("urlinput_text").value;
 		if(!!url){ v3index.openpuzzle(url);}
-	}
-});
-
-})();
-
-/*********************/
-/* FileRead function */
-/*********************/
-(function(){
-
-var v3index = window.v3index;
-
-v3index.fileif = {
-	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
-};
-
-var _doc = document;
-var _form;
-var self = v3index.fileif;
-
-v3index.fileif.extend({
-	init : function(){
-		_form = _doc.fileform;
-		if(!!_form){
-			v3index.addEvent(_form.filebox, "change", self.fileinput);
-			return true;
-		}
-	},
-
-	fileinput : function(e){
-		var fileEL = _doc.fileform.filebox;
-		if(typeof FileReader !== 'undefined'){
-			var reader = new FileReader();
-			reader.onload = function(e){
-				self.fileonload.call(self, e.target.result);
-			};
-			reader.readAsText(fileEL.files[0]);
-		}
-		else{
-			if(!fileEL.files[0]){ return;}
-			this.fileonload(fileEL.files[0].getAsText(''));
-		}
-
-		_doc.fileform.reset();
-	},
-	fileonload : function(str){
-		if(!!str){
-			var farray = str.replace(/[\t\r]*\n/g,"\n").split(/\n/);
-			var fstr = "";
-			for(var i=0;i<farray.length;i++){
-				if(farray[i].match(/^http\:\/\//)){ break;}
-				fstr += (farray[i]+"\n");
-			}
-			v3index.openpuzzle(fstr);
-		}
 	}
 });
 
