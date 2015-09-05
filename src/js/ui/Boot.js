@@ -35,6 +35,7 @@ function startPuzzle(pzl){
 	
 	/* createPuzzle()後からopen()前に呼ぶ */
 	ui.event.onload_func();
+	puzzle.opt.cellsize = ui.menuconfig.get('cellsizeval');
 	
 	// 単体初期化処理のルーチンへ
 	puzzle.open(pzl);
