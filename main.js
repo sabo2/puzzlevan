@@ -24,7 +24,7 @@ var pzprversion = '';
 var latest_pid = '';
 
 function newPuzzleWindow(data, pid){
-	if(!data){ require('dialog').showErrorBox("puzzlevan", "No Puzzle Data Error!!"); return;}
+	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
 	var win = new BrowserWindow({width: 600, height: 600});
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
@@ -58,7 +58,7 @@ ipc.on('open-local', function(e, localurl){
 ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
 ipc.on('write-file', function(e, data, pid){
 	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
-	var option = {title:"Save File - puzzlevan", defaultPath:pid+'.txt'};
+	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.txt', filters:[{name:'Puzzle Files', extensions:['txt']}]};
 	var filename = require('dialog').showSaveDialog(focusedWindow, option);
 	if(!!filename){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
@@ -73,7 +73,7 @@ ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 //--------------------------------------------------------------------------
 function openFile(){
 	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
-	var option = {title:"Open File - puzzlevan", properties:['openFile']};
+	var option = {title:"Open File - Puzzlevan", properties:['openFile'], filters:[{name:'Puzzle Files', extensions:['txt']}]};
 	var files = require('dialog').showOpenDialog(focusedWindow, option);
 	if(!!files){
 		require('fs').readFile(files[0], {encoding:'utf8'}, function(error, data){
@@ -139,18 +139,18 @@ function versionInfo(){
 
 function setMenu(){
 	var template = (process.platform==='darwin' ? [
-		{ label:'puzzlevan', submenu: [
-			{ label:'About puzzlevan', selector: 'orderFrontStandardAboutPanel:'},
+		{ label:'Puzzlevan', submenu: [
+			{ label:'About Puzzlevan', selector: 'orderFrontStandardAboutPanel:'},
 			{ type: 'separator'},
 			{ label:'Open Puzzle List', accelerator:'Cmd+L', click:openMainWindow},
 			{ type: 'separator'},
 			{ label:'Services', submenu:[]},
 			{ type: 'separator'},
-			{ label:'Hide puzzlevan', accelerator:'Cmd+H',       selector:'hide:'},
+			{ label:'Hide Puzzlevan', accelerator:'Cmd+H',       selector:'hide:'},
 			{ label:'Hide Others',    accelerator:'Cmd+Shift+H', selector:'hideOtherApplications:'},
 			{ label:'Show All',                                  selector:'unhideAllApplications:'},
 			{ type: 'separator'},
-			{ label:'Quit puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
+			{ label:'Quit Puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
 		]},
 		{ label:'File', submenu: [
 			{ label:'Open File',       accelerator:'Cmd+O', click:openFile},
@@ -192,7 +192,7 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},
-			{ label:'&Quit puzzlevan',                     click:function(){ app.quit();}},
+			{ label:'&Quit Puzzlevan',                     click:function(){ app.quit();}},
 		]},
 		{ label:'&Edit', submenu: [
 			{ label:'&Check Answer', accelerator:'Ctrl+E', click:function(){ sendMenuReq('check');}},

@@ -88,6 +88,6 @@ ui.misc = {
 		ui.remote.require('dialog').showMessageBox(ui.win, option, onconfirm);
 	},
 	erralert : function(strJP, strEN){
-		ui.remote.require('dialog').showErrorBox("puzzlevan", ui.selectStr(strJP, strEN));
+		ui.remote.require('dialog').showErrorBox("Puzzlevan", ui.selectStr(strJP, strEN));
 	}
 };

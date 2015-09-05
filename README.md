@@ -1,6 +1,6 @@
 # Puzzlevan
 
-## About puzzlevan
+## About Puzzlevan
 
 Puzzlevan is a puzzle editor powered by [Electron][].
 

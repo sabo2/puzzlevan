@@ -1,7 +1,7 @@
 /*!
  * @license
  * 
- * puzzlevan v<%= pkg.version %>
+ * Puzzlevan v<%= pkg.version %>
  *  https://github.com/sabo2/puzzlevan
  * 
  * This script includes pzpr.js, candle.js, see below
