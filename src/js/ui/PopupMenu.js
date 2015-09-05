@@ -350,13 +350,6 @@ ui.popupmgr.addpopup('imagesave',
 		this.showsize = getEL("showsize");
 		
 		/* ファイル形式選択オプション */
-		var filetype = this.form.filetype, options = filetype.options;
-		for(var i=0;i<options.length;i++){
-			var option = options[i];
-			if(option.value==="svg" && !ui.enableSaveSVG)  { filetype.removeChild(option);}
-			if(option.value==="png" && !ui.enableSaveImage){ filetype.removeChild(option);}
-		}
-		
 		this.form.filename.value = ui.puzzle.pid+".png";
 		this.form.cellsize.value = ui.menuconfig.get('cellsizeval');
 		

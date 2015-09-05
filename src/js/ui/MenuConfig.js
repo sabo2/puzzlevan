@@ -20,7 +20,7 @@ ui.menuconfig = {
 	init : function(){
 		this.list = {};
 		
-		this.add('autocheck', pzpr.PLAYER);					/* 正解自動判定機能 */
+		this.add('autocheck', false);						/* 正解自動判定機能 */
 
 		this.add('adjsize', true);							/* 自動横幅調節 */
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */

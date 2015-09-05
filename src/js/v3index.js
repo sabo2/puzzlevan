@@ -34,7 +34,7 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
-		// self.doclang = pzpr.util.getUserLang();
+		self.doclang = pzpr.util.getUserLang();
 		if(!self.current){
 			self.input_init();
 			self.setTabEvent();

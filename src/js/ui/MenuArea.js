@@ -163,8 +163,6 @@ ui.menuarea = {
 	display : function(){
 		getEL('menupanel').style.display = "";
 		
-		getEL("menu_imagesave").className = ((ui.enableSaveImage || ui.enableSaveSVG) ? "" : "disabled");
-		
 		for(var idname in this.menuitem){ this.setdisplay(idname);}
 		this.setdisplay("operation");
 		this.setdisplay("toolarea");

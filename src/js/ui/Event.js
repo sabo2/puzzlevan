@@ -37,24 +37,20 @@ ui.event =
 	//---------------------------------------------------------------------------
 	setWindowEvents : function(){
 		// File API＋Drag&Drop APIの設定
-		if(!!ui.reader){
-			var DDhandler = function(e){
-				ui.reader.readAsText(e.dataTransfer.files[0]);
-				e.preventDefault();
-				e.stopPropagation();
-			};
-			this.addEvent(window, 'dragover', this, function(e){ e.preventDefault();}, true);
-			this.addEvent(window, 'drop', this, DDhandler, true);
-		}
+		this.addEvent(window, 'dragover', this, function(e){ e.preventDefault();}, true);
+		this.addEvent(window, 'drop', this, function(e){
+			var reader = new FileReader();
+			reader.onload = function(e){ ui.misc.openpuzzle(e.target.result);};
+			reader.readAsText(e.dataTransfer.files[0]);
+			e.preventDefault();
+			e.stopPropagation();
+		}, true);
 
 		// onBlurにイベントを割り当てる
 		this.addEvent(window, 'blur', this, this.onblur_func);
 
 		// onFocusにイベントを割り当てる
 		this.addEvent(window, 'focus', this, this.onfocus_func);
-
-		// onresizeイベントを割り当てる
-		this.addEvent(window, 'resize', this, this.onresize_func);
 
 		// onbeforeunloadイベントを割り当てる
 		this.addEvent(window, 'beforeunload', this, this.onbeforeunload_func);
@@ -71,8 +67,6 @@ ui.event =
 	// event.onunload_func() ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
 	onload_func : function(){
-		ui.initFileReadMethod();
-		
 		ui.menuconfig.init();
 		ui.restoreConfig();
 		
@@ -83,15 +77,10 @@ ui.event =
 	},
 
 	//---------------------------------------------------------------------------
-	// event.onresize_func() ウィンドウリサイズ時に呼ばれる関数
 	// event.onblur_func()   ウィンドウからフォーカスが離れた時に呼ばれる関数
 	// event.onfocus_func()  ウィンドウがフォーカスされた時に呼ばれる関数
 	// event.onbeforeunload_func()  ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
-	onresize_func : function(){
-		if(this.resizetimer){ clearTimeout(this.resizetimer);}
-		this.resizetimer = setTimeout(function(){ ui.adjustcellsize();},250);
-	},
 	onblur_func : function(){
 		ui.puzzle.key.keyreset();
 		ui.puzzle.mouse.mousereset();
@@ -101,10 +90,10 @@ ui.event =
 		require('ipc').send('update-pid', ui.puzzle.pid);
 	},
 	onbeforeunload_func : function(e){
-		if(pzpr.PLAYER || !ui.puzzle.ismodified()){ return;}
+		if(!ui.puzzle.ismodified()){ return;}
 		
-		var msg = ui.selectStr("盤面が更新されています", "The board is edited.");
-		e.returnValue = msg;
-		return msg;
+		var msg = ui.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
+		var option = {type:'question', message:msg, buttons:['Yes','No']};
+		return (e.returnValue = (ui.remote.require('dialog').showMessageBox(ui.win, option)===0));
 	}
 };

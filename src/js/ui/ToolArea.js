@@ -89,9 +89,6 @@ ui.toolarea = {
 		var mandisp  = (ui.getConfig("toolarea")!==0 ? 'block' : 'none');
 		getEL('usepanel').style.display = mandisp;
 		getEL('checkpanel').style.display = mandisp;
-		/* 経過時間の表示/非表示設定 */
-		getEL('separator2').style.display = (pzpr.PLAYER ? "" : "none");
-		getEL('timerpanel').style.display = (pzpr.PLAYER ? "block" : "none");
 		
 		for(var idname in this.items){ this.setdisplay(idname);}
 		

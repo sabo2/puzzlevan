@@ -12,8 +12,7 @@ ui.misc = {
 	displayDesign : function(){
 		var pinfo = pzpr.variety.info[ui.puzzle.pid];
 		var title = ui.selectStr(pinfo.ja, pinfo.en);
-		if(pzpr.EDITOR){ _doc.title = title + " editor - puzzlevan";}
-		else           { _doc.title = title + " player - puzzlevan";}
+		_doc.title = title + " editor - Puzzlevan";
 	},
 
 	//--------------------------------------------------------------------------------

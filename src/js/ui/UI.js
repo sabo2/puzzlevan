@@ -1,5 +1,5 @@
 // UI.js v3.4.0
-/* global ui:false, File:false */
+/* global ui:false */
 /* exported ui, _doc, getEL, createEL */
 
 /* ui.js Locals */
@@ -28,14 +28,6 @@ window.ui = {
 	menuarea  : null,
 	toolarea  : null,
 	popupmgr  : null,
-	timer     : null,
-	
-	enableGetText   : false,	// FileReader APIの旧仕様でファイルが読めるか
-	enableReadText  : false,	// HTML5 FileReader APIでファイルが読めるか
-	reader : null,				// FileReaderオブジェクト
-	
-	enableSaveImage : false,	// 画像保存(png形式)が可能か
-	enableSaveSVG   : false,	// 画像保存(SVG形式)が可能か
 	
 	enableSaveBlob  : false,	// saveBlobが使用できるか
 
@@ -164,32 +156,9 @@ window.ui = {
 	},
 
 	//----------------------------------------------------------------------
-	// ui.initFileReadMethod() ファイルアクセス関連の処理の初期化を行う
-	//----------------------------------------------------------------------
-	initFileReadMethod : function(){
-		// File Reader (あれば)の初期化処理
-		if(typeof FileReader !== 'undefined'){
-			this.reader = new FileReader();
-			this.reader.onload = function(e){ ui.misc.openpuzzle(e.target.result);};
-			this.enableReadText = true;
-		}
-		else{
-			this.reader = null;
-			this.enableGetText = (typeof FileList !== 'undefined' && typeof File.prototype.getAsText !== 'undefined');
-		}
-	},
-
-	//----------------------------------------------------------------------
 	// ui.initImageSaveMethod() 画像保存関連の処理の初期化を行う
 	//----------------------------------------------------------------------
 	initImageSaveMethod : function(puzzle){
-		if(!!puzzle.imgcanvas[0] && !!_doc.createElement('canvas').toDataURL){
-			this.enableSaveImage = true;
-		}
-		if(!!puzzle.imgcanvas[1] && !!window.btoa){
-			this.enableSaveSVG = true;
-		}
-		
 		this.enableSaveBlob = (!!window.navigator.saveBlob);
 	}
 };
