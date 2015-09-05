@@ -83,15 +83,6 @@
 		text-align : left;
 	}
 
-	/* メニューより下の管理領域 */
-	div#usepanel  { margin:8pt 0pt 0pt 6pt;}
-	div#checkpanel{ margin:4pt 0pt 6pt 16pt;}
-
-	div.child   { display:inline; cursor:pointer;}
-	div.childsel{ color:maroon; font-weight:bold; background-color:#efefef;}
-
-	div#checkpanel input[type="checkbox"]:disabled + span { color:silver;}
-
 	/* パズル表示部 */
 	div#quesboard {
 		text-align : left;

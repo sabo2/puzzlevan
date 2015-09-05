@@ -182,12 +182,6 @@ ui.menuarea = {
 			getEL('menu_redo').className   = (opemgr.enableRedo ? "" : "disabled");
 			getEL('menu_latest').className = (opemgr.enableRedo ? "" : "disabled");
 		}
-		else if(idname==="toolarea"){
-			var str;
-			if(ui.getConfig("toolarea")===0){ str = ui.selectStr("ツールエリアを表示","Show tool area");}
-			else                            { str = ui.selectStr("ツールエリアを隠す","Hide tool area");}
-			getEL('menu_toolarea').childNodes[0].data = str;
-		}
 		else if(this.menuitem===null || !this.menuitem[idname]){
 			/* DO NOTHING */
 		}
@@ -242,11 +236,6 @@ ui.menuarea = {
 	redo     : function(){ ui.undotimer.startButtonRedo();},
 	redostop : function(){ ui.undotimer.stopButtonRedo();},
 	redoall  : function(){ ui.puzzle.redoall();},
-	toolarea : function(){
-		ui.setConfig("toolarea", (ui.getConfig("toolarea")===0?1:0));
-		ui.displayAll();
-		ui.puzzle.adjustCanvasPos();
-	},
 	repaint : function(){ ui.puzzle.redraw();},
 	disppopup : function(e){
 		var el = e.target;

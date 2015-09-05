@@ -13,11 +13,8 @@ ui.toolarea = {
 	reset : function(){
 		if(this.items===null){
 			this.items = {};
-			this.walkElement(getEL("usepanel"));
-			this.walkElement(getEL("checkpanel"));
 			this.walkElement(getEL('btnarea'));
 		}
-		this.walkElement2(getEL("checkpanel"));
 		
 		this.display();
 	},
@@ -29,26 +26,6 @@ ui.toolarea = {
 		var toolarea = this;
 		ui.misc.walker(parent, function(el){
 			if(el.nodeType===1){
-				/* ツールパネル領域 */
-				if(el.className==="config"){
-					toolarea.items[ui.customAttr(el,"config")] = {el:el};
-				}
-				else if(el.className.match(/child/)){
-					var parent = el.parentNode, idname = ui.customAttr(parent,"config");
-					var item = toolarea.items[idname];
-					if(!item.children){ item.children=[];}
-					item.children.push(el);
-					
-					pzpr.util.addEvent(el, "mousedown", toolarea, toolarea.toolclick);
-				}
-				else if(el.nodeName==="INPUT" && el.type==="checkbox"){
-					var parent = el.parentNode, idname = ui.customAttr(parent,"config");
-					if(!idname){ return;}
-					toolarea.items[idname].checkbox=el;
-					
-					pzpr.util.addEvent(el, "click", toolarea, toolarea.toolclick);
-				}
-				
 				/* ボタン領域 */
 				var role = ui.customAttr(el,"buttonExec");
 				if(!!role){
@@ -70,28 +47,12 @@ ui.toolarea = {
 			}
 		});
 	},
-	walkElement2 : function(parent){
-		ui.misc.walker(parent, function(el){
-			if(el.nodeType===1 && el.nodeName==="SPAN"){
-				var disppid = ui.customAttr(el,"dispPid");
-				if(!!disppid){ el.style.display = (pzpr.util.checkpid(disppid, ui.puzzle.pid) ? "" : "none");}
-			}
-		});
-	},
 	
 	//---------------------------------------------------------------------------
 	// toolarea.display()    全てのラベルに対して文字列を設定する
 	// toolarea.setdisplay() 管理パネルに表示する文字列を個別に設定する
 	//---------------------------------------------------------------------------
 	display : function(){
-		/* ツールパネル領域 */
-		/* -------------- */
-		var mandisp  = (ui.getConfig("toolarea")!==0 ? 'block' : 'none');
-		getEL('usepanel').style.display = mandisp;
-		getEL('checkpanel').style.display = mandisp;
-		
-		for(var idname in this.items){ this.setdisplay(idname);}
-		
 		/* ボタン領域 */
 		/* --------- */
 		getEL('btnarea').style.display = "";
@@ -117,49 +78,9 @@ ui.toolarea = {
 			getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
 			getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
 		}
-		else if(this.items===null || !this.items[idname]){
-			/* DO NOTHING */
+		else if((idname==="disptype_pipelinkr") && !!getEL('btncircle')){
+			getEL('btncircle').innerHTML = ((ui.getConfig(idname)===1)?"○":"■");
 		}
-		else if(ui.validConfig(idname)){
-			var toolitem = this.items[idname];
-			toolitem.el.style.display = "";
-			
-			/* 子要素の設定を行う */
-			if(!!toolitem.children){
-				var children = toolitem.children;
-				for(var i=0;i<children.length;i++){
-					var child = children[i], selected = (ui.customAttr(child,"value")===""+ui.getConfig(idname));
-					child.className = (selected ? "child childsel" : "child");
-				}
-			}
-			/* チェックボックスの表記の設定 */
-			else if(!!toolitem.checkbox){
-				var check = toolitem.checkbox;
-				if(!!check){ check.checked = ui.getConfig(idname);}
-				
-				var disabled = null;
-				if(idname==="bgcolor") { disabled = (ui.getConfig("mode")!==3);}
-				if(disabled!==null){ toolitem.checkbox.disabled = (!disabled ? "" : "true");}
-			}
-			
-			if((idname==="disptype_pipelinkr") && !!getEL('btncircle')){
-				getEL('btncircle').innerHTML = ((ui.getConfig(idname)===1)?"○":"■");
-			}
-		}
-		else if(!!this.items[idname]){
-			this.items[idname].el.style.display = "none";
-		}
-	},
-
-	//---------------------------------------------------------------------------
-	// toolarea.toolclick()   ツールパネルの入力があった時、設定を変更する
-	//---------------------------------------------------------------------------
-	toolclick : function(e){
-		var el = e.target, parent = el.parentNode;
-		var idname = ui.customAttr(parent,"config"), value;
-		if(!!this.items[idname].checkbox){ value = !!el.checked;}
-		else                             { value = ui.customAttr(el,"value");}
-		ui.setConfig(idname, value);
 	},
 
 	//---------------------------------------------------------------------------

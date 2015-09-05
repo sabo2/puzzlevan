@@ -64,13 +64,6 @@ window.ui = {
 		return value;
 	},
 
-	//----------------------------------------------------------------------
-	// ui.windowWidth()   ウィンドウの幅を返す
-	//----------------------------------------------------------------------
-	windowWidth : function(){
-		return ((window.innerHeight!==void 0) ? window.innerWidth : _doc.body.clientWidth);
-	},
-
 	//---------------------------------------------------------------------------
 	// ui.adjustcellsize()  resizeイベント時に、pc.cw, pc.chのサイズを(自動)調節する
 	// ui.getBoardPadding() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
