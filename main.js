@@ -22,11 +22,13 @@ var puzzleWindows = {
 
 var pzprversion = '';
 var latest_pid = '';
+var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
 
 function newPuzzleWindow(data, pid){
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
-	var win = new BrowserWindow({width: 600, height: 600});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
+	openpos.modify();
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
 	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
 	win.loadUrl(srcdir + 'p.html');
@@ -50,7 +52,8 @@ ipc.on('open-local', function(e, localurl){
 	if(!localurl.match(/^data\:/)){
 		localurl = srcdir + localurl;
 	}
-	var win = new BrowserWindow({width: 600, height: 600});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
+	openpos.modify();
 	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
 	win.loadUrl(localurl);
 	puzzleWindows.add(win); // reference

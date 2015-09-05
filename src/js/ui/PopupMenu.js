@@ -282,7 +282,7 @@ ui.popupmgr.addpopup('newboard',
 		
 		this.close();
 		if(url.length>0){
-			ui.puzzle.open(pid+"/"+url.join('/'));
+			ui.misc.openpuzzle(pid+"/"+url.join('/'));
 		}
 	}
 });
@@ -299,7 +299,7 @@ ui.popupmgr.addpopup('urlinput',
 	//------------------------------------------------------------------------------
 	urlinput : function(){
 		this.close();
-		ui.puzzle.open(this.form.ta.value.replace(/\n/g,""));
+		ui.misc.openpuzzle(this.form.ta.value.replace(/\n/g,""));
 	}
 });
 
