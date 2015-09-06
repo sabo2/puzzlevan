@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<style>
+  span.label { display:inline-block; width:80px;}
+</style>
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	setFormEvent : function(){
+		var pid = location.search.substr(1);
+		document.adjust.turnl.disabled = (pid==='tawa');
+		document.adjust.turnr.disabled = (pid==='tawa');
+	},
+	adjust : function(e){
+		require('ipc').send('board-adjust', e.target.name);
+	}
+});
+</script>
+<title>Adjust the board</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <div class="titlebar">__盤面の調整__Board Dimension Resizer__</div>
+    <form name="adjust" style="display:inline-block;width:480px;">
+      <span>__盤面の調整・回転・反転を行います。__Adjust, flip and turn the board.__</span>
+      <br>
+      <span class="label">__拡大__Expand__</span>
+      <button type="button" class="btn" data-button-exec="adjust" name="expandup">__上__Top__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="expanddn">__下__Bottom__</button>
+      &nbsp;
+      <button type="button" class="btn" data-button-exec="adjust" name="expandlt">__左__Left__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="expandrt">__右__right__</button>
+      <br>
+      <span class="label">__縮小__Reduce__</span>
+      <button type="button" class="btn" data-button-exec="adjust" name="reduceup">__上__Top__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="reducedn">__下__Bottom__</button>
+      &nbsp;
+      <button type="button" class="btn" data-button-exec="adjust" name="reducelt">__左__Left__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="reducert">__右__right__</button>
+      <br>
+      <span class="label">__回転__Rotation__</span>
+      <button type="button" class="btn" data-button-exec="adjust" name="turnl">__左90°回転__Turn left by 90 degree__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="turnr">__右90°回転__Turn right by 90 degree__</button>
+      <br>
+      <span class="label">__反転__Flip__</span>
+      <button type="button" class="btn" data-button-exec="adjust" name="flipy">__上下反転__Flip upside down__</button>
+      <button type="button" class="btn" data-button-exec="adjust" name="flipx">__左右反転__Flip leftside right__</button>
+      <br>
+      <br>
+      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>

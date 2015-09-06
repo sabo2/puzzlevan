@@ -14,10 +14,6 @@
 
 <div id="menuboard" class="outofboard">
   <menu id="menupanel" style="display:none;">
-   <li><span>__編集__Edit__</span><menu label="__編集__Edit__">
-     <li data-popup="adjust"><span>__盤面の調整__Adjust the Board__</span></li>
-     <li data-popup="turnflip"><span>__反転・回転__Filp/Turn the Board__</span></li>
-   </menu></li>
    <li><span>__表示__Display__</span><menu label="__表示__Display__">
      <li data-config="cellsizeval"><span>__表示サイズ__Cell Size__</span> -&gt;<menu label="__表示サイズ__Cell Size__">
        <li data-popup="dispsize"><span>__数値指定__Set by Number__</span></li>
@@ -111,45 +107,6 @@
 
 <!-- ポップアップメニュー(＋キーポップアップ/for_test)用 -->
 <div id="popup_parent" class="outofboard">
-
-  <div class="popup">
-    <div class="titlebar">__盤面の調整__Board Dimension Resizer__</div>
-    <form name="adjust">
-      <span>__盤面の調整を行います。__Adjust the board.__</span>
-      <br />
-      <span>__拡大__Expand__</span>
-      <button type="button" class="btn" data-button-exec="adjust" name="expandup">__上__Top__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="expanddn">__下__Bottom__</button>
-      <span> </span>
-      <button type="button" class="btn" data-button-exec="adjust" name="expandlt">__左__Left__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="expandrt">__右__right__</button>
-      <br />
-      <span>__縮小__Reduce__</span>
-      <button type="button" class="btn" data-button-exec="adjust" name="reduceup">__上__Top__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="reducedn">__下__Bottom__</button>
-      <span> </span>
-      <button type="button" class="btn" data-button-exec="adjust" name="reducelt">__左__Left__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="reducert">__右__right__</button>
-      <br />
-      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
-    </form>
-  </div>
-
-  <div class="popup">
-    <div class="titlebar">__反転・回転__Flip/Turn the board__</div>
-    <form name="turnflip">
-      <span>__盤面の回転・反転を行います。__Flip/Turn the board.__</span>
-      <br />
-      <button type="button" class="btn" data-button-exec="adjust" name="turnl">__左90°回転__Turn left by 90 degree__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="turnr">__右90°回転__Turn right by 90 degree__</button>
-      <br />
-      <button type="button" class="btn" data-button-exec="adjust" name="flipy">__上下反転__Flip upside down__</button>
-      <button type="button" class="btn" data-button-exec="adjust" name="flipx">__左右反転__Flip leftside right__</button>
-      <br />
-      <br />
-      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
-    </form>
-  </div>
 
   <div class="popup">
     <div class="titlebar">__表示サイズの変更__Change size__</div>

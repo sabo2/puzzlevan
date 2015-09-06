@@ -15,6 +15,7 @@ var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
 var mainWindow = null;
+var focusedPuzzleWindow = null;
 var puzzleWindows = {
 	list : [],
 	add : function(win){
@@ -38,7 +39,8 @@ function openPuzzleWindow(data, pid){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
 	openpos.modify();
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
-	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	win.on('focus', function(){ focusedPuzzleWindow = win;});
+	win.on('closed', function(){ puzzleWindows.remove(win); if(focusedPuzzleWindow===win){ focusedPuzzleWindow=null;}}); // reference
 	win.loadUrl(srcdir + 'p.html');
 	puzzleWindows.add(win); // reference
 }
@@ -103,6 +105,13 @@ ipc.on('export-url', function(e, urls, pid){
 
 // IPCs from main window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
+
+// IPCs from popup window
+ipc.on('board-adjust', function(e, operation){
+	if(focusedPuzzleWindow){
+		focusedPuzzleWindow.webContents.send('menu-req', 'adjust-'+operation);
+	}
+});
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -182,6 +191,12 @@ function popupURLExport(){
 		focusedWindow.webContents.send('menu-req', 'export-url');
 	}
 }
+function popupAdjust(){
+	var focusedWindow = BrowserWindow.getFocusedWindow();
+	if(focusedWindow && focusedWindow!==mainWindow){
+		openPopupWindow('adjust.html?'+latest_pid);
+	}
+}
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -225,6 +240,8 @@ function setMenu(){
 			{ label:'Erase Answer',                      click:function(){ sendMenuReq('ansclear');}},
 			{ label:'Erase Aux.Mark',                    click:function(){ sendMenuReq('auxclear');}},
 			{ type: 'separator'},
+			{ label:'Adjust the Board',                  click:popupAdjust},
+			{ type: 'separator'},
 			{ label:'Duplicate the Board',               click:function(){ sendMenuReq('duplicate');}},
 		]},
 //		{ label:'View', submenu: [] },
@@ -266,6 +283,8 @@ function setMenu(){
 			{ label:'&Check Answer', accelerator:'Ctrl+E', click:function(){ sendMenuReq('check');}},
 			{ label:'Erase Answer',                        click:function(){ sendMenuReq('ansclear');}},
 			{ label:'Erase Aux.Mark',                      click:function(){ sendMenuReq('auxclear');}},
+			{ type: 'separator'},
+			{ label:'&Adjust the Board',                   click:popupAdjust},
 			{ type: 'separator'},
 			{ label:'&Duplicate the Board',                click:function(){ sendMenuReq('duplicate');}},
 		]},

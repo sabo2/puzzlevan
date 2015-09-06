@@ -189,35 +189,6 @@ ui.popupmgr.addpopup('template',
 });
 
 //---------------------------------------------------------------------------
-// ★Popup_Adjustクラス 盤面の調整のポップアップメニューを作成したり表示します
-//---------------------------------------------------------------------------
-ui.popupmgr.addpopup('adjust',
-{
-	formname : 'adjust',
-	
-	adjust : function(e){
-		ui.puzzle.board.exec.execadjust(e.target.name);
-	}
-});
-
-//---------------------------------------------------------------------------
-// ★Popup_TurnFlipクラス 回転・反転のポップアップメニューを作成したり表示します
-//---------------------------------------------------------------------------
-ui.popupmgr.addpopup('turnflip',
-{
-	formname : 'turnflip',
-	
-	setFormEvent : function(){
-		this.form.turnl.disabled = (ui.puzzle.pid==='tawa');
-		this.form.turnr.disabled = (ui.puzzle.pid==='tawa');
-	},
-	
-	adjust : function(e){
-		ui.puzzle.board.exec.execadjust(e.target.name);
-	}
-});
-
-//---------------------------------------------------------------------------
 // ★Popup_Colorsクラス 色の選択を行うメニューを作成したり表示します
 //---------------------------------------------------------------------------
 ui.popupmgr.addpopup('colors',

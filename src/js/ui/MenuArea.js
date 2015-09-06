@@ -209,5 +209,8 @@ require('ipc').on('menu-req', function(req){
 		case 'saveimage-svg':
 			ui.menuarea.saveiamge('svg');
 			break;
+		default:
+			if(req.match(/adjust\-(.+)/)){ ui.puzzle.board.exec.execadjust(RegExp.$1);}
+			break;
 	}
 });
