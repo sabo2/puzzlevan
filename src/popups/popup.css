@@ -8,6 +8,8 @@
 		line-height : 120%;
 		font-family: 'MS PGothic';
 		background-color:#efefef;
+		-webkit-user-select:none;
+		user-select:none;
 	}
 	input, button, select, textarea{ font-size:1.0em; line-height:1;}
 	input[type="button"], button { font-size:0.9em; line-height:1.2;}
@@ -16,6 +18,19 @@
 	#main {
 		display:inline-block;
 		padding:12px;
+	}
+
+	#textarea {
+		height:180px;
+		width:480px;
+		padding: 2px;
+		overflow-wrap:break-word;
+		word-break:break-all;
+		background-color:white;
+		border:solid 1px gray;
+		-webkit-user-select:text;
+		user-select:text;
+		box-shadow: inset 3px 3px 3px #ccc; 
 	}
 
 	.btn {

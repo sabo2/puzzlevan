@@ -53,7 +53,7 @@ function openMainWindow(){
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
-function openPopupWindow(url){
+function openPopupWindow(url, data){
 	var focusedWindow = BrowserWindow.getFocusedWindow(), x = 24, y = 24;
 	if(!!focusedWindow){
 		var bounds = focusedWindow.getBounds();
@@ -61,6 +61,7 @@ function openPopupWindow(url){
 		y = bounds.y + 24;
 	}
 	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true});
+	if(!!data){ win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data);});}
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference
@@ -95,6 +96,9 @@ ipc.on('write-file', function(e, data, pid){
 	if(!!filename){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
+});
+ipc.on('export-url', function(e, urls, pid){
+	openPopupWindow('urloutput.html?'+pid, urls);
 });
 
 // IPCs from main window
