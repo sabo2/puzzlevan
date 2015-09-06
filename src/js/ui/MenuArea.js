@@ -5,7 +5,6 @@
 ui.menuarea = {
 	captions : [],				// 言語指定を切り替えた際のキャプションを保持する
 	menuitem : null,			// メニューの設定切り替え用エレメント等を保持する
-	nohover : false,			// :hover擬似クラスを使用しないでhover表示する
 	
 	//---------------------------------------------------------------------------
 	// menuarea.reset()  メニュー、サブメニュー、フロートメニューの初期設定を行う
@@ -21,13 +20,10 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	createMenu : function(){
 		if(this.menuitem===null){
-			// this.modifySelector();
-			
 			this.menuitem = {};
 			this.walkElement(getEL("menupanel"));
 		}
 		this.walkElement2(getEL("menupanel"));
-		this.stopHovering();
 	},
 
 	//---------------------------------------------------------------------------
@@ -36,9 +32,6 @@ ui.menuarea = {
 	walkElement : function(parent){
 		var menuarea = this;
 		function addmdevent(el,func){ pzpr.util.addEvent(el, "mousedown", menuarea, func);}
-		function mdfactory(role){
-			return function(e){ menuarea[role](e); if(menuarea.nohover){ e.stopPropagation();}};
-		}
 		ui.misc.walker(parent, function(el){
 			if(el.nodeType===1 && el.nodeName==="LI"){
 				var setevent = false;
@@ -61,32 +54,15 @@ ui.menuarea = {
 					setevent = true;
 				}
 				
-				var role = el.dataset.menuExec;
+				var role = el.dataset.popup;
 				if(!!role){
-					addmdevent(el, mdfactory(role));
-					setevent = true;
-				}
-				role = el.dataset.pressExec;
-				if(!!role){
-					var roles = role.split(/,/);
-					addmdevent(el, mdfactory(roles[0]));
-					if(!!role[1]){
-						pzpr.util.addEvent(el, "mouseup", menuarea, menuarea[roles[1]]);
-					}
-					setevent = true;
-				}
-				role = el.dataset.popup;
-				if(!!role){
-					addmdevent(el, mdfactory("disppopup"));
+					addmdevent(el, menuarea.disppopup);
 					setevent = true;
 				}
 				
 				if(!setevent){
-					if(!menuarea.nohover || !el.querySelector("menu")){
+					if(!el.querySelector("menu")){
 						addmdevent(el, function(e){ e.preventDefault();});
-					}
-					else{
-						addmdevent(el, function(e){ menuarea.showHovering(e,el);});
 					}
 				}
 			}
@@ -94,9 +70,6 @@ ui.menuarea = {
 				var label = el.getAttribute("label");
 				if(!!label && label.match(/^__(.+)__(.+)__$/)){
 					menuarea.captions.push({menu:el, str_jp:RegExp.$1, str_en:RegExp.$2});
-					if(menuarea.nohover){
-						addmdevent(el, function(e){ e.stopPropagation();});
-					}
 				}
 			}
 			else if(el.nodeType===3){
@@ -114,47 +87,6 @@ ui.menuarea = {
 			}
 		});
 	},
-
-	//--------------------------------------------------------------------------------
-	// menuarea.modifySelector()  MenuAreaに関するCSSセレクタテキストを変更する (Android向け)
-	//--------------------------------------------------------------------------------
-//	modifySelector : function(){
-//		/* Android 4.0以上向け処理です */
-//		if(!pzpr.env.OS.Android || !getEL("menupanel").classList){ return;}
-//		var sheet = _doc.styleSheets[0];
-//		var rules = sheet.cssRules || sheet.rules;
-//		if(rules===null){} // Chromeでローカルファイルを開くとおかしくなるので、とりあえず何もしないようにします
-//		
-//		for(var i=0,len=rules.length;i<len;i++){
-//			var rule = rules[i];
-//			if(!rule.selectorText){ continue;}
-//			if(rule.selectorText.match(/\#menupanel.+\:hover.*/)){
-//				sheet.insertRule(rule.cssText.replace(":hover",".hovering"), i);
-//				sheet.deleteRule(i+1);
-//			}
-//		}
-//		this.nohover = true;
-//	},
-	
-	//--------------------------------------------------------------------------------
-	// menuarea.showHovering()  MenuAreaのポップアップを表示する (Android向け)
-	// menuarea.stopHovering()  MenuAreaのポップアップを消去する (Android向け)
-	//--------------------------------------------------------------------------------
-	showHovering : function(e,el0){
-		if(!this.nohover){ return;}
-		el0.classList.toggle("hovering");
-		ui.misc.walker(getEL("menupanel"), function(el){
-			if(el.nodeType===1 && !!el.classList && !el.contains(el0)){ el.classList.remove("hovering");}
-		});
-		e.preventDefault();
-		e.stopPropagation();
-	},
-	stopHovering : function(){
-		if(!this.nohover){ return;}
-		ui.misc.walker(getEL("menupanel"), function(el){
-			if(el.nodeType===1 && !!el.classList){ el.classList.remove("hovering");}
-		});
-	},
 	
 	//---------------------------------------------------------------------------
 	// menuarea.display()    全てのメニューに対して文字列を設定する
@@ -164,7 +96,6 @@ ui.menuarea = {
 		getEL('menupanel').style.display = "";
 		
 		for(var idname in this.menuitem){ this.setdisplay(idname);}
-		this.setdisplay("operation");
 		this.setdisplay("toolarea");
 		
 		/* キャプションの設定 */
@@ -175,14 +106,7 @@ ui.menuarea = {
 		}
 	},
 	setdisplay : function(idname){
-		if(idname==="operation"){
-			var opemgr = ui.puzzle.opemgr;
-			getEL('menu_oldest').className = (opemgr.enableUndo ? "" : "disabled");
-			getEL('menu_undo').className   = (opemgr.enableUndo ? "" : "disabled");
-			getEL('menu_redo').className   = (opemgr.enableRedo ? "" : "disabled");
-			getEL('menu_latest').className = (opemgr.enableRedo ? "" : "disabled");
-		}
-		else if(this.menuitem===null || !this.menuitem[idname]){
+		if(this.menuitem===null || !this.menuitem[idname]){
 			/* DO NOTHING */
 		}
 		else if(ui.validConfig(idname)){
@@ -230,13 +154,6 @@ ui.menuarea = {
 	// メニューがクリックされた時の動作を呼び出す
 	//---------------------------------------------------------------------------
 	// submenuから呼び出される関数たち
-	undo     : function(){ ui.undotimer.startButtonUndo();},
-	undostop : function(){ ui.undotimer.stopButtonUndo();},
-	undoall  : function(){ ui.puzzle.undoall();},
-	redo     : function(){ ui.undotimer.startButtonRedo();},
-	redostop : function(){ ui.undotimer.stopButtonRedo();},
-	redoall  : function(){ ui.puzzle.redoall();},
-	repaint : function(){ ui.puzzle.redraw();},
 	disppopup : function(e){
 		var el = e.target;
 		if(el.nodeName==="SPAN"){ el = el.parentNode;}
@@ -244,7 +161,6 @@ ui.menuarea = {
 			var idname = el.dataset.popup;
 			var pos = pzpr.util.getPagePos(e);
 			ui.popupmgr.open(idname, pos.px-8, pos.py-8);
-			this.stopHovering();
 		}
 	}
 };

@@ -13,7 +13,7 @@ var options = {
 	prune     : true,
 	ignore    : 'node_module|tests|dist|pack\.js|Gruntfile\.js|ignore|\.DS_Store|\.jshintrc|\.settings',
 	
-	name            : pkg.name,
+	name            : 'Puzzlevan' /* pkg.name */,
 	'app-version'   : pkg.version,
 //	icon            : ''  // not created
 	'app-bundle-id' : 'jp.pzv.puzzlevan',

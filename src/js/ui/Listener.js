@@ -138,7 +138,6 @@ ui.listener =
 	},
 	onHistoryChange : function(puzzle){
 		if(!!ui.currentpid){
-			ui.menuarea.setdisplay("operation");
 			ui.toolarea.setdisplay("operation");
 		}
 	},
