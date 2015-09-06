@@ -156,9 +156,6 @@
 	input[type="button"], button { font-size:0.9em; line-height:1.2;}
 	input[type="checkbox"] { width:0.9em; height:0.9em;}
 
-	/* (ファイル入出力用)隠しエレメント */
-	div#hidden_element { position:absolute; top: 0px; left:-10000px;}
-
 	/* ============================================================= */
 	/* メニュー領域 */
 	#menupanel {

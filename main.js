@@ -213,6 +213,11 @@ function setMenu(){
 			{ label:'Import URL',                           click:popupURLImport},
 			{ label:'Export URL',                           click:popupURLExport},
 			{ type: 'separator'},
+			{ label:'Save Image', submenu:[
+				{ label:'PNG Format (png)',                 click:function(){ sendMenuReq('saveimage-png');}},
+				{ label:'Vector Format (SVG)',              click:function(){ sendMenuReq('saveimage-svg');}},
+			]},
+			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
 		{ label:'Edit', submenu: [
@@ -245,6 +250,11 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'&Import URL',                         click:popupURLImport},
 			{ label:'&Export URL',                         click:popupURLExport},
+			{ type: 'separator'},
+			{ label:'Save Imag&e', submenu:[
+				{ label:'&PNG Format (png)',               click:function(){ sendMenuReq('saveimage-png');}},
+				{ label:'&Vector Format (SVG)',            click:function(){ sendMenuReq('saveimage-svg');}},
+			]},
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},

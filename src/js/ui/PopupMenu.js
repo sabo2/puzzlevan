@@ -1,5 +1,5 @@
 // Menu.js v3.4.0
-/* global Candle:false, ui:false, _doc:false, getEL:false */
+/* global Candle:false, ui:false, _doc:false */
 
 //---------------------------------------------------------------------------
 // ★PopupManagerクラス ポップアップメニューを管理します
@@ -185,104 +185,6 @@ ui.popupmgr.addpopup('template',
 		
 		ui.puzzle.key.enableKey = true;
 		ui.puzzle.mouse.enableMouse = true;
-	}
-});
-
-//---------------------------------------------------------------------------
-// ★Popup_ImageSaveクラス 画像出力のポップアップメニューを作成したり表示します
-//---------------------------------------------------------------------------
-ui.popupmgr.addpopup('imagesave',
-{
-	formname : 'imagesave',
-	anchor : null,
-	showsize : null,
-	setFormEvent : function(){
-		this.anchor = ((!ui.enableSaveBlob && pzpr.env.API.anchor_download) ? getEL("saveanchor") : null);
-		this.showsize = getEL("showsize");
-		
-		/* ファイル形式選択オプション */
-		this.form.filename.value = ui.puzzle.pid+".png";
-		this.form.cellsize.value = ui.menuconfig.get('cellsizeval');
-		
-		this.changefilename();
-		this.estimatesize();
-	},
-	
-	/* オーバーライド */
-	show : function(px,py){
-		ui.popupmgr.popups.template.show.call(this,px,py);
-		
-		ui.puzzle.key.enableKey = false;
-		ui.puzzle.mouse.enableMouse = false;
-	},
-	close : function(){
-		if(!!this.saveimageurl){ URL.revokeObjectURL(this.saveimageurl);}
-		
-		ui.puzzle.setCanvasSize();
-		ui.popupmgr.popups.template.close.call(this);
-	},
-	
-	changefilename : function(){
-		var filename = this.form.filename.value.replace('.png','.').replace('.svg','.');
-		this.form.filename.value = filename + (this.form.filetype.value!=='svg'?'png':'svg');
-	},
-	estimatesize : function(){
-		var cellsize = +this.form.cellsize.value;
-		var width  = (+cellsize * ui.puzzle.painter.getCanvasCols())|0;
-		var height = (+cellsize * ui.puzzle.painter.getCanvasRows())|0;
-		this.showsize.replaceChild(_doc.createTextNode(width+" x "+height), this.showsize.firstChild);
-	},
-	
-	//------------------------------------------------------------------------------
-	// saveimage()    画像をダウンロードする
-	// submitimage() "画像をダウンロード"の処理ルーチン
-	// saveimage()   "画像をダウンロード"の処理ルーチン (IE10用)
- 	//------------------------------------------------------------------------------
-	saveimageurl : null,
-	saveimage : function(){
-		/* ファイル名チェックルーチン */
-		var form = this.form;
-		var filename = form.filename.value;
-		var prohibit = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
-		for(var i=0;i<prohibit.length;i++){
-			if(filename.indexOf(prohibit[i])!==-1){ ui.misc.alert('ファイル名として使用できない文字が含まれています。'); return;}
-		}
-
-		/* 画像出力ルーチン */
-		var blob = ui.puzzle.toBlob((form.filetype.value!=='svg'?'png':'svg'), +form.cellsize.value);
-
-		/* 出力された画像の保存ルーチン */
-		if(ui.enableSaveBlob){
-			navigator.saveBlob(blob, filename);
-			this.close();
-		}
-		else{ // anchor
-			if(!!this.filesaveurl){ URL.revokeObjectURL(this.filesaveurl);}
-			this.filesaveurl = URL.createObjectURL(blob);
-			this.anchor.href = this.filesaveurl;
-			this.anchor.download = filename;
-			this.anchor.click();
-		}
-	},
-	
- 	//------------------------------------------------------------------------------
-	// openimage()   "別ウィンドウで開く"の処理ルーチン
-	//------------------------------------------------------------------------------
-	openimage : function(){
-		/* 画像出力ルーチン */
-		var cellsize = +this.form.cellsize.value;
-		var type = (this.form.filetype.value!=='svg'?'png':'svg');
-		
-		var dataurl = "";
-		try{
-			dataurl = ui.puzzle.toDataURL(type,cellsize);
-		}
-		catch(e){
-			ui.misc.alert('画像の出力に失敗しました','Fail to Output the Image');
-		}
-		
-		/* 出力された画像を開くルーチン */
-		if(!!dataurl){ ui.misc.openlocal(dataurl);}
 	}
 });
 

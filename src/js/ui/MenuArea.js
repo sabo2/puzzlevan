@@ -162,6 +162,20 @@ ui.menuarea = {
 			var pos = pzpr.util.getPagePos(e);
 			ui.popupmgr.open(idname, pos.px-8, pos.py-8);
 		}
+	},
+
+	filesaveurl : '',
+	saveiamge : function(filetype){
+		/* 画像出力ルーチン */
+		ui.remote.require('dialog').showSaveDialog(ui.win, {
+			title : "Save Image - Puzzlevan",
+			defaultPath : ui.puzzle.pid+'.'+filetype,
+			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
+		}, function(filename){
+			if(!filename){ return;}
+			var base64data = ui.puzzle.toDataURL(filetype).replace(/data\:.+\;base64\,/,'');
+			require('fs').writeFile(filename, base64data, {encoding:'base64'});
+		});
 	}
 };
 
@@ -188,6 +202,12 @@ require('ipc').on('menu-req', function(req){
 				kanpen:  ui.puzzle.getURL(parser.URL_KANPEN),
 				heyaapp: ui.puzzle.getURL(parser.URL_HEYAAPP)
 			}, pid);
+			break;
+		case 'saveimage-png':
+			ui.menuarea.saveiamge('png');
+			break;
+		case 'saveimage-svg':
+			ui.menuarea.saveiamge('svg');
 			break;
 	}
 });

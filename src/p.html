@@ -14,9 +14,6 @@
 
 <div id="menuboard" class="outofboard">
   <menu id="menupanel" style="display:none;">
-   <li><span>__ファイル__File__</span><menu label="__ファイル__File__">
-     <li data-popup="imagesave" id="menu_imagesave"><span>__画像を保存__Save as image file__</span></li>
-   </menu></li>
    <li><span>__編集__Edit__</span><menu label="__編集__Edit__">
      <li data-popup="adjust"><span>__盤面の調整__Adjust the Board__</span></li>
      <li data-popup="turnflip"><span>__反転・回転__Filp/Turn the Board__</span></li>
@@ -116,31 +113,6 @@
 <div id="popup_parent" class="outofboard">
 
   <div class="popup">
-    <div class="titlebar">__画像を保存する__Save Image__</div>
-    <form name="imagesave">
-      <input type="hidden" name="operation" value="imagesave" />
-      <input type="hidden" name="urlstr" value="" />
-      <span>__ファイル形式__File format__</span>
-      <select name="filetype" data-change-exec="changefilename">
-        <option value="png">__PNG形式 (png)__PNG Format (png)__</option>
-        <option value="svg">__ベクター画像(SVG)__Vector Image (SVG)__</option>
-      </select>
-      <br />
-      <span>__ファイル名__Filename__</span>
-      <input type="text" name="filename" value="" />
-      <br />
-      <span>__画像のサイズ__Image Size__</span>
-      <input type="number" name="cellsize" value="36" size=4 maxlength=3 min=8 max=999 data-change-exec="estimatesize" />
-      <span id="showsize">x</span>
-      <br />
-      <br />
-      <button type="button" class="btn btn-ok"   data-button-exec="saveimage">__ダウンロード__Download__</button>
-      <button type="button" class="btn btn-info" data-button-exec="openimage">__別ウィンドウで開く__Open in another window__</button>
-      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
-    </form>
-  </div>
-
-  <div class="popup">
     <div class="titlebar">__盤面の調整__Board Dimension Resizer__</div>
     <form name="adjust">
       <span>__盤面の調整を行います。__Adjust the board.__</span>
@@ -204,13 +176,6 @@
   </div>
 
 </div>
-
-<!-- 隠し要素 -->
-<div id="hidden_element">
-  <!-- ファイル保存用アンカー -->
-  <a id="saveanchor"></a>
-</div>
-<!-- ここまで -->
 
 </BODY>
 </HTML>
