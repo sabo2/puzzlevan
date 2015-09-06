@@ -8,7 +8,7 @@ var options = {
 	asar      : true,
 //	platform  : 'darwin,win32,linux',
 //	arch      : 'x64,ia32',
-	version   : '0.31.0', // version of Electron
+	version   : '0.31.2', // version of Electron
 	
 	prune     : true,
 	ignore    : 'node_module|tests|dist|pack\.js|Gruntfile\.js|ignore|\.DS_Store|\.jshintrc|\.settings',

@@ -266,5 +266,21 @@ require('ipc').on('menu-req', function(req){
 		case 'save-pbox':
 			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PBOX), pid);
 			break;
+		case 'export-url':
+			window.open('./popups/urloutput.html?'+ui.puzzle.pid,'','alwaysRaised=yes');
+			break;
 	}
 });
+
+window.addEventListener('message', function(e){
+	var parser = pzpr.parser;
+	switch(e.data){
+		case 'export-url':
+		e.source.postMessage({
+			pzprv3:  ui.puzzle.getURL(parser.URL_PZPRV3),
+			kanpen:  ui.puzzle.getURL(parser.URL_KANPEN),
+			heyaapp: ui.puzzle.getURL(parser.URL_HEYAAPP)
+		}, '*');
+		break;
+	}
+}, false);

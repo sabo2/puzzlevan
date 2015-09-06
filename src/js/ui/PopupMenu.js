@@ -189,40 +189,6 @@ ui.popupmgr.addpopup('template',
 });
 
 //---------------------------------------------------------------------------
-// ★Popup_URLOutputクラス URL出力のポップアップメニューを作成したり表示します
-//---------------------------------------------------------------------------
-ui.popupmgr.addpopup('urloutput',
-{
-	formname : 'urloutput',
-	
-	setFormEvent : function(){
-		var form = this.form, pid = ui.puzzle.pid, exists = pzpr.variety.info[pid].exists;
-		
-		form.kanpen.style.display  = form.kanpen.nextSibling.style.display  = (exists.kanpen ? "" : "none");
-		form.heyaapp.style.display = form.heyaapp.nextSibling.style.display = ((pid==="heyawake") ? "" : "none");
-	},
-	
-	//------------------------------------------------------------------------------
-	// urloutput() URLを出力する
-	// openurl()   「このURLを開く」を実行する
-	//------------------------------------------------------------------------------
-	urloutput : function(e){
-		var url = '', parser = pzpr.parser;
-		switch(e.target.name){
-			case "pzprv3":     url = ui.puzzle.getURL(parser.URL_PZPRV3);  break;
-			case "kanpen":     url = ui.puzzle.getURL(parser.URL_KANPEN);  break;
-			case "heyaapp":    url = ui.puzzle.getURL(parser.URL_HEYAAPP); break;
-		}
-		this.form.ta.value = url;
-	},
-	openurl : function(e){
-		if(this.form.ta.value!==''){
-			require('shell').openExternal(this.form.ta.value);
-		}
-	}
-});
-
-//---------------------------------------------------------------------------
 // ★Popup_ImageSaveクラス 画像出力のポップアップメニューを作成したり表示します
 //---------------------------------------------------------------------------
 ui.popupmgr.addpopup('imagesave',

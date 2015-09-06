@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<style>
+	body {
+		-webkit-user-select:none;
+		user-select:none;
+	}
+	#textarea {
+		height:180px;
+		width:480px;
+		padding: 2px;
+		overflow-wrap:break-word;
+		word-break:break-all;
+		background-color:white;
+		border:solid 1px gray;
+		-webkit-user-select:text;
+		user-select:text;
+		box-shadow: inset 3px 3px 3px #ccc; 
+	}
+</style>
+<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	setFormEvent : function(){
+		var form = document.urloutput;
+		var pid = location.search.substr(1);
+		var exists = pzpr.variety.info[pid].exists;	
+		
+		form.kanpen.style.display  = form.kanpen.nextSibling.style.display  = (exists.kanpen ? "" : "none");
+		form.heyaapp.style.display = form.heyaapp.nextSibling.style.display = ((pid==="heyawake") ? "" : "none");
+		
+		window.opener.postMessage('export-url', '*');
+	},
+	
+	//------------------------------------------------------------------------------
+	// urloutput() URLを出力する
+	// openurl()   「このURLを開く」を実行する
+	//------------------------------------------------------------------------------
+	urloutput : function(e){
+		var url = '', parser = pzpr.parser, type = null;
+		url = popupmgr.urls[e.target.name];
+		if(!!url){
+			textarea.textContent = url;
+		}
+	},
+	openurl : function(e){
+		if(textarea.textContent!==''){
+			require('shell').openExternal(textarea.textContent);
+		}
+	},
+	copy : function(){
+		require('remote').getCurrentWebContents().selectAll();
+		require('remote').getCurrentWebContents().copy();
+		require('remote').getCurrentWebContents().unselect();
+	}
+});
+
+document.addEventListener('keydown', function(e){
+	if(e.keyCode===67 && (e.metaKey || e.ctrlKey)){ popupmgr.copy();}
+}, false);
+window.addEventListener('message', function(e){
+	if(require('remote').process.versions.electron==='0.31.2'){
+		popupmgr.urls = e.source.guestId; // e.dataに入るべきデータがここに入っている...
+	}
+}, false);
+</script>
+<title>Export URL</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <form name="urloutput">
+      <button type="button" class="btn" data-button-exec="urloutput" name="pzprv3" >__ぱずぷれv3のURLを出力する__Output PUZ-PRE v3 URL__</button><br />
+      <button type="button" class="btn" data-button-exec="urloutput" name="kanpen" >__カンペンのURLを出力する__Output Kanpen URL__</button><br />
+      <button type="button" class="btn" data-button-exec="urloutput" name="heyaapp">__へやわけアプレットのURLを出力する__Output Heyawake-Applet URL__</button><br />
+      <br />
+      <div id="textarea"></div>
+      <br />
+      <button type="button" class="btn btn-ok" data-button-exec="copy">Copy URL</button>
+      <button type="button" class="btn btn-info" data-button-exec="openurl">__このURLを開く__Open this URL on browsers__</button>
+      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>
