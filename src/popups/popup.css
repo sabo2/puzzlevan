@@ -20,19 +20,6 @@
 		padding:12px;
 	}
 
-	#textarea {
-		height:180px;
-		width:480px;
-		padding: 2px;
-		overflow-wrap:break-word;
-		word-break:break-all;
-		background-color:white;
-		border:solid 1px gray;
-		-webkit-user-select:text;
-		user-select:text;
-		box-shadow: inset 3px 3px 3px #ccc; 
-	}
-
 	.btn {
 		display : inline;
 		margin  : 2pt;

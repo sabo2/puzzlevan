@@ -3,6 +3,7 @@
 window.onload = function(){
 	var main = document.querySelector('body > div');
 	
+	popupmgr.win = require('remote').getCurrentWebContents();
 	popupmgr.walkElement(main);
 	popupmgr.translate();
 	popupmgr.setFormEvent();
@@ -13,6 +14,7 @@ window.onload = function(){
 
 var popupmgr = {
 	captions : [],
+	win : null,
 	walkElement : function(parent){
 		var els = [parent];
 		while(els.length>0){
