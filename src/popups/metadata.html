@@ -11,10 +11,10 @@ popupmgr.extend({
 		var form = document.metadata;
 		var datas = location.search.substr(1).split(/\//);
 		document.getElementById("metadata_variety").innerHTML = pzpr.variety.info[datas[0]][popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
-		form.author.value  = meta.author;
-		form.source.value  = meta.source;
-		form.hard.value    = meta.hard;
-		form.comment.value = meta.comment;
+		form.author.value  = meta.author  || '';
+		form.source.value  = meta.source  || '';
+		form.hard.value    = meta.hard    || '';
+		form.comment.value = meta.comment || '';
 	},
 	save : function(){
 		var form = document.metadata;

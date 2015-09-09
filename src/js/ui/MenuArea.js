@@ -184,6 +184,14 @@ require('ipc').on('menu-req', function(req){
 	var parser = pzpr.parser;
 	var puzzle = ui.puzzle, pid = pzpr.variety.toURLID(puzzle.pid);
 	switch(req){
+		case 'undo': puzzle.undo(); break;
+		case 'redo': puzzle.redo(); break;
+		case 'edit-mode':
+			if(puzzle.playmode){ puzzle.setConfig("mode", puzzle.MODE_EDITOR);}
+			break;
+		case 'play-mode':
+			if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);}
+			break;
 		case 'check':    toolarea.answercheck(); break;
 		case 'ansclear': toolarea.ACconfirm(); break;
 		case 'auxclear': toolarea.ASconfirm(); break;
@@ -200,11 +208,11 @@ require('ipc').on('menu-req', function(req){
 			require('ipc').send('write-file-xml', puzzle.getFileData(parser.FILE_PBOX_XML), pid);
 			break;
 		case 'export-url':
-			require('ipc').send('export-url', {
-				pzprv3:  ui.puzzle.getURL(parser.URL_PZPRV3),
-				kanpen:  ui.puzzle.getURL(parser.URL_KANPEN),
-				heyaapp: ui.puzzle.getURL(parser.URL_HEYAAPP)
-			}, pid);
+			var urls = {};
+			try{ urls.pzprv3 = ui.puzzle.getURL(parser.URL_PZPRV3);}catch(e){}
+			try{ urls.kanpen = ui.puzzle.getURL(parser.URL_KANPEN);}catch(e){}
+			try{ urls.heyaapp= ui.puzzle.getURL(parser.URL_HEYAAPP);}catch(e){}
+			require('ipc').send('export-url', urls, pid);
 			break;
 		case 'edit-metadata':
 			require('ipc').send('edit-metadata', puzzle.metadata, pid, puzzle.board.qcols, puzzle.board.qrows);

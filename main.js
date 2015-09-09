@@ -44,7 +44,7 @@ function openPuzzleWindow(data, pid){
 	win.loadUrl(srcdir + 'p.html');
 	puzzleWindows.add(win); // reference
 }
-function openMainWindow(){
+function openMainWindow(menuitem, focusedWindow){
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600});
@@ -78,7 +78,7 @@ function openLocalWindow(localurl){
 	win.loadUrl(localurl);
 	utilWindows.add(win); // reference
 }
-function openExplainWindow(){
+function openExplainWindow(menuitem, focusedWindow){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
 	openpos.modify();
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
@@ -105,6 +105,7 @@ ipc.on('export-url', function(e, urls, pid){
 	openPopupWindow('urloutput.html?'+pid, urls);
 });
 ipc.on('edit-metadata', function(e, meta, pid, col, row){
+	console.dir(meta.comment);
 	openPopupWindow('metadata.html?'+pid+'/'+col+'/'+row, meta);
 });
 ipc.on('update-metadata', function(e, meta){
@@ -126,8 +127,7 @@ ipc.on('board-adjust', function(e, operation){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-function openFile(){
-	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
+function openFile(menuitem, focusedWindow){
 	var option = {title:"Open File - Puzzlevan", properties:['openFile'], filters:[{name:'Puzzle Files', extensions:['txt','xml']}]};
 	var files = require('dialog').showOpenDialog(focusedWindow, option);
 	if(!!files){
@@ -136,50 +136,44 @@ function openFile(){
 		});
 	}
 }
-function saveFile(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function saveFile(menuitem, focusedWindow){
 	if(focusedWindow && focusedWindow!==mainWindow){
 		focusedWindow.webContents.send('menu-req', 'save-pzpr');
 	}
 }
-function saveKanpen(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function saveKanpen(menuitem, focusedWindow){
 	if(focusedWindow && focusedWindow!==mainWindow){
 		focusedWindow.webContents.send('menu-req', 'save-pbox');
 	}
 }
-function saveKanpenXML(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function saveKanpenXML(menuitem, focusedWindow){
 	if(focusedWindow && focusedWindow!==mainWindow){
 		focusedWindow.webContents.send('menu-req', 'save-pbox-xml');
 	}
 }
 
-function sendMenuReq(content){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
-	if(focusedWindow && focusedWindow!==mainWindow){
-		focusedWindow.webContents.send('menu-req', content);
-	}
+function sendMenuReq(content){ 
+	return function(menuitem, focusedWindow){
+		if(focusedWindow && focusedWindow!==mainWindow){
+			focusedWindow.webContents.send('menu-req', content);
+		}
+	};
 }
 
-function minimizeFocusedWindow(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function minimizeFocusedWindow(menuitem, focusedWindow){
 	if(focusedWindow){ focusedWindow.minimize();}
 }
-function reloadFocusedWindow(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function reloadFocusedWindow(menuitem, focusedWindow){
 	if(focusedWindow){ focusedWindow.reload();}
 }
-function closeFocusedWindow(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function closeFocusedWindow(menuitem, focusedWindow){
 	if(focusedWindow){ focusedWindow.close();}
 }
-function toggleDevTool() {
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function toggleDevTool(menuitem, focusedWindow){
 	if(focusedWindow){ focusedWindow.toggleDevTools();}
 }
 
-function versionInfo(){
+function versionInfo(menuitem, focusedWindow){
 	var msg = [
 		'Puzzlevan v'+app.getVersion(),
 		'Puzzlevan is made by sabo2.',
@@ -194,21 +188,19 @@ function versionInfo(){
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-function popupNewBoard(){
+function popupNewBoard(menuitem, focusedWindow){
 	if(!latest_pid){ return;}
 	openPopupWindow('newboard.html?'+latest_pid);
 }
-function popupURLImport(){
+function popupURLImport(menuitem, focusedWindow){
 	openPopupWindow('urlinput.html');
 }
-function popupURLExport(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function popupURLExport(menuitem, focusedWindow){
 	if(focusedWindow && focusedWindow!==mainWindow){
 		focusedWindow.webContents.send('menu-req', 'export-url');
 	}
 }
-function popupAdjust(){
-	var focusedWindow = BrowserWindow.getFocusedWindow();
+function popupAdjust(menuitem, focusedWindow){
 	if(focusedWindow && focusedWindow!==mainWindow){
 		openPopupWindow('adjust.html?'+latest_pid);
 	}
@@ -234,7 +226,6 @@ function setMenu(){
 		]},
 		{ label:'File', submenu: [
 			{ label:'New Board',       accelerator:'Cmd+N', click:popupNewBoard},
-			{ type: 'separator'},
 			{ label:'Open File',       accelerator:'Cmd+O', click:openFile},
 			{ label:'Save File As...', submenu:[
 				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
@@ -246,22 +237,28 @@ function setMenu(){
 			{ label:'Export URL',                           click:popupURLExport},
 			{ type: 'separator'},
 			{ label:'Save Image', submenu:[
-				{ label:'PNG Format (png)',                 click:function(){ sendMenuReq('saveimage-png');}},
-				{ label:'Vector Format (SVG)',              click:function(){ sendMenuReq('saveimage-svg');}},
+				{ label:'PNG Format (png)',                 click:sendMenuReq('saveimage-png')},
+				{ label:'Vector Format (SVG)',              click:sendMenuReq('saveimage-svg')},
 			]},
 			{ type: 'separator'},
-			{ label:'Edit Puzzle Properties',               click:function(){ sendMenuReq('edit-metadata');}},
+			{ label:'Edit Puzzle Properties',               click:sendMenuReq('edit-metadata')},
 			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
 		{ label:'Edit', submenu: [
-			{ label:'Check Answer', accelerator:'Cmd+E', click:function(){ sendMenuReq('check');}},
-			{ label:'Erase Answer',                      click:function(){ sendMenuReq('ansclear');}},
-			{ label:'Erase Aux.Mark',                    click:function(){ sendMenuReq('auxclear');}},
+			{ label:'Undo', click:sendMenuReq('undo')},
+			{ label:'Redo', click:sendMenuReq('redo')},
+			{ type: 'separator'},
+			{ label:'Editor Mode', accelerator:'Shift+F2', click:sendMenuReq('edit-mode')},
+			{ label:'Answer Mode', accelerator:'F2',       click:sendMenuReq('play-mode')},
+			{ type: 'separator'},
+			{ label:'Check Answer', accelerator:'Cmd+E', click:sendMenuReq('check')},
+			{ label:'Erase Answer',                      click:sendMenuReq('ansclear')},
+			{ label:'Erase Aux.Mark',                    click:sendMenuReq('auxclear')},
 			{ type: 'separator'},
 			{ label:'Adjust the Board',                  click:popupAdjust},
 			{ type: 'separator'},
-			{ label:'Duplicate the Board',               click:function(){ sendMenuReq('duplicate');}},
+			{ label:'Duplicate the Board',               click:sendMenuReq('duplicate')},
 		]},
 //		{ label:'View', submenu: [] },
 		{ label:'Window', submenu: [
@@ -289,11 +286,11 @@ function setMenu(){
 			{ label:'&Export URL',                         click:popupURLExport},
 			{ type: 'separator'},
 			{ label:'Save Imag&e', submenu:[
-				{ label:'&PNG Format (png)',               click:function(){ sendMenuReq('saveimage-png');}},
-				{ label:'&Vector Format (SVG)',            click:function(){ sendMenuReq('saveimage-svg');}},
+				{ label:'&PNG Format (png)',               click:sendMenuReq('saveimage-png')},
+				{ label:'&Vector Format (SVG)',            click:sendMenuReq('saveimage-svg')},
 			]},
 			{ type: 'separator'},
-			{ label:'Edit Puzzle &Properties',             click:function(){ sendMenuReq('edit-metadata');}},
+			{ label:'Edit Puzzle &Properties',             click:sendMenuReq('edit-metadata')},
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},
@@ -302,13 +299,19 @@ function setMenu(){
 			{ label:'&Quit Puzzlevan',                     click:function(){ app.quit();}},
 		]},
 		{ label:'&Edit', submenu: [
-			{ label:'&Check Answer', accelerator:'Ctrl+E', click:function(){ sendMenuReq('check');}},
-			{ label:'Erase Answer',                        click:function(){ sendMenuReq('ansclear');}},
-			{ label:'Erase Aux.Mark',                      click:function(){ sendMenuReq('auxclear');}},
+			{ label:'Undo', click:sendMenuReq('undo')},
+			{ label:'Redo', click:sendMenuReq('redo')},
+			{ type: 'separator'},
+			{ label:'Editor Mode', accelerator:'Shift+F2', click:sendMenuReq('edit-mode')},
+			{ label:'Answer Mode', accelerator:'F2',       click:sendMenuReq('play-mode')},
+			{ type: 'separator'},
+			{ label:'&Check Answer', accelerator:'Ctrl+E', click:sendMenuReq('check')},
+			{ label:'Erase Answer',                        click:sendMenuReq('ansclear')},
+			{ label:'Erase Aux.Mark',                      click:sendMenuReq('auxclear')},
 			{ type: 'separator'},
 			{ label:'&Adjust the Board',                   click:popupAdjust},
 			{ type: 'separator'},
-			{ label:'&Duplicate the Board',                click:function(){ sendMenuReq('duplicate');}},
+			{ label:'&Duplicate the Board',                click:sendMenuReq('duplicate')},
 		]},
 //		{ label:'&View', submenu: [] },
 		{ label:'&Window', submenu: [

@@ -90,10 +90,6 @@ ui.listener =
 			/* TimerでUndo/Redoする */
 			if(c==='ctrl+z' || c==='meta+z'){ ut.startKeyUndo(); result = false;}
 			if(c==='ctrl+y' || c==='meta+y'){ ut.startKeyRedo(); result = false;}
-
-			/* F2で回答モード Shift+F2で問題作成モード */
-			if     (puzzle.editmode && c==='F2'      ){ puzzle.setConfig("mode", puzzle.MODE_PLAYER); result = false;}
-			else if(puzzle.playmode && c==='shift+F2'){ puzzle.setConfig("mode", puzzle.MODE_EDITOR); result = false;}
 		}
 		else if(kc.keyup){
 			/* TimerのUndo/Redoを停止する */
