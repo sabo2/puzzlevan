@@ -169,9 +169,9 @@ ui.listener =
 	//---------------------------------------------------------------------------
 	onResize : function(puzzle){
 		var pc = puzzle.painter, val = (ui.getBoardPadding()*Math.min(pc.cw, pc.ch))|0;
-		puzzle.canvas.style.padding = val+'px';
+		puzzle.canvas.parentNode.style.padding = val+'px';
 		
-		var width = pzpr.util.getRect(puzzle.canvas).width|0;
+		var width = pzpr.util.getRect(puzzle.canvas.parentNode).width|0;
 		if(width<=0){ return;}
 		var winsize = ui.win.getContentSize();
 		ui.win.setContentSize(width, winsize[1]);
