@@ -38,7 +38,7 @@ function openPuzzleWindow(data, pid){
 	
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
 	openpos.modify();
-	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
+	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid); focusedPuzzleWindow = win;});
 	win.on('focus', function(){ focusedPuzzleWindow = win;});
 	win.on('closed', function(){ puzzleWindows.remove(win); if(focusedPuzzleWindow===win){ focusedPuzzleWindow=null;}}); // reference
 	win.loadUrl(srcdir + 'p.html');
@@ -91,16 +91,26 @@ function openExplainWindow(){
 ipc.on('open-puzzle', function(e, data){ openPuzzleWindow(data, latest_pid);});
 ipc.on('open-local', function(e, localurl){ openLocalWindow(localurl);});
 ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
-ipc.on('write-file', function(e, data, pid){
+function writeFile(data, pid, ext){
 	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
-	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.txt', filters:[{name:'Puzzle Files', extensions:['txt']}]};
+	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
 	var filename = require('dialog').showSaveDialog(focusedWindow, option);
 	if(!!filename){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
-});
+}
+ipc.on('write-file',     function(e, data, pid){ writeFile(data,pid,'txt');});
+ipc.on('write-file-xml', function(e, data, pid){ writeFile(data,pid,'xml');});
 ipc.on('export-url', function(e, urls, pid){
 	openPopupWindow('urloutput.html?'+pid, urls);
+});
+ipc.on('edit-metadata', function(e, meta, pid, col, row){
+	openPopupWindow('metadata.html?'+pid+'/'+col+'/'+row, meta);
+});
+ipc.on('update-metadata', function(e, meta){
+	if(focusedPuzzleWindow){
+		focusedPuzzleWindow.webContents.send('update-req', 'metadata', meta);
+	}
 });
 
 // IPCs from main window
@@ -118,7 +128,7 @@ ipc.on('board-adjust', function(e, operation){
 //--------------------------------------------------------------------------
 function openFile(){
 	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
-	var option = {title:"Open File - Puzzlevan", properties:['openFile'], filters:[{name:'Puzzle Files', extensions:['txt']}]};
+	var option = {title:"Open File - Puzzlevan", properties:['openFile'], filters:[{name:'Puzzle Files', extensions:['txt','xml']}]};
 	var files = require('dialog').showOpenDialog(focusedWindow, option);
 	if(!!files){
 		require('fs').readFile(files[0], {encoding:'utf8'}, function(error, data){
@@ -136,6 +146,12 @@ function saveKanpen(){
 	var focusedWindow = BrowserWindow.getFocusedWindow();
 	if(focusedWindow && focusedWindow!==mainWindow){
 		focusedWindow.webContents.send('menu-req', 'save-pbox');
+	}
+}
+function saveKanpenXML(){
+	var focusedWindow = BrowserWindow.getFocusedWindow();
+	if(focusedWindow && focusedWindow!==mainWindow){
+		focusedWindow.webContents.send('menu-req', 'save-pbox-xml');
 	}
 }
 
@@ -223,6 +239,7 @@ function setMenu(){
 			{ label:'Save File As...', submenu:[
 				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
 				{ label:'pencilbox format (text)',             click:saveKanpen},
+				{ label:'pencilbox format (XML)',              click:saveKanpenXML},
 			]},
 			{ type: 'separator'},
 			{ label:'Import URL',                           click:popupURLImport},
@@ -232,6 +249,8 @@ function setMenu(){
 				{ label:'PNG Format (png)',                 click:function(){ sendMenuReq('saveimage-png');}},
 				{ label:'Vector Format (SVG)',              click:function(){ sendMenuReq('saveimage-svg');}},
 			]},
+			{ type: 'separator'},
+			{ label:'Edit Puzzle Properties',               click:function(){ sendMenuReq('edit-metadata');}},
 			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
@@ -262,7 +281,8 @@ function setMenu(){
 			{ label:'&Open File',    accelerator:'Ctrl+O', click:openFile},
 			{ label:'&Save File As...', submenu:[
 				{ label:'&PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
-				{ label:'pencilbo&x format (text)',             click:saveKanpen},
+				{ label:'pencilbox format (&text)',             click:saveKanpen},
+				{ label:'pencilbox format (&XML)',              click:saveKanpenXML},
 			]},
 			{ type: 'separator'},
 			{ label:'&Import URL',                         click:popupURLImport},
@@ -272,6 +292,8 @@ function setMenu(){
 				{ label:'&PNG Format (png)',               click:function(){ sendMenuReq('saveimage-png');}},
 				{ label:'&Vector Format (SVG)',            click:function(){ sendMenuReq('saveimage-svg');}},
 			]},
+			{ type: 'separator'},
+			{ label:'Edit Puzzle &Properties',             click:function(){ sendMenuReq('edit-metadata');}},
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},

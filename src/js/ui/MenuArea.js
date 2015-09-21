@@ -165,11 +165,11 @@ ui.menuarea = {
 	},
 
 	filesaveurl : '',
-	saveiamge : function(filetype){
+	saveimage : function(filetype){
 		/* 画像出力ルーチン */
 		ui.remote.require('dialog').showSaveDialog(ui.win, {
 			title : "Save Image - Puzzlevan",
-			defaultPath : ui.puzzle.pid+'.'+filetype,
+			defaultPath : pzpr.variety.toURLID(ui.puzzle.pid)+'.'+filetype,
 			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
 		}, function(filename){
 			if(!filename){ return;}
@@ -182,19 +182,22 @@ ui.menuarea = {
 require('ipc').on('menu-req', function(req){
 	var toolarea = ui.toolarea;
 	var parser = pzpr.parser;
-	var puzzle = ui.puzzle, pid = puzzle.pid;
+	var puzzle = ui.puzzle, pid = pzpr.variety.toURLID(puzzle.pid);
 	switch(req){
 		case 'check':    toolarea.answercheck(); break;
 		case 'ansclear': toolarea.ACconfirm(); break;
 		case 'auxclear': toolarea.ASconfirm(); break;
 		case 'duplicate': 
-			ui.misc.openpuzzle(puzzle.getFileData(pzpr.parser.FILE_PZPH));
+			ui.misc.openpuzzle(puzzle.getFileData(pzpr.parser.FILE_PZPR,{history:true}));
 			break;
 		case 'save-pzpr':
 			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PZPR), pid);
 			break;
 		case 'save-pbox':
 			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PBOX), pid);
+			break;
+		case 'save-pbox-xml':
+			require('ipc').send('write-file-xml', puzzle.getFileData(parser.FILE_PBOX_XML), pid);
 			break;
 		case 'export-url':
 			require('ipc').send('export-url', {
@@ -203,14 +206,25 @@ require('ipc').on('menu-req', function(req){
 				heyaapp: ui.puzzle.getURL(parser.URL_HEYAAPP)
 			}, pid);
 			break;
+		case 'edit-metadata':
+			require('ipc').send('edit-metadata', puzzle.metadata, pid, puzzle.board.qcols, puzzle.board.qrows);
+			break;
 		case 'saveimage-png':
-			ui.menuarea.saveiamge('png');
+			ui.menuarea.saveimage('png');
 			break;
 		case 'saveimage-svg':
-			ui.menuarea.saveiamge('svg');
+			ui.menuarea.saveimage('svg');
 			break;
 		default:
 			if(req.match(/adjust\-(.+)/)){ ui.puzzle.board.exec.execadjust(RegExp.$1);}
+			break;
+	}
+});
+require('ipc').on('update-req', function(req, data){
+	var puzzle = ui.puzzle;
+	switch(req){
+		case 'metadata':
+			puzzle.metadata.copydata(data);
 			break;
 	}
 });

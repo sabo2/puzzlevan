@@ -40,14 +40,14 @@ var popupmgr = {
 		}
 		document.querySelector('form').addEventListener('submit', function(e){ e.preventDefault();}, false);
 	},
+	lang : (function getLang(){
+		var userlang = (navigator.browserLanguage || navigator.language || navigator.userLanguage);
+		return ((userlang.substr(0,2)==='ja')?'ja':'en');
+	})(),
 	translate : function(){
-		var lang = (function getLang(){
-			var userlang = (navigator.browserLanguage || navigator.language || navigator.userLanguage);
-			return ((userlang.substr(0,2)==='ja')?'ja':'en');
-		})();
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];
-			if(!!obj.textnode){ obj.textnode.data = obj['str_'+lang];}
+			if(!!obj.textnode){ obj.textnode.data = obj['str_'+this.lang];}
 		}
 	},
 	setFormEvent : function(){},

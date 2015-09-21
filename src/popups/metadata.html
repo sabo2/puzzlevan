@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	initdata : function(meta){
+		var form = document.metadata;
+		var datas = location.search.substr(1).split(/\//);
+		document.getElementById("metadata_variety").innerHTML = pzpr.variety.info[datas[0]][popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
+		form.author.value  = meta.author;
+		form.source.value  = meta.source;
+		form.hard.value    = meta.hard;
+		form.comment.value = meta.comment;
+	},
+	save : function(){
+		var form = document.metadata;
+		require('ipc').send('update-metadata', {
+			"author"  : form.author.value,
+			"source"  : form.source.value,
+			"hard"    : form.hard.value,
+			"comment" : form.comment.value
+		});
+		window.close();
+	}
+});
+require('ipc').once('initial-data', function(meta){
+	popupmgr.initdata(meta);
+});
+</script>
+<title>Edit Puzzle Properties</title>
+</head>
+
+<body>
+  <div id="main">
+    <form name="metadata">
+      <label>__種類:__Variety:__</label> <span id="metadata_variety"></span><br>
+      <label>__作者:__Author:__</label> <input name="author" type="text"></input><br>
+      <label>__出典:__Source:__</label> <input name="source" type="text"></input><br>
+      <label>__難易度:__Difficulty:__</label> <input name="hard" type="text"></input><br>
+      <label>__コメント:__Comment:__</label> <textarea name="comment" cols=28 rows=3 wrap="hard"></textarea><br>
+      <br>
+      <button type="button" class="btn btn-ok" data-button-exec="save">OK</button>
+      <button type="button" class="btn" data-button-exec="close">__キャンセル__Cancel__</button>
+    </form>
+  </div>
+</body>
+</html>
