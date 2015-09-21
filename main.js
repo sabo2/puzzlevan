@@ -333,9 +333,22 @@ function setMenu(){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 
+var openStandAlone = true;
+app.on('open-file', function(e, filepath){
+	openStandAlone = false;
+	require('fs').readFile(filepath, {encoding:'utf8'}, function(error, data){
+		if(!error){ openPuzzleWindow(data, latest_pid);}
+	});
+	e.preventDefault();
+});
+app.on('open-url', function(e, url){
+	openStandAlone = false;
+	openPuzzleWindow(url, latest_pid);
+	e.preventDefault();
+});
 app.on('ready', function(){
 	setMenu();
-	openMainWindow();
+	if(openStandAlone){ openMainWindow();}
 });
 app.on('window-all-closed', function(){
 	if(process.platform !== 'darwin'){ app.quit();}
