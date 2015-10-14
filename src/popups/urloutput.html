@@ -21,11 +21,7 @@ popupmgr.extend({
 	// openurl()   「このURLを開く」を実行する
 	//------------------------------------------------------------------------------
 	urloutput : function(e){
-		var url = '', parser = pzpr.parser, type = null;
-		url = popupmgr.urls[e.target.name];
-		if(!!url){
-			document.urloutput.ta.value = url;
-		}
+		window.opener.postMessage('urloutput:'+e.target.name, '*');
 	},
 	openurl : function(e){
 		if(document.urloutput.ta.value!==''){
@@ -40,12 +36,13 @@ popupmgr.extend({
 	}
 });
 
+window.addEventListener("message", function(e){
+	document.urloutput.ta.value = e.data;
+}, false);
+
 document.addEventListener('keydown', function(e){
 	if(e.keyCode===67 && (e.metaKey || e.ctrlKey)){ popupmgr.copy();}
 }, false);
-require('ipc').once('initial-data', function(urls){
-	popupmgr.urls = urls;
-});
 </script>
 <title>Export URL</title>
 </head>

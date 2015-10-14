@@ -15,7 +15,7 @@ popupmgr.extend({
 		document.adjust.turnr.disabled = (pid==='tawa');
 	},
 	adjust : function(e){
-		require('ipc').send('board-adjust', e.target.name);
+		window.opener.postMessage('adjust:'+e.target.name, '*');
 	}
 });
 </script>

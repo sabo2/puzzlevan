@@ -199,23 +199,22 @@ require('ipc').on('menu-req', function(req){
 			ui.misc.openpuzzle(puzzle.getFileData(pzpr.parser.FILE_PZPR,{history:true}));
 			break;
 		case 'save-pzpr':
-			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PZPR), pid);
+			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid);
 			break;
 		case 'save-pbox':
-			require('ipc').send('write-file', puzzle.getFileData(parser.FILE_PBOX), pid);
+			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid);
 			break;
 		case 'save-pbox-xml':
-			require('ipc').send('write-file-xml', puzzle.getFileData(parser.FILE_PBOX_XML), pid);
+			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml');
 			break;
-		case 'export-url':
-			var urls = {};
-			try{ urls.pzprv3 = ui.puzzle.getURL(parser.URL_PZPRV3);}catch(e){}
-			try{ urls.kanpen = ui.puzzle.getURL(parser.URL_KANPEN);}catch(e){}
-			try{ urls.heyaapp= ui.puzzle.getURL(parser.URL_HEYAAPP);}catch(e){}
-			require('ipc').send('export-url', urls, pid);
+		case 'popup-urloutput':
+			window.open('popups/urloutput.html?'+ui.puzzle.pid);
 			break;
-		case 'edit-metadata':
-			require('ipc').send('edit-metadata', puzzle.metadata, pid, puzzle.board.qcols, puzzle.board.qrows);
+		case 'popup-adjust':
+			window.open('popups/adjust.html?'+ui.puzzle.pid);
+			break;
+		case 'popup-metadata':
+			window.open('popups/metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows);
 			break;
 		case 'saveimage-png':
 			ui.menuarea.saveimage('png');
@@ -224,15 +223,30 @@ require('ipc').on('menu-req', function(req){
 			ui.menuarea.saveimage('svg');
 			break;
 		default:
-			if(req.match(/adjust\-(.+)/)){ ui.puzzle.board.exec.execadjust(RegExp.$1);}
+			/* DO NOTHING */
 			break;
 	}
 });
-require('ipc').on('update-req', function(req, data){
+
+window.addEventListener("message", function(e){
 	var puzzle = ui.puzzle;
-	switch(req){
-		case 'metadata':
-			puzzle.metadata.copydata(data);
-			break;
+	if(e.data.substr(0,10)==='urloutput:'){
+		var parser = pzpr.parser;
+		switch(e.data.substr(10)){
+			case 'pzprv3':  e.source.postMessage(puzzle.getURL(parser.URL_PZPRV3), '*'); break;
+			case 'kanpen':  e.source.postMessage(puzzle.getURL(parser.URL_KANPEN), '*'); break;
+			case 'heyaapp': e.source.postMessage(puzzle.getURL(parser.URL_HEYAAPP),'*'); break;
+		}
 	}
-});
+	else if(e.data.substr(0,9)==='metadata:'){
+		if(e.data.substr(9)==='get'){
+			e.source.postMessage(JSON.stringify(puzzle.metadata), '*');
+		}
+		else if(e.data.substr(9,4)==='set:'){
+			puzzle.metadata.copydata(JSON.parse(e.data.substr(13)));
+		}
+	}
+	else if(e.data.substr(0,7)==='adjust:'){
+		puzzle.board.exec.execadjust(e.data.substr(7));
+	}
+}, false);

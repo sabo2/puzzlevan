@@ -55,7 +55,7 @@ function openMainWindow(menuitem, focusedWindow){
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
-function openPopupWindow(url, data){
+function openPopupWindow(url){
 	var focusedWindow = BrowserWindow.getFocusedWindow(), x = 24, y = 24;
 	if(!!focusedWindow){
 		var bounds = focusedWindow.getBounds();
@@ -63,19 +63,8 @@ function openPopupWindow(url, data){
 		y = bounds.y + 24;
 	}
 	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true});
-	if(!!data){ win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data);});}
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
-	utilWindows.add(win); // reference
-}
-function openLocalWindow(localurl){
-	if(!localurl.match(/^data\:/)){
-		localurl = srcdir + localurl;
-	}
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
-	openpos.modify();
-	win.on('closed', function(){ utilWindows.remove(win);}); // reference
-	win.loadUrl(localurl);
 	utilWindows.add(win); // reference
 }
 function openExplainWindow(menuitem, focusedWindow){
@@ -87,40 +76,20 @@ function openExplainWindow(menuitem, focusedWindow){
 }
 
 //--------------------------------------------------------------------------
-// IPCs from puzzle windows
+// IPCs from various windows
 ipc.on('open-puzzle', function(e, data){ openPuzzleWindow(data, latest_pid);});
-ipc.on('open-local', function(e, localurl){ openLocalWindow(localurl);});
-ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
-function writeFile(data, pid, ext){
-	var focusedWindow = BrowserWindow.getFocusedWindow() || null;
-	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
-	var filename = require('dialog').showSaveDialog(focusedWindow, option);
-	if(!!filename){
-		require('fs').writeFile(filename, data, {encoding:'utf8'});
-	}
-}
-ipc.on('write-file',     function(e, data, pid){ writeFile(data,pid,'txt');});
-ipc.on('write-file-xml', function(e, data, pid){ writeFile(data,pid,'xml');});
-ipc.on('export-url', function(e, urls, pid){
-	openPopupWindow('urloutput.html?'+pid, urls);
-});
-ipc.on('edit-metadata', function(e, meta, pid, col, row){
-	console.dir(meta.comment);
-	openPopupWindow('metadata.html?'+pid+'/'+col+'/'+row, meta);
-});
-ipc.on('update-metadata', function(e, meta){
-	if(focusedPuzzleWindow){
-		focusedPuzzleWindow.webContents.send('update-req', 'metadata', meta);
-	}
-});
 
-// IPCs from main window
+// IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 
-// IPCs from popup window
-ipc.on('board-adjust', function(e, operation){
-	if(focusedPuzzleWindow){
-		focusedPuzzleWindow.webContents.send('menu-req', 'adjust-'+operation);
+// IPCs from puzzle windows
+ipc.on('update-pid', function(e, pid){ latest_pid = pid;});
+ipc.on('save-file', function(e, data, pid, filetype){
+	var ext = filetype || 'txt';
+	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
+	var filename = require('dialog').showSaveDialog((BrowserWindow.getFocusedWindow()||null), option);
+	if(!!filename){
+		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
 });
 
@@ -134,21 +103,6 @@ function openFile(menuitem, focusedWindow){
 		require('fs').readFile(files[0], {encoding:'utf8'}, function(error, data){
 			if(!error){ openPuzzleWindow(data, latest_pid);}
 		});
-	}
-}
-function saveFile(menuitem, focusedWindow){
-	if(focusedWindow && focusedWindow!==mainWindow){
-		focusedWindow.webContents.send('menu-req', 'save-pzpr');
-	}
-}
-function saveKanpen(menuitem, focusedWindow){
-	if(focusedWindow && focusedWindow!==mainWindow){
-		focusedWindow.webContents.send('menu-req', 'save-pbox');
-	}
-}
-function saveKanpenXML(menuitem, focusedWindow){
-	if(focusedWindow && focusedWindow!==mainWindow){
-		focusedWindow.webContents.send('menu-req', 'save-pbox-xml');
 	}
 }
 
@@ -195,16 +149,6 @@ function popupNewBoard(menuitem, focusedWindow){
 function popupURLImport(menuitem, focusedWindow){
 	openPopupWindow('urlinput.html');
 }
-function popupURLExport(menuitem, focusedWindow){
-	if(focusedWindow && focusedWindow!==mainWindow){
-		focusedWindow.webContents.send('menu-req', 'export-url');
-	}
-}
-function popupAdjust(menuitem, focusedWindow){
-	if(focusedWindow && focusedWindow!==mainWindow){
-		openPopupWindow('adjust.html?'+latest_pid);
-	}
-}
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -228,20 +172,20 @@ function setMenu(){
 			{ label:'New Board',       accelerator:'Cmd+N', click:popupNewBoard},
 			{ label:'Open File',       accelerator:'Cmd+O', click:openFile},
 			{ label:'Save File As...', submenu:[
-				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
-				{ label:'pencilbox format (text)',             click:saveKanpen},
-				{ label:'pencilbox format (XML)',              click:saveKanpenXML},
+				{ label:'PUZ-PRE format', accelerator:'Cmd+S', click:sendMenuReq('save-pzpr')},
+				{ label:'pencilbox format (text)',             click:sendMenuReq('save-pbox')},
+				{ label:'pencilbox format (XML)',              click:sendMenuReq('save-pbox-xml')},
 			]},
 			{ type: 'separator'},
 			{ label:'Import URL',                           click:popupURLImport},
-			{ label:'Export URL',                           click:popupURLExport},
+			{ label:'Export URL',                           click:sendMenuReq('popup-urloutput')},
 			{ type: 'separator'},
 			{ label:'Save Image', submenu:[
 				{ label:'PNG Format (png)',                 click:sendMenuReq('saveimage-png')},
 				{ label:'Vector Format (SVG)',              click:sendMenuReq('saveimage-svg')},
 			]},
 			{ type: 'separator'},
-			{ label:'Edit Puzzle Properties',               click:sendMenuReq('edit-metadata')},
+			{ label:'Edit Puzzle Properties',               click:sendMenuReq('popup-metadata')},
 			{ type: 'separator'},
 			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
 		]},
@@ -256,7 +200,7 @@ function setMenu(){
 			{ label:'Erase Answer',                      click:sendMenuReq('ansclear')},
 			{ label:'Erase Aux.Mark',                    click:sendMenuReq('auxclear')},
 			{ type: 'separator'},
-			{ label:'Adjust the Board',                  click:popupAdjust},
+			{ label:'Adjust the Board',                  click:sendMenuReq('popup-adjust')},
 			{ type: 'separator'},
 			{ label:'Duplicate the Board',               click:sendMenuReq('duplicate')},
 		]},
@@ -277,20 +221,20 @@ function setMenu(){
 			{ label:'&New Board',    accelerator:'Ctrl+N', click:popupNewBoard},
 			{ label:'&Open File',    accelerator:'Ctrl+O', click:openFile},
 			{ label:'&Save File As...', submenu:[
-				{ label:'&PUZ-PRE format', accelerator:'Cmd+S', click:saveFile},
-				{ label:'pencilbox format (&text)',             click:saveKanpen},
-				{ label:'pencilbox format (&XML)',              click:saveKanpenXML},
+				{ label:'&PUZ-PRE format', accelerator:'Cmd+S', click:sendMenuReq('save-pzpr')},
+				{ label:'pencilbox format (&text)',             click:sendMenuReq('save-pbox')},
+				{ label:'pencilbox format (&XML)',              click:sendMenuReq('save-pbox-xml')},
 			]},
 			{ type: 'separator'},
 			{ label:'&Import URL',                         click:popupURLImport},
-			{ label:'&Export URL',                         click:popupURLExport},
+			{ label:'&Export URL',                         click:sendMenuReq('popup-urloutput')},
 			{ type: 'separator'},
 			{ label:'Save Imag&e', submenu:[
 				{ label:'&PNG Format (png)',               click:sendMenuReq('saveimage-png')},
 				{ label:'&Vector Format (SVG)',            click:sendMenuReq('saveimage-svg')},
 			]},
 			{ type: 'separator'},
-			{ label:'Edit Puzzle &Properties',             click:sendMenuReq('edit-metadata')},
+			{ label:'Edit Puzzle &Properties',             click:sendMenuReq('popup-metadata')},
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},
@@ -309,7 +253,7 @@ function setMenu(){
 			{ label:'Erase Answer',                        click:sendMenuReq('ansclear')},
 			{ label:'Erase Aux.Mark',                      click:sendMenuReq('auxclear')},
 			{ type: 'separator'},
-			{ label:'&Adjust the Board',                   click:popupAdjust},
+			{ label:'&Adjust the Board',                   click:sendMenuReq('popup-adjust')},
 			{ type: 'separator'},
 			{ label:'&Duplicate the Board',                click:sendMenuReq('duplicate')},
 		]},

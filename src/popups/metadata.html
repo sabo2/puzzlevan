@@ -7,29 +7,32 @@
 <script type="text/javascript" src="./popup.js"></script>
 <script type="text/javascript">
 popupmgr.extend({
-	initdata : function(meta){
-		var form = document.metadata;
+	setFormEvent : function(){
 		var datas = location.search.substr(1).split(/\//);
 		document.getElementById("metadata_variety").innerHTML = pzpr.variety.info[datas[0]][popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
+		window.opener.postMessage('metadata:get', '*');
+	},
+	initdata : function(meta){
+		var form = document.metadata;
 		form.author.value  = meta.author  || '';
 		form.source.value  = meta.source  || '';
 		form.hard.value    = meta.hard    || '';
 		form.comment.value = meta.comment || '';
 	},
-	save : function(){
+	savedata : function(){
 		var form = document.metadata;
-		require('ipc').send('update-metadata', {
+		window.opener.postMessage('metadata:set:'+JSON.stringify({
 			"author"  : form.author.value,
 			"source"  : form.source.value,
 			"hard"    : form.hard.value,
 			"comment" : form.comment.value
-		});
+		}), '*');
 		window.close();
 	}
 });
-require('ipc').once('initial-data', function(meta){
-	popupmgr.initdata(meta);
-});
+window.addEventListener("message", function(e){
+	popupmgr.initdata(JSON.parse(e.data));
+}, false);
 </script>
 <title>Edit Puzzle Properties</title>
 </head>
@@ -43,7 +46,7 @@ require('ipc').once('initial-data', function(meta){
       <label>__難易度:__Difficulty:__</label> <input name="hard" type="text"></input><br>
       <label>__コメント:__Comment:__</label> <textarea name="comment" cols=28 rows=3 wrap="hard"></textarea><br>
       <br>
-      <button type="button" class="btn btn-ok" data-button-exec="save">OK</button>
+      <button type="button" class="btn btn-ok" data-button-exec="savedata">OK</button>
       <button type="button" class="btn" data-button-exec="close">__キャンセル__Cancel__</button>
     </form>
   </div>
