@@ -216,7 +216,7 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Open Puzzle List', accelerator:'Cmd+L', click:openMainWindow},
 			{ type: 'separator'},
-			{ label:'Services', submenu:[]},
+			{ label:'Services', role:'services', submenu:[]},
 			{ type: 'separator'},
 			{ label:'Hide Puzzlevan', accelerator:'Cmd+H',       selector:'hide:'},
 			{ label:'Hide Others',    accelerator:'Cmd+Shift+H', selector:'hideOtherApplications:'},
@@ -261,14 +261,14 @@ function setMenu(){
 			{ label:'Duplicate the Board',               click:sendMenuReq('duplicate')},
 		]},
 //		{ label:'View', submenu: [] },
-		{ label:'Window', submenu: [
+		{ label:'Window', role:'window', submenu: [
 			{ label:'Minimize',        accelerator:'Cmd+M',     click:minimizeFocusedWindow},
 			{ label:'Reload',          accelerator:'Cmd+R',     click:reloadFocusedWindow},
 			{ label:'Toggle DevTools', accelerator:'Alt+Cmd+I', click:toggleDevTool},
 			{ type: 'separator'},
 			{ label:'Bring All to Front', selector:'arrangeInFront:'},
 		]},
-		{ label:'Help', submenu: [
+		{ label:'Help', role:'help', submenu: [
 			{ label:'About Puzzlevan', click:versionInfo},
 			{ label:'How to Input',    click:openExplainWindow},
 		]},
