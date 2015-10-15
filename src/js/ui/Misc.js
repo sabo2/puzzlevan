@@ -16,19 +16,6 @@ ui.misc = {
 	},
 
 	//--------------------------------------------------------------------------------
-	// misc.walker()        DOMツリーをたどる
-	//--------------------------------------------------------------------------------
-	walker : function(parent, func){
-		var els = [parent.firstChild];
-		while(els.length>0){
-			var el = els.pop();
-			func(el);
-			if(!!el.nextSibling){ els.push(el.nextSibling);}
-			if(el.childNodes.length>0){ els.push(el.firstChild);}
-		}
-	},
-
-	//--------------------------------------------------------------------------------
 	// misc.openpuzzle()  指定されたデータのパズルを開く　
 	//--------------------------------------------------------------------------------
 	openpuzzle : function(data){

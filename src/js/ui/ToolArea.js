@@ -13,7 +13,7 @@ ui.toolarea = {
 	reset : function(){
 		if(this.items===null){
 			this.items = {};
-			this.walkElement(getEL('btnarea'));
+			this.walkElement();
 		}
 		
 		this.display();
@@ -23,29 +23,28 @@ ui.toolarea = {
 	// toolarea.walkElement()  エレメントを探索して領域の初期設定を行う
 	//---------------------------------------------------------------------------
 	walkElement : function(parent){
-		var toolarea = this;
-		ui.misc.walker(parent, function(el){
-			if(el.nodeType===1){
-				/* ボタン領域 */
-				var role = el.dataset.buttonExec;
-				if(!!role){
-					pzpr.util.addEvent(el, "click", toolarea, toolarea[role]);
-				}
-				role = el.dataset.pressExec;
-				if(!!role){
-					var roles = role.split(/,/);
-					pzpr.util.addEvent(el, "mousedown", toolarea, toolarea[roles[0]]);
-					if(!!role[1]){
-						pzpr.util.addEvent(el, "mouseup", toolarea, toolarea[roles[1]]);
-					}
-				}
+		/* ボタン領域 */
+		var els = getEL('btnarea').querySelectorAll('button[data-button-exec]');
+		for(var i=0;i<els.length;i++){
+			pzpr.util.addEvent(els[i], "click", this, this[els[i].dataset.buttonExec]);
+		}
+		
+		els = getEL('btnarea').querySelectorAll('button[data-press-exec]');
+		for(var i=0;i<els.length;i++){
+			var roles = els[i].dataset.pressExec.split(/,/);
+			pzpr.util.addEvent(els[i], "mousedown", this, this[roles[0]]);
+			if(!!roles[1]){
+				pzpr.util.addEvent(els[i], "mouseup", this, this[roles[1]]);
 			}
-			else if(el.nodeType===3){
-				if(el.data.match(/^__(.+)__(.+)__$/)){
-					toolarea.captions.push({textnode:el, str_jp:RegExp.$1, str_en:RegExp.$2});
-				}
+		}
+		
+		els = getEL('btnarea').querySelectorAll('button');
+		for(var i=0;i<els.length;i++){
+			var el = els[i].firstChild;
+			if(el.nodeType===3 && el.data.match(/^__(.+)__(.+)__$/)){
+				this.captions.push({textnode:el, str_jp:RegExp.$1, str_en:RegExp.$2});
 			}
-		});
+		}
 	},
 	
 	//---------------------------------------------------------------------------

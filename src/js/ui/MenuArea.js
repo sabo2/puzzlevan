@@ -21,65 +21,59 @@ ui.menuarea = {
 	createMenu : function(){
 		if(this.menuitem===null){
 			this.menuitem = {};
-			this.walkElement(getEL("menupanel"));
+			this.walkElement();
 		}
-		this.walkElement2(getEL("menupanel"));
+		this.walkElement2();
 	},
 
 	//---------------------------------------------------------------------------
 	// menuarea.walkElement()  エレメントを探索して領域の初期設定を行う
 	//---------------------------------------------------------------------------
-	walkElement : function(parent){
-		var menuarea = this;
-		function addmdevent(el,func){ pzpr.util.addEvent(el, "mousedown", menuarea, func);}
-		ui.misc.walker(parent, function(el){
-			if(el.nodeType===1 && el.nodeName==="LI"){
-				var setevent = false;
-				var idname = el.dataset.config;
-				if(!!idname){
-					menuarea.menuitem[idname] = {el:el};
-					if(el.className==="check"){
-						addmdevent(el, menuarea.checkclick);
-						setevent = true;
-					}
-				}
-				var value = el.dataset.value;
-				if(!!value){
-					var parent = el.parentNode.parentNode, idname = parent.dataset.config;
-					var item = menuarea.menuitem[idname];
-					if(!item.children){ item.children=[];}
-					item.children.push(el);
-					
-					addmdevent(el, menuarea.childclick);
-					setevent = true;
-				}
-				
-				if(!setevent){
-					if(!el.querySelector("menu")){
-						addmdevent(el, function(e){ e.preventDefault();});
-					}
-				}
+	walkElement : function(){
+		var els = getEL("menupanel").querySelectorAll('li[data-config]');
+		for(var i=0;i<els.length;i++){
+			var idname = els[i].dataset.config;
+			this.menuitem[idname] = {el:els[i]};
+			if(els[i].className==="check"){
+				pzpr.util.addEvent(els[i], "mousedown", this, this.checkclick);
 			}
-			else if(el.nodeType===1 && el.nodeName==="MENU"){
-				var label = el.getAttribute("label");
-				if(!!label && label.match(/^__(.+)__(.+)__$/)){
-					menuarea.captions.push({menu:el, str_jp:RegExp.$1, str_en:RegExp.$2});
-				}
+			else{
+				pzpr.util.addEvent(els[i], "mousedown", this, function(e){ e.preventDefault();});
 			}
-			else if(el.nodeType===3){
-				if(el.data.match(/^__(.+)__(.+)__$/)){
-					menuarea.captions.push({textnode:el, str_jp:RegExp.$1, str_en:RegExp.$2});
-				}
+		}
+		
+		els = getEL("menupanel").querySelectorAll('li[data-value]');
+		for(var i=0;i<els.length;i++){
+			var parent = els[i].parentNode.parentNode, idname = parent.dataset.config;
+			var item = this.menuitem[idname];
+			if(!item.children){ item.children=[];}
+			item.children.push(els[i]);
+			
+			pzpr.util.addEvent(els[i], "mousedown", this, this.childclick);
+		}
+		
+		els = getEL("menupanel").querySelectorAll('menu[label]');
+		for(var i=0;i<els.length;i++){
+			var label = els[i].getAttribute("label");
+			if(label.match(/^__(.+)__(.+)__$/)){
+				this.captions.push({menu:els[i], str_jp:RegExp.$1, str_en:RegExp.$2});
 			}
-		});
+		}
+		
+		els = getEL("menupanel").querySelectorAll('span');
+		for(var i=0;i<els.length;i++){
+			var el = els[i].firstChild;
+			if(el.nodeType===3 && el.data.match(/^__(.+)__(.+)__$/)){
+				this.captions.push({textnode:el, str_jp:RegExp.$1, str_en:RegExp.$2});
+			}
+		}
 	},
-	walkElement2 : function(parent){
-		ui.misc.walker(parent, function(el){
-			if(el.nodeType===1 && el.nodeName==="SPAN"){
-				var disppid = el.dataset.dispPid;
-				if(!!disppid){ el.style.display = (pzpr.util.checkpid(disppid, ui.puzzle.pid) ? "" : "none");}
-			}
-		});
+	walkElement2 : function(){
+		var els = getEL("menupanel").querySelectorAll('span[data-disp-pid]');
+		for(var i=0;i<els.length;i++){
+			var disppid = els[i].dataset.dispPid;
+			els[i].style.display = (pzpr.util.checkpid(disppid, ui.puzzle.pid) ? "" : "none");
+		}
 	},
 	
 	//---------------------------------------------------------------------------
