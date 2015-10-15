@@ -9,7 +9,9 @@ window.onload = function(){
 	popupmgr.setFormEvent();
 	
 	var rect = main.getBoundingClientRect();
-	require('remote').getCurrentWindow().setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
+	var win = require('remote').getCurrentWindow();
+	win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
+	win.show();
 };
 
 var popupmgr = {

@@ -57,7 +57,7 @@ ui.listener =
 		
 		ui.timer.reset();					/* タイマーリセット(最後) */
 		
-		ui.win.focus();
+		if(ui.win.isVisible()){ ui.win.focus();}
 	},
 
 //	//---------------------------------------------------------------------------
@@ -174,5 +174,9 @@ ui.listener =
 		
 		var height = (pzpr.util.getRect(document.body).height+8)|0;
 		ui.win.setContentSize(width, height);
+		
+		if(!ui.win.isVisible()){
+			setTimeout(function(){ui.win.show();},100);
+		}
 	}
 };

@@ -36,7 +36,7 @@ var utilWindows = {
 function openPuzzleWindow(data, pid){
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:false});
 	openpos.modify();
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid); focusedPuzzleWindow = win;});
 	win.on('focus', function(){ focusedPuzzleWindow = win;});
@@ -62,7 +62,7 @@ function openPopupWindow(url){
 		x = bounds.x + 24;
 		y = bounds.y + 24;
 	}
-	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true});
+	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:false});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference
