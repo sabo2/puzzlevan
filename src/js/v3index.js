@@ -19,8 +19,8 @@ function getEL(id){ return _doc.getElementById(id);}
 
 v3index.extend({
 	/* common function */
-	addEvent : function(element,type,func){
-		if(!!element.addEventListener){ element.addEventListener(type,func,false);}
+	addEvent : function(element,type,func,capt){
+		if(!!element.addEventListener){ element.addEventListener(type,func,!!capt);}
 		else if(!!element.attachEvent){ element.attachEvent("on"+type,func);}
 		else                          { element["on"+type] = func;}
 	},
@@ -38,6 +38,7 @@ v3index.extend({
 		if(!self.current){
 			self.input_init();
 			self.setTabEvent();
+			self.setDragDropEvent();
 			self.setTranslation();
 			self.setAccordion();
 			require('ipc').send('pzpr-version', pzpr.version);
@@ -100,6 +101,18 @@ v3index.extend({
 		}
 		if(!self.current && typelist.length>0){ self.current = typelist[0];}
 		getEL("puztypes").style.display = "block";
+	},
+
+	setDragDropEvent : function(){
+		// File API＋Drag&Drop APIの設定
+		this.addEvent(window, 'dragover', function(e){ e.preventDefault();}, true);
+		this.addEvent(window, 'drop', function(e){
+			var reader = new FileReader();
+			reader.onload = function(e){ v3index.openpuzzle(e.target.result);};
+			reader.readAsText(e.dataTransfer.files[0]);
+			e.preventDefault();
+			e.stopPropagation();
+		}, true);
 	},
 
 	setTranslation : function(){
