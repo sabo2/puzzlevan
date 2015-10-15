@@ -164,7 +164,6 @@ ui.menuarea = {
 		}
 	},
 
-	filesaveurl : '',
 	saveimage : function(filetype){
 		/* 画像出力ルーチン */
 		ui.remote.require('dialog').showSaveDialog(ui.win, {
@@ -176,77 +175,61 @@ ui.menuarea = {
 			var base64data = ui.puzzle.toDataURL(filetype).replace(/data\:.+\;base64\,/,'');
 			require('fs').writeFile(filename, base64data, {encoding:'base64'});
 		});
+	},
+
+	//---------------------------------------------------------------------------
+	// menuarea.recvMenuReq()   main processから送信されたメニューに関するipc通信の処理を行う
+	// menuarea.recvMessage()  popup windowから送信されたpostMessageの処理を行う
+	//---------------------------------------------------------------------------
+	recvMenuReq : function(req){
+		var toolarea = ui.toolarea;
+		var parser = pzpr.parser;
+		var puzzle = ui.puzzle, pid = pzpr.variety.toURLID(puzzle.pid);
+		switch(req){
+			case 'undo': puzzle.undo(); break;
+			case 'redo': puzzle.redo(); break;
+			case 'check':    toolarea.answercheck(); break;
+			case 'ansclear': toolarea.ACconfirm(); break;
+			case 'auxclear': toolarea.ASconfirm(); break;
+			case 'duplicate': ui.misc.openpuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
+			case 'edit-mode': if(puzzle.playmode){ puzzle.setConfig("mode", puzzle.MODE_EDITOR);} break;
+			case 'play-mode': if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);} break;
+			
+			case 'save-pzpr':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
+			case 'save-pbox':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid); break;
+			case 'save-pbox-xml': require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml'); break;
+			case 'saveimage-png': this.saveimage('png'); break;
+			case 'saveimage-svg': this.saveimage('svg'); break;
+			
+			case 'popup-urloutput': window.open('popups/urloutput.html?'+pid,null,'show=no'); break;
+			case 'popup-adjust':    window.open('popups/adjust.html?'+pid,null,'show=no'); break;
+			case 'popup-metadata':  window.open('popups/metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows,null,'show=no'); break;
+			
+			default: /* DO NOTHING */ break;
+		}
+	},
+	recvMessage : function(sender, channel, data){
+		var puzzle = ui.puzzle;
+		switch(channel){
+			case 'urloutput':
+				var parser = pzpr.parser;
+				switch(data){
+					case 'pzprv3':  sender.postMessage(puzzle.getURL(parser.URL_PZPRV3), '*'); break;
+					case 'kanpen':  sender.postMessage(puzzle.getURL(parser.URL_KANPEN), '*'); break;
+					case 'heyaapp': sender.postMessage(puzzle.getURL(parser.URL_HEYAAPP),'*'); break;
+				}
+				break;
+			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
+			case 'metadata-set': puzzle.metadata.copydata(data); break;
+			case 'adjust':       puzzle.board.exec.execadjust(data); break;
+		}
 	}
 };
 
 require('ipc').on('menu-req', function(req){
-	var toolarea = ui.toolarea;
-	var parser = pzpr.parser;
-	var puzzle = ui.puzzle, pid = pzpr.variety.toURLID(puzzle.pid);
-	switch(req){
-		case 'undo': puzzle.undo(); break;
-		case 'redo': puzzle.redo(); break;
-		case 'edit-mode':
-			if(puzzle.playmode){ puzzle.setConfig("mode", puzzle.MODE_EDITOR);}
-			break;
-		case 'play-mode':
-			if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);}
-			break;
-		case 'check':    toolarea.answercheck(); break;
-		case 'ansclear': toolarea.ACconfirm(); break;
-		case 'auxclear': toolarea.ASconfirm(); break;
-		case 'duplicate': 
-			ui.misc.openpuzzle(puzzle.getFileData(pzpr.parser.FILE_PZPR,{history:true}));
-			break;
-		case 'save-pzpr':
-			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid);
-			break;
-		case 'save-pbox':
-			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid);
-			break;
-		case 'save-pbox-xml':
-			require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml');
-			break;
-		case 'popup-urloutput':
-			window.open('popups/urloutput.html?'+ui.puzzle.pid);
-			break;
-		case 'popup-adjust':
-			window.open('popups/adjust.html?'+ui.puzzle.pid);
-			break;
-		case 'popup-metadata':
-			window.open('popups/metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows);
-			break;
-		case 'saveimage-png':
-			ui.menuarea.saveimage('png');
-			break;
-		case 'saveimage-svg':
-			ui.menuarea.saveimage('svg');
-			break;
-		default:
-			/* DO NOTHING */
-			break;
-	}
+	ui.menuarea.recvMenuReq(req);
 });
-
 window.addEventListener("message", function(e){
-	var puzzle = ui.puzzle;
-	if(e.data.substr(0,10)==='urloutput:'){
-		var parser = pzpr.parser;
-		switch(e.data.substr(10)){
-			case 'pzprv3':  e.source.postMessage(puzzle.getURL(parser.URL_PZPRV3), '*'); break;
-			case 'kanpen':  e.source.postMessage(puzzle.getURL(parser.URL_KANPEN), '*'); break;
-			case 'heyaapp': e.source.postMessage(puzzle.getURL(parser.URL_HEYAAPP),'*'); break;
-		}
-	}
-	else if(e.data.substr(0,9)==='metadata:'){
-		if(e.data.substr(9)==='get'){
-			e.source.postMessage(JSON.stringify(puzzle.metadata), '*');
-		}
-		else if(e.data.substr(9,4)==='set:'){
-			puzzle.metadata.copydata(JSON.parse(e.data.substr(13)));
-		}
-	}
-	else if(e.data.substr(0,7)==='adjust:'){
-		puzzle.board.exec.execadjust(e.data.substr(7));
-	}
+	var msg = JSON.parse(e.data);
+	ui.menuarea.recvMessage(e.source, msg.channel, msg.data);
 }, false);

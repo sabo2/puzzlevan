@@ -21,7 +21,7 @@ popupmgr.extend({
 	// openurl()   「このURLを開く」を実行する
 	//------------------------------------------------------------------------------
 	urloutput : function(e){
-		window.opener.postMessage('urloutput:'+e.target.name, '*');
+		window.opener.postMessage(JSON.stringify({channel:'urloutput',data:e.target.name}), '*');
 	},
 	openurl : function(e){
 		if(document.urloutput.ta.value!==''){

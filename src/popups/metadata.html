@@ -10,7 +10,7 @@ popupmgr.extend({
 	setFormEvent : function(){
 		var datas = location.search.substr(1).split(/\//);
 		document.getElementById("metadata_variety").innerHTML = pzpr.variety.info[datas[0]][popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
-		window.opener.postMessage('metadata:get', '*');
+		window.opener.postMessage(JSON.stringify({channel:'metadata-get'}), '*');
 	},
 	initdata : function(meta){
 		var form = document.metadata;
@@ -21,12 +21,12 @@ popupmgr.extend({
 	},
 	savedata : function(){
 		var form = document.metadata;
-		window.opener.postMessage('metadata:set:'+JSON.stringify({
+		window.opener.postMessage(JSON.stringify({channel:'metadata-set',data:{
 			"author"  : form.author.value,
 			"source"  : form.source.value,
 			"hard"    : form.hard.value,
 			"comment" : form.comment.value
-		}), '*');
+		}}), '*');
 		window.close();
 	}
 });
