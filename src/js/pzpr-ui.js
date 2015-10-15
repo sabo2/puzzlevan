@@ -12,7 +12,6 @@
 		"ui/MenuConfig",
 		"ui/Misc",
 		"ui/MenuArea",
-		"ui/PopupMenu",
 		"ui/ToolArea",
 		"ui/Timer"
 	];

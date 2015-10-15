@@ -7,21 +7,15 @@
 // メニュー描画/取得/html表示系
 ui.event =
 {
-	resizetimer : null,	// resizeタイマー
-
-	evlist : [],
-
 	//----------------------------------------------------------------------
 	// event.addEvent()        addEventListener(など)を呼び出す
+	// event.removeAllEvents() addEventで登録されたイベントを削除する
 	//----------------------------------------------------------------------
+	evlist : [],
 	addEvent : function(el, event, self, callback, capt){
 		var func = pzpr.util.addEvent(el, event, self, callback, !!capt);
 		this.evlist.push({el:el, event:event, func:func, capt:!!capt});
 	},
-
-	//----------------------------------------------------------------------
-	// event.removeAllEvents() addEventで登録されたイベントを削除する
-	//----------------------------------------------------------------------
 	removeAllEvents : function(){
 		var islt = !!_doc.removeEventListener;
 		for(var i=0,len=this.evlist.length;i<len;i++){

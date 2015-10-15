@@ -22,9 +22,7 @@ ui.menuconfig = {
 		
 		this.add('autocheck', false);						/* 正解自動判定機能 */
 
-		this.add('adjsize', true);							/* 自動横幅調節 */
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
-		this.add('fullwidth', false);						/* キャンバスを横幅いっぱいに広げる */
 	},
 	add : Config.add,
 
@@ -68,11 +66,7 @@ ui.menuconfig = {
 	//---------------------------------------------------------------------------
 	configevent : function(idname, newval){
 		ui.setdisplay(idname);
-		switch(idname){
-		case 'adjsize': case 'cellsizeval': case 'fullwidth':
-			ui.adjustcellsize();
-			break;
-		}
+		if(idname==='cellsizeval'){ ui.adjustcellsize();}
 	}
 };
 

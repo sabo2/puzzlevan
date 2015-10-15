@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	setFormEvent : function(){
+		var els = document.querySelectorAll('input[data-color-target]');
+		for(var i=0;i<els.length;i++){
+			var target = els[i].dataset.colorTarget;
+			window.opener.postMessage(JSON.stringify({channel:'color-get',data:{name:target}}));
+		}
+	},
+	
+	setcolor : function(e){
+		var name = e.target.dataset.colorTarget;
+		window.opener.postMessage(JSON.stringify({channel:'color-set',data:{name:name,color:e.target.value}}));
+	},
+	clearcolor : function(e){
+		var name = e.target.dataset.colorTarget;
+		window.opener.postMessage(JSON.stringify({channel:'color-clear',data:{name:name}}));
+		window.opener.postMessage(JSON.stringify({channel:'color-get',data:{name:name}}));
+	}
+});
+window.addEventListener("message", function(e){
+	var msg = JSON.parse(e.data);
+	document.querySelector('input[data-color-target="'+msg.name+'"]').value = msg.color;
+}, false);
+</script>
+<title>Change Color Setting</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <form name="colors">
+      <span>__黒マス (回答入力)__Shaded Cell (Answer)__</span>
+      <input type="color" data-color-target="qanscolor" data-change-exec="setcolor" value="#000000" />
+      <button type="button" class="btn btn-warn" data-color-target="qanscolor" data-button-exec="clearcolor">__クリア__Reset__</button>
+      <br />
+      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>

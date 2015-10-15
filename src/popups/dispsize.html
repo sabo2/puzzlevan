@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	setFormEvent : function(){
+		window.opener.postMessage(JSON.stringify({channel:'size-get'}));
+	},
+	changesize2 : function(e){
+		var csize = +document.dispsize.cellsize2.value;
+		document.dispsize.cellsize.value = csize;
+		if(csize>0){ window.opener.postMessage(JSON.stringify({channel:'size-set',data:csize}));}
+	},
+	changesize : function(e){
+		var csize = +document.dispsize.cellsize.value;
+		document.dispsize.cellsize2.value = csize;
+		if(csize>0){ window.opener.postMessage(JSON.stringify({channel:'size-set',data:csize}));}
+	},
+	resetsize : function(e){
+		var csize = 36;
+		document.dispsize.cellsize2.value = csize;
+		document.dispsize.cellsize.value = csize;
+		window.opener.postMessage(JSON.stringify({channel:'size-set',data:36}));
+	}
+});
+window.addEventListener("message", function(e){
+	document.dispsize.cellsize2.value = e.data|0;
+	document.dispsize.cellsize.value = e.data|0;
+}, false);
+</script>
+<title>Change Cell Size</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <form name="dispsize">
+      <span>__セルのサイズ__Cell size__</span>
+      <input type="range" name="cellsize2" value="" min=8 max=100 step=1 data-button-exec="changesize2" style="width:240px;" />
+      <input type="number" name="cellsize" value="" size=4 maxlength=3 min=8 max=999 data-button-exec="changesize" />
+      <br />
+      <button type="button" class="btn btn-info" data-button-exec="resetsize" style="margin-top:12pt;">__初期値に戻す__Reset Size__</button>
+      <button type="button" class="btn" data-button-exec="close" style="margin-top:12pt;">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>

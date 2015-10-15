@@ -27,9 +27,6 @@ window.ui = {
 	menuconfig: null,
 	menuarea  : null,
 	toolarea  : null,
-	popupmgr  : null,
-	
-	enableSaveBlob  : false,	// saveBlobが使用できるか
 
 	//---------------------------------------------------------------------------
 	// ui.displayAll()     全てのメニュー、ボタン、ラベルに対して文字列を設定する
@@ -38,7 +35,6 @@ window.ui = {
 	displayAll : function(){
 		ui.menuarea.display();
 		ui.toolarea.display();
-		ui.popupmgr.translate();
 		ui.misc.displayDesign();
 	},
 	setdisplay : function(idname){
@@ -48,32 +44,14 @@ window.ui = {
 
 	//---------------------------------------------------------------------------
 	// ui.adjustcellsize()  resizeイベント時に、pc.cw, pc.chのサイズを(自動)調節する
-	// ui.getBoardPadding() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
+	// ui.getBoardPaddingSize() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
 	//---------------------------------------------------------------------------
 	adjustcellsize : function(){
 		var uiconf = ui.menuconfig;
 		ui.puzzle.setCanvasSizeByCellSize(uiconf.get('cellsizeval'));
 	},
-	getBoardPadding : function(){
-		var puzzle = ui.puzzle, padding = 0;
-		switch(puzzle.pid){
-			case 'firefly': case 'hashikake': case 'wblink':
-			case 'ichimaga': case 'ichimagam': case 'ichimagax':
-				padding = 0.30; break;
-			
-			case 'kouchoku': case 'gokigen': case 'wagiri': case 'creek':
-				padding = 0.20; break;
-			
-			case 'kinkonkan': case 'box':
-				padding = 0.05; break;
-			
-			case 'bosanowa':
-				padding = (puzzle.getConfig('disptype_bosanowa')!==2?0.50:0.05); break;
-			
-			default: padding = 0.50; break;
-		}
-		if(ui.menuconfig.get('fullwidth')){ padding = 0;}
-		return padding;
+	getBoardPaddingSize : function(){
+		return 12;
 	},
 
 	//--------------------------------------------------------------------------------
@@ -128,12 +106,5 @@ window.ui = {
 	saveConfig : function(){
 		localStorage['pzprv3_config:puzzle'] = ui.puzzle.saveConfig();
 		localStorage['pzprv3_config:ui']     = ui.menuconfig.getAll();
-	},
-
-	//----------------------------------------------------------------------
-	// ui.initImageSaveMethod() 画像保存関連の処理の初期化を行う
-	//----------------------------------------------------------------------
-	initImageSaveMethod : function(puzzle){
-		this.enableSaveBlob = (!!window.navigator.saveBlob);
 	}
 };

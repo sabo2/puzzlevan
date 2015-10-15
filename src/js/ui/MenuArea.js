@@ -54,12 +54,6 @@ ui.menuarea = {
 					setevent = true;
 				}
 				
-				var role = el.dataset.popup;
-				if(!!role){
-					addmdevent(el, menuarea.disppopup);
-					setevent = true;
-				}
-				
 				if(!setevent){
 					if(!el.querySelector("menu")){
 						addmdevent(el, function(e){ e.preventDefault();});
@@ -153,17 +147,6 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	// メニューがクリックされた時の動作を呼び出す
 	//---------------------------------------------------------------------------
-	// submenuから呼び出される関数たち
-	disppopup : function(e){
-		var el = e.target;
-		if(el.nodeName==="SPAN"){ el = el.parentNode;}
-		if(el.className!=="disabled"){
-			var idname = el.dataset.popup;
-			var pos = pzpr.util.getPagePos(e);
-			ui.popupmgr.open(idname, pos.px-8, pos.py-8);
-		}
-	},
-
 	saveimage : function(filetype){
 		/* 画像出力ルーチン */
 		ui.remote.require('dialog').showSaveDialog(ui.win, {
@@ -176,9 +159,14 @@ ui.menuarea = {
 			require('fs').writeFile(filename, base64data, {encoding:'base64'});
 		});
 	},
+	openpopup : function(url){
+		var bounds = ui.win.getBounds();
+		var feature = 'x='+(bounds.x+24)+',y='+(bounds.y+24)+',show=no';
+		window.open('popups/'+url, null, feature);
+	},
 
 	//---------------------------------------------------------------------------
-	// menuarea.recvMenuReq()   main processから送信されたメニューに関するipc通信の処理を行う
+	// menuarea.recvMenuReq()  main processから送信されたメニューに関するipc通信の処理を行う
 	// menuarea.recvMessage()  popup windowから送信されたpostMessageの処理を行う
 	//---------------------------------------------------------------------------
 	recvMenuReq : function(req){
@@ -201,9 +189,11 @@ ui.menuarea = {
 			case 'saveimage-png': this.saveimage('png'); break;
 			case 'saveimage-svg': this.saveimage('svg'); break;
 			
-			case 'popup-urloutput': window.open('popups/urloutput.html?'+pid,null,'show=no'); break;
-			case 'popup-adjust':    window.open('popups/adjust.html?'+pid,null,'show=no'); break;
-			case 'popup-metadata':  window.open('popups/metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows,null,'show=no'); break;
+			case 'popup-urloutput': this.openpopup('urloutput.html?'+pid); break;
+			case 'popup-adjust':    this.openpopup('adjust.html?'+pid); break;
+			case 'popup-metadata':  this.openpopup('metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows); break;
+			case 'popup-dispsize':  this.openpopup('dispsize.html'); break;
+			case 'popup-colors':    this.openpopup('colors.html'); break;
 			
 			default: /* DO NOTHING */ break;
 		}
@@ -222,6 +212,11 @@ ui.menuarea = {
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
 			case 'metadata-set': puzzle.metadata.copydata(data); break;
 			case 'adjust':       puzzle.board.exec.execadjust(data); break;
+			case 'color-get':    sender.postMessage(JSON.stringify({name:data.name,color:puzzle.painter[data.name]}), '*'); break;
+			case 'color-set':    puzzle.setConfig('color_'+data.name, data.color); break;
+			case 'color-clear':  puzzle.setConfig('color_'+data.name, ''); break;
+			case 'size-get':     sender.postMessage(''+ui.menuconfig.get('cellsizeval'), '*'); break;
+			case 'size-set':     ui.menuconfig.set('cellsizeval', data); break;
 		}
 	}
 };

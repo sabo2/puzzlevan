@@ -113,18 +113,10 @@ function sendMenuReq(content){
 		}
 	};
 }
-
-function minimizeFocusedWindow(menuitem, focusedWindow){
-	if(focusedWindow){ focusedWindow.minimize();}
-}
-function reloadFocusedWindow(menuitem, focusedWindow){
-	if(focusedWindow){ focusedWindow.reload();}
-}
-function closeFocusedWindow(menuitem, focusedWindow){
-	if(focusedWindow){ focusedWindow.close();}
-}
-function toggleDevTool(menuitem, focusedWindow){
-	if(focusedWindow){ focusedWindow.toggleDevTools();}
+function windowEvent(content){
+	return function(menuitem, focusedWindow){
+		if(focusedWindow){ focusedWindow[content]();}
+	};
 }
 
 function versionInfo(menuitem, focusedWindow){
@@ -187,7 +179,7 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Edit Puzzle Properties',               click:sendMenuReq('popup-metadata')},
 			{ type: 'separator'},
-			{ label:'Close Window', accelerator:'Cmd+W', click:closeFocusedWindow},
+			{ label:'Close Window', accelerator:'Cmd+W', click:windowEvent('close')},
 		]},
 		{ label:'Edit', submenu: [
 			{ label:'Undo', click:sendMenuReq('undo')},
@@ -204,11 +196,15 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Duplicate the Board',               click:sendMenuReq('duplicate')},
 		]},
-//		{ label:'View', submenu: [] },
+		{ label:'View', submenu: [
+			{ label:'Cell Size',                         click:sendMenuReq('popup-dispsize')},
+			{ label:'Color Setting',                     click:sendMenuReq('popup-colors')},
+			{ type: 'separator'}
+		]},
 		{ label:'Window', role:'window', submenu: [
-			{ label:'Minimize',        accelerator:'Cmd+M',     click:minimizeFocusedWindow},
-			{ label:'Reload',          accelerator:'Cmd+R',     click:reloadFocusedWindow},
-			{ label:'Toggle DevTools', accelerator:'Alt+Cmd+I', click:toggleDevTool},
+			{ label:'Minimize',        accelerator:'Cmd+M',     click:windowEvent('minimize')},
+			{ label:'Reload',          accelerator:'Cmd+R',     click:windowEvent('reload')},
+			{ label:'Toggle DevTools', accelerator:'Alt+Cmd+I', click:windowEvent('toggleDevTools')},
 			{ type: 'separator'},
 			{ label:'Bring All to Front', selector:'arrangeInFront:'},
 		]},
@@ -238,7 +234,7 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'Open Puzzle &List', accelerator:'Ctrl+L', click:openMainWindow},
 			{ type: 'separator'},
-			{ label:'&Close Window', accelerator:'Ctrl+W', click:closeFocusedWindow},
+			{ label:'&Close Window', accelerator:'Ctrl+W', click:windowEvent('close')},
 			{ type: 'separator'},
 			{ label:'&Quit Puzzlevan',                     click:function(){ app.quit();}},
 		]},
@@ -257,11 +253,14 @@ function setMenu(){
 			{ type: 'separator'},
 			{ label:'&Duplicate the Board',                click:sendMenuReq('duplicate')},
 		]},
-//		{ label:'&View', submenu: [] },
+		{ label:'&View', submenu: [
+			{ label:'Cell &Size',                          click:sendMenuReq('popup-dispsize')},
+			{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')}
+		]},
 		{ label:'&Window', submenu: [
-			{ label:'&Minimize',        accelerator:'Ctrl+M', click:minimizeFocusedWindow},
-			{ label:'&Reload',          accelerator:'Ctrl+R', click:reloadFocusedWindow},
-			{ label:'Toggle &DevTools', accelerator:'F12',    click:toggleDevTool},
+			{ label:'&Minimize',        accelerator:'Ctrl+M', click:windowEvent('minimize')},
+			{ label:'&Reload',          accelerator:'Ctrl+R', click:windowEvent('reload')},
+			{ label:'Toggle &DevTools', accelerator:'F12',    click:windowEvent('toggleDevTools')},
 		]},
 		{ label:'Help', submenu: [
 			{ label:'About Puzzlevan', click:versionInfo},

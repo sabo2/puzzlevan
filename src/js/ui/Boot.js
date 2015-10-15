@@ -7,8 +7,6 @@
 /********************************/
 if(!window.pzpr || !window.ui){ setTimeout(arguments.callee,0); return;}
 
-window.navigator.saveBlob = window.navigator.saveBlob || window.navigator.msSaveBlob;
-
 var onload_option = {imagesave:true};
 
 //---------------------------------------------------------------------------

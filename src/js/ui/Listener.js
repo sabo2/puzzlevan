@@ -31,11 +31,6 @@ ui.listener =
 	onReady : function(puzzle){
 		var pid = puzzle.pid;
 		
-		/* 初回だけ */
-		if(!ui.currentpid){
-			ui.initImageSaveMethod(puzzle);
-		}
-		
 		/* パズルの種類が同じならMenuArea等の再設定は行わない */
 		if(ui.currentpid !== pid){
 			/* 以前設定済みのイベントを削除する */
@@ -44,7 +39,6 @@ ui.listener =
 			/* メニュー用の設定を消去・再設定する */
 			ui.menuarea.reset();
 			ui.toolarea.reset();
-			ui.popupmgr.reset();
 			ui.misc.displayDesign();
 			
 			/* Windowへのイベント設定 */
@@ -164,8 +158,7 @@ ui.listener =
 	// listener.onResize()  canvasのサイズを変更したときの処理を呼び出す
 	//---------------------------------------------------------------------------
 	onResize : function(puzzle){
-		var pc = puzzle.painter, val = (ui.getBoardPadding()*Math.min(pc.cw, pc.ch))|0;
-		puzzle.canvas.parentNode.style.padding = val+'px';
+		puzzle.canvas.parentNode.style.padding = ui.getBoardPaddingSize()+'px';
 		
 		var width = pzpr.util.getRect(puzzle.canvas.parentNode).width|0;
 		if(width<=0){ return;}
@@ -175,8 +168,6 @@ ui.listener =
 		var height = (pzpr.util.getRect(document.body).height+8)|0;
 		ui.win.setContentSize(width, height);
 		
-		if(!ui.win.isVisible()){
-			setTimeout(function(){ui.win.show();},100);
-		}
+		if(!ui.win.isVisible()){ ui.win.show();}
 	}
 };
