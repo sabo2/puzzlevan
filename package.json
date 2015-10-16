@@ -1,5 +1,6 @@
 {
   "name": "puzzlevan",
+  "productName": "Puzzlevan",
   "version": "0.0.0-pre",
   "description": "Pencil puzzle editor by Javascript",
   "main": "main.js",

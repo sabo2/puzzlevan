@@ -13,7 +13,7 @@ var options = {
 	prune     : true,
 	ignore    : 'node_module|tests|dist|pack\.js|Gruntfile\.js|ignore|\.DS_Store|\.jshintrc|\.settings',
 	
-	name            : 'Puzzlevan' /* pkg.name */,
+	name            : pkg.productName,
 	'app-version'   : pkg.version,
 //	icon            : ''  // not created
 	'app-bundle-id' : 'jp.pzv.puzzlevan',
@@ -27,7 +27,19 @@ var options = {
 };
 function done(error, appPath){
 	if(error){ throw new Error(error);}
-	console.log('Building package done! --> '+appPath);
+	var appPathLower = appPath[0].replace(pkg.productName, pkg.name);
+	if(appPath[0].match('win32')){
+		require('fs').renameSync(appPath[0], appPathLower);
+		require('fs').renameSync(appPath[0]+'/'+pkg.productName+'.exe', appPathLower+'/'+pkg.name+'.exe');
+	}
+	else if(appPath[0].match('linux')){
+		require('fs').renameSync(appPath[0], appPathLower);
+		require('fs').renameSync(appPath[0]+'/'+pkg.productName, appPathLower+'/'+pkg.name);
+	}
+	else{ /* darwin */
+		require('fs').renameSync(appPath[0]+'/', appPathLower+'/');
+	}
+	console.log('Building package done! --> '+appPathLower);
 }
 
 [['darwin','x64'],['linux','ia32'],['win32','ia32'],].forEach(function(item){
