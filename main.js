@@ -3,14 +3,22 @@ var ipc = require('ipc');
 var BrowserWindow = require('browser-window');
 var appmenu = require('menu');
 
-require('crash-reporter').start();
-
 var srcdir = 'file://' + __dirname + '/src/';
 
 // Global objects
 var pzprversion = '';
 var latest_pid = '';
 var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
+
+//--------------------------------------------------------------------------
+var pref = {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en')};
+var prefFile = app.getPath('userData')+'/preference';
+var fs = require('fs');
+function savePreference(){
+	fs.writeFile(prefFile, JSON.stringify(pref));
+}
+if(fs.existsSync(prefFile)){ pref = JSON.parse(fs.readFileSync(prefFile));}
+else{ savePreference();}
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
@@ -78,6 +86,7 @@ function openExplainWindow(menuitem, focusedWindow){
 //--------------------------------------------------------------------------
 // IPCs from various windows
 ipc.on('open-puzzle', function(e, data){ openPuzzleWindow(data, latest_pid);});
+ipc.on('get-pref', function(e){ e.returnValue = pref;});
 
 // IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
@@ -113,9 +122,24 @@ function sendMenuReq(content){
 		}
 	};
 }
+//function sendConfigReq(content){
+//	return function(menuitem, focusedWindow){
+//		if(focusedWindow && focusedWindow!==mainWindow){
+//			focusedWindow.webContents.send('config-req', content);
+//		}
+//	};
+//}
 function windowEvent(content){
 	return function(menuitem, focusedWindow){
 		if(focusedWindow){ focusedWindow[content]();}
+	};
+}
+
+function setLanguage(lang){
+	return function(menuitem, focusedWindow){
+		pref.lang = lang;
+		BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', 'language:'+lang);});
+		savePreference();
 	};
 }
 
@@ -148,15 +172,15 @@ function popupURLImport(menuitem, focusedWindow){
 function setMenu(){
 	var template = (process.platform==='darwin' ? [
 		{ label:'Puzzlevan', submenu: [
-			{ label:'About Puzzlevan', selector: 'orderFrontStandardAboutPanel:'},
+			{ label:'About Puzzlevan', role:'about'},
 			{ type: 'separator'},
 			{ label:'Open Puzzle List', accelerator:'Cmd+L', click:openMainWindow},
 			{ type: 'separator'},
 			{ label:'Services', role:'services', submenu:[]},
 			{ type: 'separator'},
-			{ label:'Hide Puzzlevan', accelerator:'Cmd+H',       selector:'hide:'},
-			{ label:'Hide Others',    accelerator:'Cmd+Shift+H', selector:'hideOtherApplications:'},
-			{ label:'Show All',                                  selector:'unhideAllApplications:'},
+			{ label:'Hide Puzzlevan', accelerator:'Cmd+H',       role:'hide'},
+			{ label:'Hide Others',    accelerator:'Cmd+Shift+H', role:'hideothers'},
+			{ label:'Show All',                                  role:'unhide'},
 			{ type: 'separator'},
 			{ label:'Quit Puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
 		]},
@@ -201,12 +225,18 @@ function setMenu(){
 			{ label:'Color Setting',                     click:sendMenuReq('popup-colors')},
 			{ type: 'separator'}
 		]},
+		{ label:'Setting', submenu: [
+			{ label:'Language', submenu:[
+				{ label:'日本語',   type:'radio', checked:(pref.lang==='ja'), click:setLanguage('ja')},
+				{ label:'English', type:'radio', checked:(pref.lang==='en'), click:setLanguage('en')},
+			]}
+		]},
 		{ label:'Window', role:'window', submenu: [
 			{ label:'Minimize',        accelerator:'Cmd+M',     click:windowEvent('minimize')},
 			{ label:'Reload',          accelerator:'Cmd+R',     click:windowEvent('reload')},
 			{ label:'Toggle DevTools', accelerator:'Alt+Cmd+I', click:windowEvent('toggleDevTools')},
 			{ type: 'separator'},
-			{ label:'Bring All to Front', selector:'arrangeInFront:'},
+			{ label:'Bring All to Front', role:'front'},
 		]},
 		{ label:'Help', role:'help', submenu: [
 			{ label:'About Puzzlevan', click:versionInfo},
@@ -225,7 +255,7 @@ function setMenu(){
 			{ label:'&Import URL',                         click:popupURLImport},
 			{ label:'&Export URL',                         click:sendMenuReq('popup-urloutput')},
 			{ type: 'separator'},
-			{ label:'Save Imag&e', submenu:[
+			{ label:'Save Ima&ge', submenu:[
 				{ label:'&PNG Format (png)',               click:sendMenuReq('saveimage-png')},
 				{ label:'&Vector Format (SVG)',            click:sendMenuReq('saveimage-svg')},
 			]},
@@ -256,6 +286,12 @@ function setMenu(){
 		{ label:'&View', submenu: [
 			{ label:'Cell &Size',                          click:sendMenuReq('popup-dispsize')},
 			{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')}
+		]},
+		{ label:'&Setting', submenu: [
+			{ label:'&Language', submenu:[
+				{ label:'日本語',   type:'radio', checked:(pref.lang==='ja'), click:setLanguage('ja')},
+				{ label:'English', type:'radio', checked:(pref.lang==='en'), click:setLanguage('en')},
+			]}
 		]},
 		{ label:'&Window', submenu: [
 			{ label:'&Minimize',        accelerator:'Ctrl+M', click:windowEvent('minimize')},

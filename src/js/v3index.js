@@ -1,4 +1,7 @@
 
+/* global v3index:false */
+/* exported v3index */
+
 (function(){
 
 /* variables */
@@ -34,7 +37,7 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
-		self.doclang = pzpr.util.getUserLang();
+		self.doclang = require('ipc').sendSync('get-pref').lang;
 		if(!self.current){
 			self.input_init();
 			self.setTabEvent();
@@ -166,6 +169,13 @@ self.addEvent(window, 'load', self.onload_include);
 window.v3index = v3index;
 
 })();
+
+require('ipc').on('config-req', function(req){
+	if(req.match(/language\:(.+)/)){
+		v3index.doclang = RegExp.$1;
+		v3index.translate();
+	}
+});
 
 /*********************/
 /* URLInput function */

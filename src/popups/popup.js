@@ -10,6 +10,7 @@ window.onload = function(){
 	
 	var rect = main.getBoundingClientRect();
 	var win = require('remote').getCurrentWindow();
+	win.setMenuBarVisibility(false);
 	win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
 	win.show();
 };
@@ -42,10 +43,7 @@ var popupmgr = {
 		}
 		document.querySelector('form').addEventListener('submit', function(e){ e.preventDefault();}, false);
 	},
-	lang : (function getLang(){
-		var userlang = (navigator.browserLanguage || navigator.language || navigator.userLanguage);
-		return ((userlang.substr(0,2)==='ja')?'ja':'en');
-	})(),
+	lang : require('ipc').sendSync('get-pref').lang,
 	translate : function(){
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];
@@ -58,3 +56,10 @@ var popupmgr = {
 	},
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
+
+require('ipc').on('config-req', function(req){
+	if(req.match(/language\:(.+)/)){
+		popupmgr.lang = RegExp.$1;
+		popupmgr.translate();
+	}
+});

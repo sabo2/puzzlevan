@@ -36,6 +36,9 @@ ui.listener =
 			/* 以前設定済みのイベントを削除する */
 			ui.event.removeAllEvents();
 			
+			/* 言語を設定 */
+			ui.puzzle.setConfig('language', require('ipc').sendSync('get-pref').lang);
+			
 			/* メニュー用の設定を消去・再設定する */
 			ui.menuarea.reset();
 			ui.toolarea.reset();
@@ -143,7 +146,6 @@ ui.listener =
 		}
 		else if(idname==='language'){
 			ui.displayAll();
-			puzzle.adjustCanvasPos();
 		}
 	},
 

@@ -160,6 +160,15 @@ ui.menuarea = {
 	},
 
 	//---------------------------------------------------------------------------
+	// menuarea.recvConfigReq() main processから送信されたConfig設定に関するipc通信の処理を行う
+	//---------------------------------------------------------------------------
+	recvConfigReq : function(req){
+		if(req.match(/(.+)\:(.+)/)){
+			ui.setConfig(RegExp.$1, RegExp.$2);
+		}
+	},
+
+	//---------------------------------------------------------------------------
 	// menuarea.recvMenuReq()  main processから送信されたメニューに関するipc通信の処理を行う
 	// menuarea.recvMessage()  popup windowから送信されたpostMessageの処理を行う
 	//---------------------------------------------------------------------------
@@ -215,6 +224,9 @@ ui.menuarea = {
 	}
 };
 
+require('ipc').on('config-req', function(req){
+	ui.menuarea.recvConfigReq(req);
+});
 require('ipc').on('menu-req', function(req){
 	ui.menuarea.recvMenuReq(req);
 });
