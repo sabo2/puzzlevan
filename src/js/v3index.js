@@ -39,7 +39,6 @@ v3index.extend({
 	onload_func : function(){
 		self.doclang = require('ipc').sendSync('get-pref').lang;
 		if(!self.current){
-			self.input_init();
 			self.setTabEvent();
 			self.setDragDropEvent();
 			self.setTranslation();
@@ -47,9 +46,6 @@ v3index.extend({
 			require('ipc').send('pzpr-version', pzpr.version);
 		}
 		self.disp();
-	},
-	input_init : function(){
-		return +self.urlif.init();
 	},
 
 	reset_func : function(){
@@ -176,36 +172,3 @@ require('ipc').on('config-req', function(req){
 		v3index.translate();
 	}
 });
-
-/*********************/
-/* URLInput function */
-/*********************/
-(function(){
-
-var v3index = window.v3index;
-
-v3index.urlif = {
-	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
-};
-
-var _doc = document;
-var _form;
-var self = v3index.urlif;
-
-function getEL(id){ return _doc.getElementById(id);}
-
-v3index.urlif.extend({
-	init : function(){
-		_form = _doc.urlinput;
-		if(!!_form){
-			v3index.addEvent(getEL("urlinput_btn"), "click", self.urlinput);
-			return true;
-		}
-	},
-	urlinput : function(e){
-		var url = getEL("urlinput_text").value;
-		if(!!url){ v3index.openpuzzle(url);}
-	}
-});
-
-})();
