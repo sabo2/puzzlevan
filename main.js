@@ -58,6 +58,7 @@ function openMainWindow(menuitem, focusedWindow){
 		openPuzzleWindow(url);
 		e.preventDefault();
 	});
+	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu(false, '');});
 	mainWindow.on('focus', function(){ setApplicationMenu(false, '');});
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
