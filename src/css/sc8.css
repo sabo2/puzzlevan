@@ -5,7 +5,7 @@
 		padding : 0pt;
 		color : black;
 		line-height : 120%;
-		font-family: 'MS PGothic';
+		font-family: 'MS PGothic', sans-serif;
 	}
 
 	/* 盤面外の表示部分(管理領域・メニュー・ポップアップ・ボタン) */
@@ -25,7 +25,7 @@
 		background     : linear-gradient(to bottom, white, silver);
 		text-align     : center;
 		vertical-align : middle;
-		font   : 90%/1.2 sans-serif;
+		font   : 90%/1.2 'MS PGothic', sans-serif;
 		cursor : default;
 	}
 	.btn:active {

@@ -57,9 +57,9 @@ var popupmgr = {
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
 
-require('ipc').on('config-req', function(req){
-	if(req.match(/language\:(.+)/)){
-		popupmgr.lang = RegExp.$1;
+require('ipc').on('config-req', function(idname, val){
+	if(idname==='language'){
+		popupmgr.lang = val;
 		popupmgr.translate();
 	}
 });

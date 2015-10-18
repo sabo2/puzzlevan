@@ -122,27 +122,31 @@ function sendMenuReq(content){
 		}
 	};
 }
-//function sendConfigReq(content){
-//	return function(menuitem, focusedWindow){
-//		if(focusedWindow && focusedWindow!==mainWindow){
-//			focusedWindow.webContents.send('config-req', content);
-//		}
-//	};
-//}
+function sendConfigReq(content){
+	return function(menuitem, focusedWindow){
+		if(focusedWindow && focusedWindow!==mainWindow){
+			var idname = menuitem.id, val = menuitem.checked;
+			if(menuitem.id.match(/(.+)\:(.+)/)){
+				idname = RegExp.$1;
+				val = RegExp.$2;
+			}
+			BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
+		}
+	};
+}
+function setLanguage(lang){
+	return function(menuitem, focusedWindow){
+		pref.lang = lang;
+		BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', 'language', lang);});
+		savePreference();
+	};
+}
+
 function windowEvent(content){
 	return function(menuitem, focusedWindow){
 		if(focusedWindow){ focusedWindow[content]();}
 	};
 }
-
-function setLanguage(lang){
-	return function(menuitem, focusedWindow){
-		pref.lang = lang;
-		BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', 'language:'+lang);});
-		savePreference();
-	};
-}
-
 function versionInfo(menuitem, focusedWindow){
 	var msg = [
 		'Puzzlevan v'+app.getVersion(),
@@ -223,6 +227,11 @@ function setMenu(){
 		{ label:'View', submenu: [
 			{ label:'Cell Size',                         click:sendMenuReq('popup-dispsize')},
 			{ label:'Color Setting',                     click:sendMenuReq('popup-colors')},
+			{ type: 'separator'},
+			{ label:'Board font', submenu:[
+				{ label:'sens-serif', type:'radio', checked:true,  click:sendConfigReq(), id:'font:1'},
+				{ label:'serif',      type:'radio', checked:false, click:sendConfigReq(), id:'font:2'},
+			]},
 			{ type: 'separator'}
 		]},
 		{ label:'Setting', submenu: [
@@ -285,7 +294,12 @@ function setMenu(){
 		]},
 		{ label:'&View', submenu: [
 			{ label:'Cell &Size',                          click:sendMenuReq('popup-dispsize')},
-			{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')}
+			{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')},
+			{ type: 'separator'},
+			{ label:'Board font', submenu:[
+				{ label:'sens-serif', type:'radio', checked:true,  click:sendConfigReq(), id:'font:1'},
+				{ label:'serif',      type:'radio', checked:false, click:sendConfigReq(), id:'font:2'},
+			]}
 		]},
 		{ label:'&Setting', submenu: [
 			{ label:'&Language', submenu:[

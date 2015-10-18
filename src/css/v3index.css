@@ -4,7 +4,7 @@
 		text-align:center;
 		color:black;
 		line-height:120%;
-		font-family: 'MS PGothic';
+		font-family: 'MS PGothic', serif;
 	}
 
 	h2#title {
@@ -98,55 +98,13 @@
 	td.others  { background-color:#ffffcc;}
 	td.infotbl { background-color:#f8f8f8;}
 
-	input, button, textarea, select{
-		font-size : 0.9em;
-	}
-	.btn {
-		display : inline;
-		margin  : 2pt;
-		padding : 2pt 4pt 2pt 4pt;
-		border-radius : 4pt;
-		border        : solid 1pt gray;
-		
-		background     : silver;
-		background     : linear-gradient(to bottom, white, silver);
-		text-align     : center;
-		vertical-align : middle;
-		font   : 90%/1.2 sans-serif;
-		cursor : default;
-	}
-	.btn:active {
-		background : #afafaf;
-		background : linear-gradient(to bottom, #afafaf, #cccccc);
-	}
-	
-	.btn-ok {
-		background : blue;
-		background : linear-gradient(to bottom, #afafff, blue);
-		color : white;
-	}
-	.btn-ok:active {
-		background : navy;
-		background : linear-gradient(to bottom, navy, blue);
-	}
-	
-	.btn-info {
-		background : #993366;
-		background : linear-gradient(to bottom, #cc6699, #993366);
-		color : white;
-	}
-	.btn-info:active {
-		background : #66334f;
-		background : linear-gradient(to bottom, #66334f, #993366);
-	}
-
 	tr.accordion {
 		width : 100%;
 		cursor: pointer;
 	}
 	tr.accordion td {
 		padding : 4px;
-		font-weight : 900;
+		font-weight : 600;
 	}
 	span.triangle-open {
 		display:inline-block;
@@ -169,6 +127,10 @@
 		border-left:12px solid gray;
 	}
 
+	span.category {
+		font-weight: 600;
+	}
+
 	/* for index_test.html */
 	table.exp {
 		width  : 80%;
@@ -182,5 +144,5 @@
 	}
 
 	/* for rules.html */
-	span.pname { font-weight:900;}
+	span.pname { font-weight:300;}
 	ol.prule   { margin:0pt;}

@@ -6,7 +6,7 @@
 		color : black;
 		font-size   : 1.0em;
 		line-height : 120%;
-		font-family: 'MS PGothic';
+		font-family: 'MS PGothic', sans-serif;
 		background-color:#efefef;
 		-webkit-user-select:none;
 		user-select:none;
@@ -31,7 +31,7 @@
 		background     : linear-gradient(to bottom, white, silver);
 		text-align     : center;
 		vertical-align : middle;
-		font   : 90%/1.2 sans-serif;
+		font   : 90%/1.2 'MS PGothic', sans-serif;
 		cursor : default;
 	}
 	.btn:active {

@@ -166,9 +166,9 @@ window.v3index = v3index;
 
 })();
 
-require('ipc').on('config-req', function(req){
-	if(req.match(/language\:(.+)/)){
-		v3index.doclang = RegExp.$1;
+require('ipc').on('config-req', function(idname, val){
+	if(idname==='language'){
+		v3index.doclang = val;
 		v3index.translate();
 	}
 });
