@@ -33,12 +33,10 @@ window.ui = {
 	// ui.setdisplay()     個別のメニュー、ボタン、ラベルに対して文字列を設定する
 	//---------------------------------------------------------------------------
 	displayAll : function(){
-		ui.menuarea.display();
 		ui.toolarea.display();
 		ui.misc.displayDesign();
 	},
 	setdisplay : function(idname){
-		ui.menuarea.setdisplay(idname);
 		ui.toolarea.setdisplay(idname);
 	},
 
@@ -60,6 +58,20 @@ window.ui = {
 	selectStr : function(strJP, strEN){
 		if(!strEN || !ui.puzzle){ return strJP;}
 		return (ui.puzzle.getConfig('language')==='ja' ? strJP : strEN);
+	},
+
+	//---------------------------------------------------------------------------
+	// ui.getCurrentConfigList() 現在のパズルで有効な設定と設定値を返す
+	//---------------------------------------------------------------------------
+	getCurrentConfigList : function(){
+		var conf = {};
+		for(var idname in ui.puzzle.config.list){
+			if(ui.puzzle.validConfig(idname)){ conf[idname] = ui.puzzle.getConfig(idname);}
+		}
+		for(var idname in ui.menuconfig.list){
+			if(ui.menuconfig.valid(idname)){ conf[idname] = ui.menuconfig.get(idname);}
+		}
+		return conf;
 	},
 
 	//---------------------------------------------------------------------------

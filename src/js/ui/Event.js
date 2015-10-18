@@ -81,7 +81,7 @@ ui.event =
 	},
 	onfocus_func : function(){
 		/* pencilboxのファイル向け */
-		require('ipc').send('update-pid', ui.puzzle.pid);
+		require('ipc').send('update-pid', ui.puzzle.pid, ui.getCurrentConfigList());
 	},
 	onbeforeunload_func : function(e){
 		if(!ui.puzzle.ismodified()){ return;}

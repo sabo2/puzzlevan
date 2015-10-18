@@ -58,8 +58,8 @@ function openMainWindow(menuitem, focusedWindow){
 		openPuzzleWindow(url);
 		e.preventDefault();
 	});
-	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu(false, '');});
-	mainWindow.on('focus', function(){ setApplicationMenu(false, '');});
+	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu();});
+	mainWindow.on('focus', function(){ setApplicationMenu();});
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
@@ -71,7 +71,7 @@ function openPopupWindow(url){
 		y = bounds.y + 24;
 	}
 	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:false});
-	win.on('focus', function(){ setApplicationMenu(false, '');});
+	win.on('focus', function(){ setApplicationMenu();});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference
@@ -79,7 +79,7 @@ function openPopupWindow(url){
 function openExplainWindow(menuitem, focusedWindow){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
 	openpos.modify();
-	win.on('focus', function(){ setApplicationMenu(false, '');});
+	win.on('focus', function(){ setApplicationMenu();});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
 	utilWindows.add(win); // reference
@@ -94,9 +94,9 @@ ipc.on('get-pref', function(e){ e.returnValue = pref;});
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 
 // IPCs from puzzle windows
-ipc.on('update-pid', function(e, pid){
+ipc.on('update-pid', function(e, pid, config){
 	latest_pid = pid;
-	setApplicationMenu(true, pid);
+	setApplicationMenu(pid, config);
 });
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
@@ -127,21 +127,13 @@ function sendMenuReq(content){
 		}
 	};
 }
-function sendConfigReq(content){
-	return function(menuitem, focusedWindow){
-		if(focusedWindow && focusedWindow!==mainWindow){
-			var idname = menuitem.id, val = menuitem.checked;
-			if(menuitem.id.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
-			BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
-		}
-	};
-}
-function setLanguage(lang){
-	return function(menuitem, focusedWindow){
-		pref.lang = lang;
-		BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', 'language', lang);});
-		savePreference();
-	};
+function sendConfigReq(menuitem, focusedWindow){
+	var idname = menuitem.id, val = menuitem.checked;
+	if(menuitem.id.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
+	
+	if(idname==='language'){ pref.lang = val;}
+	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
+	if(idname==='language'){ savePreference();}
 }
 
 function windowEvent(content){
@@ -231,16 +223,62 @@ var templateTemplate = [
 		{ label:'Cell &Size',                          click:sendMenuReq('popup-dispsize')},
 		{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')},
 		{ type: 'separator'},
+		{ label:'Color coding of line',         config:'irowake'},
+		{ label:'Color coding of shaded block', config:'irowakeblk'},
+		{ label:'Paint as moving',              config:'dispmove'},
+		{ label:'Draw snake border',            config:'snakebd'},
+		{ label:'Show cursor',                  config:'cursor'},
+		{ type: 'separator'},
 		{ label:'Board font', submenu:[
-			{ label:'sens-serif', type:'radio', checked:true,  click:sendConfigReq(), id:'font:1'},
-			{ label:'serif',      type:'radio', checked:false, click:sendConfigReq(), id:'font:2'},
+			{ label:'sens-serif', config:'font:1'},
+			{ label:'serif',      config:'font:2'},
 		]},
 		{ type: 'separator'},
 	]},
 	{label:'&Setting', submenu:[
+		{ label:'Input type', when:'config.use!==void 0', submenu:[
+			{ label:'LR button',     config:'use:1'},
+			{ label:'One button',    config:'use:2'},
+		]},
+		{ label:'Input type', when:'config.use_tri!==void 0', submenu:[
+			{ label:'Corner-side',   config:'use_tri:1'},
+			{ label:'Pull-to-Input', config:'use_tri:2'},
+			{ label:'One button',    config:'use_tri:3'},
+		]},
+		{ label:'Display', when:'config.disptype_pipelinkr!==void 0', submenu:[
+			{ label:'Circle',        config:'disptype_pipelinkr:1'},
+			{ label:'Icebarn',       config:'disptype_pipelinkr:2'},
+		]},
+		{ label:'Display', when:'config.disptype_bosanowa!==void 0', submenu:[
+			{ label:'Original Type', config:'disptype_bosanowa:1'},
+			{ label:'Sokoban Type',  config:'disptype_bosanowa:2'},
+			{ label:'Waritai Type',  config:'disptype_bosanowa:3'},
+		]},
+		{ type: 'separator'},
+		{ label:'Line continueous check',  config:'redline'},
+		{ label:'Block continueous check', config:'redblk'},
+		{ label:'Block continueous check', config:'redblkrb'},
+		{ label:'Check road',              config:'redroad'},
+		{ label:'Input background color',  config:'bgcolor'},
+		{ label:'Set Gray color automatically', config:'autocmp',  when:'pid!=="kouchoku"'},
+		{ label:'Set Gray color automatically', config:'autocmp',  when:'pid==="kouchoku"'},
+		{ label:'Show overlapped number',       config:'autoerr',  when:'pid==="hitori"'},
+		{ label:'Slash with color',             config:'autoerr',  when:'pid==="gokigen"||pid==="wagiri"'},
+		{ label:'Allow enpty cell',             config:'enbnonum'},
+		{ label:'Enable direction aux. mark',   config:'dirauxmark'},
+		{ label:'Set line only between points', config:'enline'},
+		{ label:'Check lattice point',          config:'lattice'},
+		{ label:'Ura-mashu',                    config:'uramashu'},
+		{ label:'URL with padding',             config:'bdpadding'},
+		{ label:'Disble set color',             config:'discolor'},
+		{ type: 'separator'},
+		{ label:'Auto answer check',      config:'autocheck'},
+		{ label:'Check multiple errors',  config:'multierr'},
+		{ label:'Mouse button inversion', config:'lrcheck'},
+		{ type: 'separator'},
 		{ label:'&Language', submenu:[
-			{ label:'日本語',   type:'radio', checked:(pref.lang==='ja'), click:setLanguage('ja')},
-			{ label:'English', type:'radio', checked:(pref.lang==='en'), click:setLanguage('en')},
+			{ label:'日本語',   type:'radio', checked:(pref.lang==='ja'), click:sendConfigReq, id:'language:ja'},
+			{ label:'English', type:'radio', checked:(pref.lang==='en'), click:sendConfigReq, id:'language:en'},
 		]}
 	]},
 	{label:'&Window', role:'window', submenu:[
@@ -257,8 +295,10 @@ var templateTemplate = [
 		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac'},
 	]}
 ];
-function setApplicationMenu(isPuzzle, pid){ // jshint ignore:line, (avoid latedef error)
-	var isMac = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
+function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef error)
+	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
+	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
+	config = config || {};
 	var template = [];
 	(function generateProperTemplate(tarray, array){
 		tarray.forEach(function(titem){
@@ -269,6 +309,17 @@ function setApplicationMenu(isPuzzle, pid){ // jshint ignore:line, (avoid latede
 				if(!!titem.role){ item.role = titem.role;}
 				array.push(item);
 				generateProperTemplate(titem.submenu, item.submenu);
+			}
+			else if(!!titem.config){
+				if(!isPuzzle){ return;}
+				var idname = titem.config, val = ''+true;
+				if(titem.config.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
+				if(config[idname]===void 0){ return;}
+				
+				var item = {label:titem.label, click:sendConfigReq, id:titem.config};
+				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
+				item.checked = (''+config[idname]===val);
+				array.push(item);
 			}
 			else{ array.push(titem);}
 		});

@@ -59,10 +59,8 @@ ui.toolarea = {
 		
 		this.setdisplay("operation");
 		getEL('btnclear2').style.display  = (!ui.puzzle.flags.disable_subclear ? "" : "none");
-		getEL('btncircle').style.display  = (ui.puzzle.pid==='pipelinkr' ? "" : "none");
 		getEL('btncolor').style.display   = (ui.puzzle.pid==='tentaisho' ? "" : "none");
-		/* ボタンエリアの色分けボタンは、ツールパネル領域が消えている時に表示 */
-		getEL('btnirowake').style.display = (((ui.puzzle.flags.irowake || ui.puzzle.flags.irowakeblk) && (ui.getConfig("toolarea")===0)) ? "" : "none");
+		getEL('btnirowake').style.display = ((ui.puzzle.flags.irowake || ui.puzzle.flags.irowakeblk) ? "" : "none");
 		
 		/* 共通：キャプションの設定 */
 		/* --------------------- */
@@ -76,9 +74,6 @@ ui.toolarea = {
 			var opemgr = ui.puzzle.opemgr;
 			getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
 			getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
-		}
-		else if((idname==="disptype_pipelinkr") && !!getEL('btncircle')){
-			getEL('btncircle').innerHTML = ((ui.getConfig(idname)===1)?"○":"■");
 		}
 	},
 

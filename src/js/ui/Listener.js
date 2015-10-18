@@ -40,7 +40,6 @@ ui.listener =
 			ui.puzzle.setConfig('language', require('ipc').sendSync('get-pref').lang);
 			
 			/* メニュー用の設定を消去・再設定する */
-			ui.menuarea.reset();
 			ui.toolarea.reset();
 			ui.misc.displayDesign();
 			
