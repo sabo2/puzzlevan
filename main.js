@@ -50,19 +50,6 @@ function openPuzzleWindow(data, pid){
 	win.loadUrl(srcdir + 'p.html');
 	puzzleWindows.add(win); // reference
 }
-function openMainWindow(menuitem, focusedWindow){
-	if(!!mainWindow){ mainWindow.focus(); return;}
-	
-	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600});
-	mainWindow.webContents.on('will-navigate', function(e, url){
-		openPuzzleWindow(url);
-		e.preventDefault();
-	});
-	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu();});
-	mainWindow.on('focus', function(){ setApplicationMenu();});
-	mainWindow.on('closed', function(){ mainWindow = null;});
-	mainWindow.loadUrl(srcdir + 'index.html');
-}
 function openPopupWindow(url){
 	var focusedWindow = BrowserWindow.getFocusedWindow(), x = 24, y = 24;
 	if(!!focusedWindow){
@@ -83,6 +70,20 @@ function openExplainWindow(menuitem, focusedWindow){
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
 	utilWindows.add(win); // reference
+}
+function openMainWindow(menuitem, focusedWindow){
+	if(!!mainWindow){ mainWindow.focus(); return;}
+	
+	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600});
+	mainWindow.webContents.on('will-navigate', function(e, url){
+		latest_pid = url.substr(url.indexOf('?')+1);
+		openPopupWindow('newboard.html?'+latest_pid);
+		e.preventDefault();
+	});
+	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu();});
+	mainWindow.on('focus', function(){ setApplicationMenu();});
+	mainWindow.on('closed', function(){ mainWindow = null;});
+	mainWindow.loadUrl(srcdir + 'index.html');
 }
 
 //--------------------------------------------------------------------------
