@@ -109,14 +109,14 @@ window.ui = {
 	// ui.saveConfig()     各種設定値を保存する
 	//---------------------------------------------------------------------------
 	restoreConfig : function(){
-		/* 設定が保存されている場合は元に戻す */
-		var json_puzzle = localStorage['pzprv3_config:puzzle'];
-		var json_menu   = localStorage['pzprv3_config:ui'];
-		if(!!json_puzzle){ ui.puzzle.restoreConfig(json_puzzle);}
-		if(!!json_menu)  { ui.menuconfig.setAll(json_menu);}
+		var setting = require('ipc').sendSync('get-setting');
+		ui.puzzle.restoreConfig(JSON.stringify(setting.puzzle));
+		ui.menuconfig.setAll(JSON.stringify(setting.ui));
 	},
 	saveConfig : function(){
-		localStorage['pzprv3_config:puzzle'] = ui.puzzle.saveConfig();
-		localStorage['pzprv3_config:ui']     = ui.menuconfig.getAll();
+		require('ipc').send('set-setting', {
+			puzzle: JSON.parse(ui.puzzle.saveConfig()),
+			ui:     JSON.parse(ui.menuconfig.getAll())
+		});
 	}
 };

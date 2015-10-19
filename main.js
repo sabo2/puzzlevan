@@ -11,7 +11,7 @@ var latest_pid = '';
 var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
 
 //--------------------------------------------------------------------------
-var pref = {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en')};
+var pref = {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en'), setting:{puzzle:{},ui:{}}};
 var prefFile = app.getPath('userData')+'/preference';
 var fs = require('fs');
 function savePreference(){
@@ -106,6 +106,13 @@ ipc.on('save-file', function(e, data, pid, filetype){
 	if(!!filename){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
+});
+ipc.on('get-setting', function(e){
+	e.returnValue = pref.setting || {puzzle:{},ui:{}};
+});
+ipc.on('set-setting', function(e, setting){
+	pref.setting = setting;
+	savePreference();
 });
 
 //--------------------------------------------------------------------------
