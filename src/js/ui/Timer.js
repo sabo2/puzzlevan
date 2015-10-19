@@ -154,9 +154,16 @@ ui.undotimer = {
 		else if(!!this.TID){ this.exec();}
 	},
 	exec : function(){
+		var kc = ui.puzzle.key;
 		if(!this.checknextprop()){ this.stop();}
-		else if(this.inUNDO){ ui.puzzle.undo();}
-		else if(this.inREDO){ ui.puzzle.redo();}
+		else if(this.inUNDO){
+			if(this.inUNDO===KeyUndo && (!(kc.isMETA || kc.isCTRL) || !kc.isZ)){ this.stop();}
+			else{ ui.puzzle.undo();}
+		}
+		else if(this.inREDO){
+			if(this.inREDO===KeyUndo && (!(kc.isMETA || kc.isCTRL) || !kc.isY)){ this.stop();}
+			else{ ui.puzzle.redo();}
+		}
 	},
 
 	//---------------------------------------------------------------------------
