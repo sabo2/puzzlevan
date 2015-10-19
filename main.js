@@ -134,7 +134,11 @@ function sendConfigReq(menuitem, focusedWindow){
 	
 	if(idname==='language'){ pref.lang = val;}
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
-	if(idname==='language'){ savePreference();}
+	if(idname==='language'){
+		var win = BrowserWindow.getFocusedWindow();
+		if(win){ win.hide(); win.show();} // set menu again
+		savePreference();
+	}
 }
 
 function windowEvent(content){
@@ -278,8 +282,8 @@ var templateTemplate = [
 		{ label:'Mouse button inversion', config:'lrcheck'},
 		{ type: 'separator'},
 		{ label:'&Language', submenu:[
-			{ label:'日本語',   type:'radio', checked:(pref.lang==='ja'), click:sendConfigReq, id:'language:ja'},
-			{ label:'English', type:'radio', checked:(pref.lang==='en'), click:sendConfigReq, id:'language:en'},
+			{ label:'日本語',   config:'language:ja'},
+			{ label:'English', config:'language:en'},
 		]}
 	]},
 	{label:'&Window', role:'window', submenu:[
@@ -301,28 +305,33 @@ function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef 
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
 	config = config || {};
 	var template = [];
+	var translator = require('./locale/'+pref.lang);
 	(function generateProperTemplate(tarray, array){
 		tarray.forEach(function(titem){
 			// jshint evil:true
 			if(titem.when && !eval(titem.when)){}
 			else if(!!titem.submenu){
-				var item = {label:titem.label, submenu:[]};
+				var item = {label:translator(titem.label), submenu:[]};
 				if(!!titem.role){ item.role = titem.role;}
 				array.push(item);
 				generateProperTemplate(titem.submenu, item.submenu);
 			}
 			else if(!!titem.config){
-				if(!isPuzzle){ return;}
 				var idname = titem.config, val = ''+true;
 				if(titem.config.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
-				if(config[idname]===void 0){ return;}
+				if(idname!=='language' && (!isPuzzle || config[idname]===void 0)){ return;}
 				
-				var item = {label:titem.label, click:sendConfigReq, id:titem.config};
+				var item = {label:translator(titem.label), click:sendConfigReq, id:titem.config};
 				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
-				item.checked = (''+config[idname]===val);
+				item.checked = (idname!=='language' ? ''+config[idname]===val : pref.lang===val);
 				array.push(item);
 			}
-			else{ array.push(titem);}
+			else{
+				var item = {};
+				for(var i in titem){ item[i]=titem[i];}
+				if(!!item.label){ item.label = translator(item.label);}
+				array.push(item);
+			}
 		});
 	})(templateTemplate, template);
 	
