@@ -22,7 +22,7 @@ else{ savePreference();}
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
-var mainWindow = null;
+var mainWindow = null, mainWindow2 = null;
 var puzzleWindows = {
 	list : [],
 	add : function(win){
@@ -85,10 +85,22 @@ function openMainWindow(menuitem, focusedWindow){
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
+function openUndefWindow(data){
+	mainWindow2 = new BrowserWindow({x:36, y:36, width: 600, height: 600});
+	mainWindow2.webContents.on('will-navigate', function(e, url){
+		openPuzzleWindow(data, url.substr(url.indexOf('?')+1));
+		mainWindow2.destroy();
+		e.preventDefault();
+	});
+	mainWindow2.webContents.on('did-finish-load', function(){ setApplicationMenu();});
+	mainWindow2.on('focus', function(){ setApplicationMenu();});
+	mainWindow2.on('closed', function(){ mainWindow = null;});
+	mainWindow2.loadUrl(srcdir + 'fileindex.html');
+}
 
 //--------------------------------------------------------------------------
 // IPCs from various windows
-ipc.on('open-puzzle', function(e, data){ openPuzzleWindow(data, latest_pid);});
+ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
 ipc.on('get-pref', function(e){ e.returnValue = pref;});
 
 // IPCs from puzzle-list window
@@ -106,6 +118,9 @@ ipc.on('save-file', function(e, data, pid, filetype){
 	if(!!filename){
 		require('fs').writeFile(filename, data, {encoding:'utf8'});
 	}
+});
+ipc.on('open-undef-popup', function(e, data){
+	openUndefWindow(data);
 });
 ipc.on('get-setting', function(e){
 	e.returnValue = pref.setting || {puzzle:{},ui:{}};

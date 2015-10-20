@@ -19,7 +19,7 @@ ui.misc = {
 	// misc.openpuzzle()  指定されたデータのパズルを開く　
 	//--------------------------------------------------------------------------------
 	openpuzzle : function(data){
-		require('ipc').send('open-puzzle', data);
+		require('ipc').send('open-puzzle', data, ui.puzzle.pid);
 	},
 
 	//--------------------------------------------------------------------------------

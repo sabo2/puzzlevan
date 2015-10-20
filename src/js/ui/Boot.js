@@ -13,9 +13,17 @@ var onload_option = {imagesave:true};
 // window.onload直後の処理
 //---------------------------------------------------------------------------
 require('ipc').once('initial-data', function(data, pid){
+	data = data.replace(/[\r\n]+/g,'\n');
 	var onload_pzl = (importFileData(data) || importURL(data) || importFileData(data, pid));
 	if(!onload_pzl || !onload_pzl.id){
-		ui.misc.erralert("Fail to import puzzle data or URL.");
+		var pzl = new pzpr.parser.FileData(data, '');
+		pzl.parseFileType();
+		if(pzl.type===pzpr.parser.FILE_PBOX){
+			require('ipc').send('open-undef-popup', data);
+		}
+		else{
+			ui.misc.erralert("Fail to import puzzle data or URL.");
+		}
 		ui.win.destroy();
 	}
 	else{

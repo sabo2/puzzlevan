@@ -45,6 +45,7 @@ v3index.extend({
 			self.setAccordion();
 			require('ipc').send('pzpr-version', pzpr.version);
 		}
+		if(location.href.match(/fileindex\.html/)){ self.openUndefFile();}
 		self.disp();
 	},
 
@@ -155,6 +156,16 @@ v3index.extend({
 				e.stopPropagation();
 			}, true);
 		});
+	},
+
+	openUndefFile : function(){
+		var items = document.querySelectorAll('ul > li');
+		for(var i=0;i<items.length;i++){
+			var url = items[i].childNodes[0].getAttribute('href');
+			if(!pzpr.variety.info[pzpr.variety.toPID(url.substr(url.indexOf('?')+1))].exists.kanpen){ // kanpenとpencilboxが逆
+				items[i].style.display = 'none';
+			}
+		}
 	}
 });
 
