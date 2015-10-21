@@ -76,8 +76,7 @@ function openMainWindow(menuitem, focusedWindow){
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600});
 	mainWindow.webContents.on('will-navigate', function(e, url){
-		latest_pid = url.substr(url.indexOf('?')+1);
-		openPopupWindow('newboard.html?'+latest_pid);
+		openPopupWindow('newboard.html?'+url.substr(url.indexOf('?')+1));
 		e.preventDefault();
 	});
 	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu();});
@@ -108,7 +107,6 @@ ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 
 // IPCs from puzzle windows
 ipc.on('update-pid', function(e, pid, config){
-	latest_pid = pid;
 	setApplicationMenu(pid, config);
 });
 ipc.on('save-file', function(e, data, pid, filetype){
@@ -325,6 +323,7 @@ var templateTemplate = [
 function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef error)
 	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
+	latest_pid = pid || '';
 	config = config || {};
 	var template = [];
 	var translator = require('./locale/'+pref.lang);
