@@ -35,7 +35,7 @@ ui.timer =
 	update : function(){
 		this.current = pzpr.util.currentTime();
 
-		if(ui.menuconfig.get('autocheck')){ this.ACcheck();}
+		if(ui.menuconfig.get('autocheck_once')){ this.ACcheck();}
 	},
 
 	//---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ ui.timer =
 		if(this.current>this.nextACtime && puzzle.playmode && !puzzle.checker.inCheck){
 			if(puzzle.check().complete){
 				puzzle.mouse.mousereset();
-				ui.menuconfig.set('autocheck',false);
+				ui.menuconfig.set('autocheck_once',false);
 				ui.misc.alert("正解です！","Complete!");
 				return;
 			}

@@ -20,7 +20,8 @@ ui.menuconfig = {
 	init : function(){
 		this.list = {};
 		
-		this.add('autocheck', false);						/* 正解自動判定機能 */
+		this.add('autocheck',      false);					/* 正解自動判定機能 */
+		this.add('autocheck_once', false);					/* 正解自動判定機能 */
 
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
 	},
@@ -47,10 +48,13 @@ ui.menuconfig = {
 			var item = this.list[key];
 			if(item.val!==item.defval){ object[key] = item.val;}
 		}
-		delete object.autocheck;
+		delete object.autocheck_once;
 		return JSON.stringify(object);
 	},
-	setAll : Config.setAll,
+	setAll : function(json){
+		Config.setAll.call(this, json);
+		this.list.autocheck_once.val = this.list.autocheck;
+	},
 
 	//---------------------------------------------------------------------------
 	// menuconfig.setproper()    設定値の型を正しいものに変換して設定変更する
@@ -67,6 +71,7 @@ ui.menuconfig = {
 	configevent : function(idname, newval){
 		ui.setdisplay(idname);
 		if(idname==='cellsizeval'){ ui.adjustcellsize();}
+		else if(idname==='autocheck'){ this.list.autocheck_once.val = newval;}
 	}
 };
 
