@@ -11,14 +11,19 @@ var latest_pid = '';
 var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
 
 //--------------------------------------------------------------------------
-var pref = {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en'), setting:{puzzle:{},ui:{}}};
+var pref = null;
 var prefFile = app.getPath('userData')+'/preference';
 var fs = require('fs');
 function savePreference(){
 	fs.writeFile(prefFile, JSON.stringify(pref));
 }
-if(fs.existsSync(prefFile)){ pref = JSON.parse(fs.readFileSync(prefFile));}
-else{ savePreference();}
+(function loadPreference(){
+	var errstatus = false;
+	pref = null;
+	try{ pref = JSON.parse(fs.readFileSync(prefFile));}catch(e){ errstatus = true;}
+	pref = pref || {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en'), setting:{puzzle:{},ui:{}}};
+	if(errstatus){ savePreference();}
+})();
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
