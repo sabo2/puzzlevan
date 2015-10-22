@@ -15,7 +15,10 @@ var pref = null;
 var prefFile = app.getPath('userData')+'/preference';
 var fs = require('fs');
 function savePreference(){
+	var dm = pref.debugmode;
+	delete pref.debugmode;
 	fs.writeFile(prefFile, JSON.stringify(pref));
+	pref.debugmode = dm;
 }
 (function loadPreference(){
 	var errstatus = false;
@@ -23,11 +26,12 @@ function savePreference(){
 	try{ pref = JSON.parse(fs.readFileSync(prefFile));}catch(e){ errstatus = true;}
 	pref = pref || {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en'), setting:{puzzle:{},ui:{}}};
 	if(errstatus){ savePreference();}
+	pref.debugmode = false;
 })();
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
-var mainWindow = null, mainWindow2 = null;
+var mainWindow = null;
 var puzzleWindows = {
 	list : [],
 	add : function(win){
@@ -48,7 +52,7 @@ var utilWindows = {
 function openPuzzleWindow(data, pid){
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:false});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:pref.debugmode});
 	openpos.modify();
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
 	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
@@ -62,15 +66,15 @@ function openPopupWindow(url){
 		x = bounds.x + 24;
 		y = bounds.y + 24;
 	}
-	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:false});
-	win.on('focus', function(){ setApplicationMenu();});
+	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:pref.debugmode});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference
 }
 function openExplainWindow(menuitem, focusedWindow){
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:pref.debugmode});
 	openpos.modify();
+	win.webContents.on('did-finish-load', function(){ win.show(); if(pref.debugmode){ setApplicationMenu();}});
 	win.on('focus', function(){ setApplicationMenu();});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
@@ -79,27 +83,27 @@ function openExplainWindow(menuitem, focusedWindow){
 function openMainWindow(menuitem, focusedWindow){
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
-	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600});
+	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:pref.debugmode});
 	mainWindow.webContents.on('will-navigate', function(e, url){
 		openPopupWindow('newboard.html?'+url.substr(url.indexOf('?')+1));
 		e.preventDefault();
 	});
-	mainWindow.webContents.on('did-finish-load', function(){ setApplicationMenu();});
+	mainWindow.webContents.on('did-finish-load', function(){ mainWindow.show(); if(pref.debugmode){ setApplicationMenu();}});
 	mainWindow.on('focus', function(){ setApplicationMenu();});
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
 function openUndefWindow(data){
-	mainWindow2 = new BrowserWindow({x:36, y:36, width: 600, height: 600});
-	mainWindow2.webContents.on('will-navigate', function(e, url){
+	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:pref.debugmode});
+	win.webContents.on('will-navigate', function(e, url){
 		openPuzzleWindow(data, url.substr(url.indexOf('?')+1));
-		mainWindow2.destroy();
+		win.destroy();
 		e.preventDefault();
 	});
-	mainWindow2.webContents.on('did-finish-load', function(){ setApplicationMenu();});
-	mainWindow2.on('focus', function(){ setApplicationMenu();});
-	mainWindow2.on('closed', function(){ mainWindow = null;});
-	mainWindow2.loadUrl(srcdir + 'fileindex.html');
+	win.webContents.on('did-finish-load', function(){ win.show();});
+	win.on('closed', function(){ utilWindows.remove(win);}); // reference
+	win.loadUrl(srcdir + 'fileindex.html');
+	utilWindows.add(win); // reference
 }
 
 //--------------------------------------------------------------------------
@@ -382,6 +386,7 @@ app.on('open-url', function(e, url){
 	e.preventDefault();
 });
 app.on('ready', function(){
+	if(process.argv.indexOf('--debug')>=0){ pref.debugmode = true;}
 	if(openStandAlone){ openMainWindow();}
 });
 app.on('window-all-closed', function(){
