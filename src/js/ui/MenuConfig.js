@@ -22,6 +22,8 @@ ui.menuconfig = {
 		
 		this.add('autocheck',      false);					/* 正解自動判定機能 */
 		this.add('autocheck_once', false);					/* 正解自動判定機能 */
+		
+		this.add('undointerval', 20);						/* Undo/Redo連続実行間隔 */
 
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
 		

@@ -54,6 +54,7 @@ ui.menuarea = {
 			case 'popup-metadata':  this.openpopup('metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows); break;
 			case 'popup-dispsize':  this.openpopup('dispsize.html'); break;
 			case 'popup-colors':    this.openpopup('colors.html'); break;
+			case 'popup-undotime':  this.openpopup('undotime.html'); break;
 			
 			default: /* DO NOTHING */ break;
 		}
@@ -77,6 +78,8 @@ ui.menuarea = {
 			case 'color-clear':  puzzle.setConfig('color_'+data.name, ''); break;
 			case 'size-get':     sender.postMessage(''+ui.menuconfig.get('cellsizeval'), '*'); break;
 			case 'size-set':     ui.menuconfig.set('cellsizeval', data); break;
+			case 'interval-get': sender.postMessage(''+ui.menuconfig.get('undointerval'), '*'); break;
+			case 'interval-set': ui.menuconfig.set('undointerval', data); break;
 		}
 	}
 };

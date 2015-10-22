@@ -242,6 +242,8 @@ var templateTemplate = [
 		{ label:'Undo', click:sendMenuReq('undo')},
 		{ label:'Redo', click:sendMenuReq('redo')},
 		{ type: 'separator'},
+		{ label:'Undo/Redo Interval', click:sendMenuReq('popup-undotime')},
+		{ type: 'separator'},
 		{ label:'Editor Mode', accelerator:'Shift+F2', click:sendMenuReq('edit-mode')},
 		{ label:'Answer Mode', accelerator:'F2',       click:sendMenuReq('play-mode')},
 		{ type: 'separator'},

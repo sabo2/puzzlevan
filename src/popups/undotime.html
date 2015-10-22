@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<script type="text/javascript" src="./popup.js"></script>
+<script type="text/javascript">
+popupmgr.extend({
+	setFormEvent : function(){
+		window.opener.postMessage(JSON.stringify({channel:'interval-get'}));
+	},
+	changeinterval2 : function(e){
+		var interval = +document.undotime.interval2.value;
+		document.undotime.interval.value = interval;
+		if(interval>=0){ window.opener.postMessage(JSON.stringify({channel:'interval-set',data:interval}));}
+	},
+	changeinterval : function(e){
+		var interval = +document.undotime.interval.value;
+		document.undotime.interval2.value = interval;
+		if(interval>=0){ window.opener.postMessage(JSON.stringify({channel:'interval-set',data:interval}));}
+	},
+	resetinterval : function(e){
+		var interval = 20;
+		document.undotime.interval2.value = interval;
+		document.undotime.interval.value = interval;
+		window.opener.postMessage(JSON.stringify({channel:'interval-set',data:interval}));
+	}
+});
+window.addEventListener("message", function(e){
+	document.undotime.interval2.value = e.data|0;
+	document.undotime.interval.value = e.data|0;
+}, false);
+</script>
+<title>Change Undo/Redo Interval</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <form name="undotime">
+      <span>__セルのサイズ__Cell size__</span>
+      <input type="range" name="interval2" value="" min=0 max=99 step=1 data-button-exec="changeinterval2" style="width:160px;" />
+      <input type="number" name="interval" value="" size=3 maxlength=2 min=0 max=99 data-button-exec="changeinterval" />
+      <br />
+      <button type="button" class="btn btn-info" data-button-exec="resetinterval" style="margin-top:12pt;">__初期値に戻す__Reset Interval__</button>
+      <button type="button" class="btn" data-button-exec="close" style="margin-top:12pt;">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>

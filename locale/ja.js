@@ -20,6 +20,7 @@ var translation = {
 	'&Edit'                : '編集',
 	'Undo'                 : '取り消し',
 	'Redo'                 : 'やり直し',
+	'Undo/Redo Interval'   : 'Undo/Redo間隔設定',
 	'Editor Mode'          : '問題入力モード',
 	'Answer Mode'          : '回答入力モード',
 	'&Check Answer'        : '正答判定',
