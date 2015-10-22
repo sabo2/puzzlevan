@@ -39,6 +39,7 @@ var translation = {
 	'Board font'                   : '盤面のフォント',
 	'sens-serif'                   : 'ゴシック',
 	'serif'                        : '明朝',
+	'Show buttons in the window'   : 'ウィンドウ内にボタンを表示する',
 	
 	'&Setting'                     : '設定',
 	'Input type'                   : '入力方法',

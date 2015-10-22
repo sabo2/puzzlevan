@@ -24,6 +24,8 @@ ui.menuconfig = {
 		this.add('autocheck_once', false);					/* 正解自動判定機能 */
 
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
+		
+		this.add('buttonarea', true);						/* ボタン類の表示 */
 	},
 	add : Config.add,
 

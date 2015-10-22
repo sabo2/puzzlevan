@@ -54,7 +54,7 @@ ui.toolarea = {
 	display : function(){
 		/* ボタン領域 */
 		/* --------- */
-		getEL('btnarea').style.display = "";
+		getEL('btnarea').style.display = (ui.getConfig("buttonarea") ? '' : 'none');
 		pzpr.util.unselectable(getEL('btnarea'));
 		
 		this.setdisplay("operation");
@@ -74,6 +74,10 @@ ui.toolarea = {
 			var opemgr = ui.puzzle.opemgr;
 			getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
 			getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
+		}
+		else if(idname==='buttonarea'){
+			getEL('btnarea').style.display = (ui.getConfig("buttonarea") ? '' : 'none');
+			ui.listener.onResize(ui.puzzle);
 		}
 	},
 

@@ -267,6 +267,7 @@ var templateTemplate = [
 			{ label:'sens-serif', config:'font:1'},
 			{ label:'serif',      config:'font:2'},
 		]},
+		{ label:'Show buttons in the window',   config:'buttonarea'},
 		{ type: 'separator'},
 	]},
 	{label:'&Setting', submenu:[
