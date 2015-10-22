@@ -41,6 +41,7 @@ ui.menuarea = {
 			case 'duplicate': ui.misc.openpuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
 			case 'edit-mode': if(puzzle.playmode){ puzzle.setConfig("mode", puzzle.MODE_EDITOR);} break;
 			case 'play-mode': if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);} break;
+			case 'irowake-change': puzzle.irowake(); break;
 			
 			case 'save-pzpr':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
 			case 'save-pbox':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid); break;

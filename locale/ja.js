@@ -39,6 +39,8 @@ var translation = {
 	'Board font'                   : '盤面のフォント',
 	'sens-serif'                   : 'ゴシック',
 	'serif'                        : '明朝',
+	'Change the color of Line'     : '色分けし直す',
+	'Change the color of Block'    : '色分けし直す',
 	'Show buttons in the window'   : 'ウィンドウ内にボタンを表示する',
 	
 	'&Setting'                     : '設定',
