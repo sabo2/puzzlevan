@@ -43,7 +43,7 @@ var popupmgr = {
 		}
 		document.querySelector('form').addEventListener('submit', function(e){ e.preventDefault();}, false);
 	},
-	lang : require('ipc').sendSync('get-pref').lang,
+	lang : require('ipc').sendSync('get-app-preference').lang,
 	translate : function(){
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];

@@ -11,22 +11,27 @@ var latest_pid = '';
 var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
 
 //--------------------------------------------------------------------------
-var pref = null;
+var preference = null;
 var prefFile = app.getPath('userData')+'/preference';
 var fs = require('fs');
 function savePreference(){
-	var dm = pref.debugmode;
-	delete pref.debugmode;
-	fs.writeFile(prefFile, JSON.stringify(pref));
-	pref.debugmode = dm;
+	var dm = preference.app.debugmode;
+	delete preference.app.debugmode;
+	fs.writeFile(prefFile, JSON.stringify(preference));
+	preference.app.debugmode = dm;
 }
 (function loadPreference(){
 	var errstatus = false;
-	pref = null;
-	try{ pref = JSON.parse(fs.readFileSync(prefFile));}catch(e){ errstatus = true;}
-	pref = pref || {lang:(app.getLocale().match(/ja/) ? 'ja' : 'en'), setting:{puzzle:{},ui:{}}};
+	preference = null;
+	try{
+		preference = JSON.parse(fs.readFileSync(prefFile));
+		preference.app.debugmode = (process.argv.indexOf('--debug')>=0);
+	}
+	catch(e){
+		preference = {app:{lang:(app.getLocale().match(/ja/)?'ja':'en')}, puzzle:{puzzle:{},ui:{}}};
+		errstatus = true;
+	}
 	if(errstatus){ savePreference();}
-	pref.debugmode = false;
 })();
 
 //--------------------------------------------------------------------------
@@ -52,7 +57,7 @@ var utilWindows = {
 function openPuzzleWindow(data, pid){
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:pref.debugmode});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
 	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
 	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
@@ -66,15 +71,15 @@ function openPopupWindow(url){
 		x = bounds.x + 24;
 		y = bounds.y + 24;
 	}
-	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:pref.debugmode});
+	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference
 }
 function openExplainWindow(menuitem, focusedWindow){
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:pref.debugmode});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.webContents.on('did-finish-load', function(){ win.show(); if(pref.debugmode){ setApplicationMenu();}});
+	win.webContents.on('did-finish-load', function(){ win.show(); if(preference.app.debugmode){ setApplicationMenu();}});
 	win.on('focus', function(){ setApplicationMenu();});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
@@ -83,18 +88,18 @@ function openExplainWindow(menuitem, focusedWindow){
 function openMainWindow(menuitem, focusedWindow){
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
-	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:pref.debugmode});
+	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:preference.app.debugmode});
 	mainWindow.webContents.on('will-navigate', function(e, url){
 		openPopupWindow('newboard.html?'+url.substr(url.indexOf('?')+1));
 		e.preventDefault();
 	});
-	mainWindow.webContents.on('did-finish-load', function(){ mainWindow.show(); if(pref.debugmode){ setApplicationMenu();}});
+	mainWindow.webContents.on('did-finish-load', function(){ mainWindow.show(); if(preference.app.debugmode){ setApplicationMenu();}});
 	mainWindow.on('focus', function(){ setApplicationMenu();});
 	mainWindow.on('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
 function openUndefWindow(data){
-	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:pref.debugmode});
+	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:preference.app.debugmode});
 	win.webContents.on('will-navigate', function(e, url){
 		openPuzzleWindow(data, url.substr(url.indexOf('?')+1));
 		win.destroy();
@@ -109,7 +114,7 @@ function openUndefWindow(data){
 //--------------------------------------------------------------------------
 // IPCs from various windows
 ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
-ipc.on('get-pref', function(e){ e.returnValue = pref;});
+ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
 
 // IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
@@ -129,11 +134,11 @@ ipc.on('save-file', function(e, data, pid, filetype){
 ipc.on('open-undef-popup', function(e, data){
 	openUndefWindow(data);
 });
-ipc.on('get-setting', function(e){
-	e.returnValue = pref.setting || {puzzle:{},ui:{}};
+ipc.on('get-puzzle-preference', function(e){
+	e.returnValue = preference.puzzle;
 });
-ipc.on('set-setting', function(e, setting){
-	pref.setting = setting;
+ipc.on('set-puzzle-preference', function(e, setting){
+	preference.puzzle = setting;
 	savePreference();
 });
 
@@ -161,7 +166,7 @@ function sendConfigReq(menuitem, focusedWindow){
 	var idname = menuitem.id, val = menuitem.checked;
 	if(menuitem.id.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
 	
-	if(idname==='language'){ pref.lang = val;}
+	if(idname==='language'){ preference.app.lang = val;}
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
 	if(idname==='language'){
 		var win = BrowserWindow.getFocusedWindow();
@@ -341,7 +346,7 @@ function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef 
 	latest_pid = pid || '';
 	config = config || {};
 	var template = [];
-	var translator = require('./locale/'+pref.lang);
+	var translator = require('./locale/'+preference.app.lang);
 	(function generateProperTemplate(tarray, array){
 		tarray.forEach(function(titem){
 			// jshint evil:true
@@ -359,7 +364,7 @@ function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef 
 				
 				var item = {label:translator(titem.label), click:sendConfigReq, id:titem.config};
 				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
-				item.checked = (idname!=='language' ? ''+config[idname]===val : pref.lang===val);
+				item.checked = (idname!=='language' ? ''+config[idname]===val : preference.app.lang===val);
 				array.push(item);
 			}
 			else{
@@ -392,7 +397,6 @@ app.on('open-url', function(e, url){
 	e.preventDefault();
 });
 app.on('ready', function(){
-	if(process.argv.indexOf('--debug')>=0){ pref.debugmode = true;}
 	if(openStandAlone){ openMainWindow();}
 });
 app.on('window-all-closed', function(){

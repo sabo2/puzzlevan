@@ -37,7 +37,7 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
-		self.doclang = require('ipc').sendSync('get-pref').lang;
+		self.doclang = require('ipc').sendSync('get-app-preference').lang;
 		if(!self.current){
 			self.setTabEvent();
 			self.setDragDropEvent();

@@ -109,12 +109,12 @@ window.ui = {
 	// ui.saveConfig()     各種設定値を保存する
 	//---------------------------------------------------------------------------
 	restoreConfig : function(){
-		var setting = require('ipc').sendSync('get-setting');
+		var setting = require('ipc').sendSync('get-puzzle-preference');
 		ui.puzzle.restoreConfig(JSON.stringify(setting.puzzle));
 		ui.menuconfig.setAll(JSON.stringify(setting.ui));
 	},
 	saveConfig : function(){
-		require('ipc').send('set-setting', {
+		require('ipc').send('set-puzzle-preference', {
 			puzzle: JSON.parse(ui.puzzle.saveConfig()),
 			ui:     JSON.parse(ui.menuconfig.getAll())
 		});

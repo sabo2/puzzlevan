@@ -37,7 +37,7 @@ ui.listener =
 			ui.event.removeAllEvents();
 			
 			/* 言語を設定 */
-			ui.puzzle.setConfig('language', require('ipc').sendSync('get-pref').lang);
+			ui.puzzle.setConfig('language', require('ipc').sendSync('get-app-preference').lang);
 			
 			/* メニュー用の設定を消去・再設定する */
 			ui.toolarea.reset();
