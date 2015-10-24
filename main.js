@@ -25,7 +25,7 @@ function savePreference(){
 	preference = null;
 	try{
 		preference = JSON.parse(fs.readFileSync(prefFile));
-		preference.app.debugmode = (process.argv.indexOf('--debug')>=0);
+		preference.app.debugmode = (process.argv.indexOf('--debug')>0);
 	}
 	catch(e){
 		preference = {app:{lang:(app.getLocale().match(/ja/)?'ja':'en')}, puzzle:{puzzle:{},ui:{}}};
@@ -33,6 +33,49 @@ function savePreference(){
 	}
 	if(errstatus){ savePreference();}
 })();
+
+//--------------------------------------------------------------------------
+function openFiles(files){
+	files.forEach(function(filename){
+		fs.readFile(filename, {encoding:'utf8'}, function(error, data){
+			if(!error){ openPuzzleWindow(data, latest_pid);}
+		});
+	});
+}
+var openStandAlone = true, isReady = false, initFiles = [];
+function bootOpenFile(filepath){
+	if(!isReady){
+		openStandAlone = false;
+		initFiles.push(filepath);
+	}
+	else{ openFiles([filepath]);}
+}
+
+//--------------------------------------------------------------------------
+process.argv.slice(1).forEach(function(arg){
+	try{
+		var stat = fs.statSync(arg);
+		if(stat.isFile()){ bootOpenFile(arg);}
+	}
+	catch(e){}
+});
+app.on('open-file', function(e, filepath){
+	bootOpenFile(filepath);
+	e.preventDefault();
+});
+app.on('open-url', function(e, url){
+	openStandAlone = false;
+	openPuzzleWindow(url, latest_pid);
+	e.preventDefault();
+});
+app.on('ready', function(){
+	isReady = true;
+	if(initFiles.length>0){ openFiles(initFiles);}
+	else if(openStandAlone){ openMainWindow();}
+});
+app.on('window-all-closed', function(){
+	if(process.platform !== 'darwin'){ app.quit();}
+});
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
@@ -54,7 +97,7 @@ var utilWindows = {
 };
 
 // Window factory function
-function openPuzzleWindow(data, pid){
+function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
@@ -85,7 +128,7 @@ function openExplainWindow(menuitem, focusedWindow){
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
 	utilWindows.add(win); // reference
 }
-function openMainWindow(menuitem, focusedWindow){
+function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:preference.app.debugmode});
@@ -115,6 +158,7 @@ function openUndefWindow(data){
 // IPCs from various windows
 ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
+ipc.on('get-preference', function(e){ e.returnValue = preference;});
 
 // IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
@@ -126,10 +170,10 @@ ipc.on('update-pid', function(e, pid, config){
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
-	var filename = require('dialog').showSaveDialog((BrowserWindow.getFocusedWindow()||null), option);
-	if(!!filename){
-		require('fs').writeFile(filename, data, {encoding:'utf8'});
-	}
+	require('dialog').showSaveDialog((BrowserWindow.getFocusedWindow()||null), option, function(filename){
+		if(!filename){ return;}
+		fs.writeFile(filename, data, {encoding:'utf8'});
+	});
 });
 ipc.on('open-undef-popup', function(e, data){
 	openUndefWindow(data);
@@ -146,13 +190,10 @@ ipc.on('set-puzzle-preference', function(e, setting){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 function openFile(menuitem, focusedWindow){
-	var option = {title:"Open File - Puzzlevan", properties:['openFile'], filters:[{name:'Puzzle Files', extensions:['txt','xml']}]};
-	var files = require('dialog').showOpenDialog(focusedWindow, option);
-	if(!!files){
-		require('fs').readFile(files[0], {encoding:'utf8'}, function(error, data){
-			if(!error){ openPuzzleWindow(data, latest_pid);}
-		});
-	}
+	var option = {title:"Open File - Puzzlevan", properties:['openFile','multiSelections'], filters:[{name:'Puzzle Files', extensions:['txt','xml']}]};
+	require('dialog').showOpenDialog(focusedWindow, option, function(files){
+		if(!!files){ openFiles(files);}
+	});
 }
 
 function sendMenuReq(content){ 
@@ -378,27 +419,3 @@ function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef 
 	
 	appmenu.setApplicationMenu( appmenu.buildFromTemplate(template) );
 }
-
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-
-var openStandAlone = true;
-app.on('open-file', function(e, filepath){
-	openStandAlone = false;
-	require('fs').readFile(filepath, {encoding:'utf8'}, function(error, data){
-		if(!error){ openPuzzleWindow(data, latest_pid);}
-	});
-	e.preventDefault();
-});
-app.on('open-url', function(e, url){
-	openStandAlone = false;
-	openPuzzleWindow(url, latest_pid);
-	e.preventDefault();
-});
-app.on('ready', function(){
-	if(openStandAlone){ openMainWindow();}
-});
-app.on('window-all-closed', function(){
-	if(process.platform !== 'darwin'){ app.quit();}
-});

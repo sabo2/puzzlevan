@@ -107,9 +107,11 @@ v3index.extend({
 		// File API＋Drag&Drop APIの設定
 		this.addEvent(window, 'dragover', function(e){ e.preventDefault();}, true);
 		this.addEvent(window, 'drop', function(e){
-			var reader = new FileReader();
-			reader.onload = function(e){ v3index.openpuzzle(e.target.result);};
-			reader.readAsText(e.dataTransfer.files[0]);
+			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
+				var reader = new FileReader();
+				reader.onload = function(e){ v3index.openpuzzle(e.target.result);};
+				reader.readAsText(file);
+			});
 			e.preventDefault();
 			e.stopPropagation();
 		}, true);
