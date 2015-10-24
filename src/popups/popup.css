@@ -18,6 +18,7 @@
 	#main {
 		display:inline-block;
 		padding:12px;
+		white-space:nowrap;
 	}
 
 	.btn {

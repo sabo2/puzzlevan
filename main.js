@@ -114,7 +114,7 @@ function openPopupWindow(url){
 		x = bounds.x + 24;
 		y = bounds.y + 24;
 	}
-	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode});
+	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode, resizable:false});
 	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'popups/'+url);
 	utilWindows.add(win); // reference

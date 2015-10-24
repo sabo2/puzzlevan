@@ -20,8 +20,12 @@ ui.menuarea = {
 	},
 	openpopup : function(url){
 		var bounds = ui.win.getBounds();
-		var feature = 'x='+(bounds.x+24)+',y='+(bounds.y+24)+',show='+(!require('ipc').sendSync('get-app-preference').app.debugmode?'no':'yes');
-		window.open('popups/'+url, null, feature);
+		window.open('popups/'+url, null, [
+			'x='+(bounds.x+24),
+			'y='+(bounds.y+24),
+			'resizable=no',
+			'show='+(!require('ipc').sendSync('get-app-preference').debugmode?'no':'yes')
+		].join(','));
 	},
 
 	//---------------------------------------------------------------------------

@@ -31,8 +31,8 @@ popupmgr.extend({
 	copy : function(){
 		document.urloutput.ta.focus();
 		document.urloutput.ta.select();
-		popupmgr.win.copy();
-		popupmgr.win.unselect();
+		popupmgr.win.webContents.copy();
+		popupmgr.win.webContents.unselect();
 	}
 });
 

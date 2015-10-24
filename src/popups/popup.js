@@ -1,18 +1,12 @@
 /* exported popupmgr */
 
 window.onload = function(){
-	var main = document.querySelector('body > div');
-	
-	popupmgr.win = require('remote').getCurrentWebContents();
-	popupmgr.walkElement(main);
+	popupmgr.win = require('remote').getCurrentWindow();
+	popupmgr.walkElement(document.querySelector('body > div'));
 	popupmgr.translate();
 	popupmgr.setFormEvent();
-	
-	var rect = main.getBoundingClientRect();
-	var win = require('remote').getCurrentWindow();
-	win.setMenuBarVisibility(false);
-	win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
-	win.show();
+	popupmgr.adjustWindowSize();
+	popupmgr.win.show();
 };
 
 var popupmgr = {
@@ -43,12 +37,18 @@ var popupmgr = {
 		}
 		document.querySelector('form').addEventListener('submit', function(e){ e.preventDefault();}, false);
 	},
+	adjustWindowSize : function(){
+		this.win.setMenuBarVisibility(false);
+		var rect = document.querySelector('body > div').getBoundingClientRect();
+		this.win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
+	},
 	lang : require('ipc').sendSync('get-app-preference').lang,
 	translate : function(){
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];
 			if(!!obj.textnode){ obj.textnode.data = obj['str_'+this.lang];}
 		}
+		this.adjustWindowSize();
 	},
 	setFormEvent : function(){},
 	close : function(){

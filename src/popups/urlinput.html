@@ -13,8 +13,8 @@ popupmgr.extend({
 	paste : function(){
 		document.urlinput.ta.focus();
 		document.urlinput.ta.select();
-		popupmgr.win.paste();
-		popupmgr.win.unselect();
+		popupmgr.win.webContents.paste();
+		popupmgr.win.webContents.unselect();
 	}
 });
 
