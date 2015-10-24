@@ -42,7 +42,7 @@ function done(error, appPath){
 	console.log('Building package done! --> '+appPathLower);
 }
 
-[['darwin','x64'],['linux','ia32'],['win32','ia32'],].forEach(function(item){
+[['darwin','x64'],['linux','ia32'],['linux','x64'],['win32','ia32'],].forEach(function(item){
 	options.platform = item[0];
 	options.arch     = item[1];
 	packager(options, done);
