@@ -57,7 +57,7 @@ ui.menuconfig = {
 	},
 	setAll : function(json){
 		Config.setAll.call(this, json);
-		this.list.autocheck_once.val = this.list.autocheck;
+		this.list.autocheck_once.val = this.list.autocheck.val;
 	},
 
 	//---------------------------------------------------------------------------
