@@ -28,6 +28,7 @@ var options = {
 function done(error, appPath){
 	if(error){ throw new Error(error);}
 	var appPathLower = appPath[0].replace(pkg.productName, pkg.name);
+	var dirname = appPathLower.split(/\//g).pop();
 	if(appPath[0].match('win32')){
 		require('fs').renameSync(appPath[0], appPathLower);
 		require('fs').renameSync(appPath[0]+'/'+pkg.productName+'.exe', appPathLower+'/'+pkg.name+'.exe');
@@ -39,10 +40,18 @@ function done(error, appPath){
 	else{ /* darwin */
 		require('fs').renameSync(appPath[0]+'/', appPathLower+'/');
 	}
+	
 	console.log('Building package done! --> '+appPathLower);
+	
+	if(process.argv.indexOf('--zip')>=2){
+		require('child_process').exec('zip -9r -y ../'+dirname+'.zip *', {cwd:appPathLower}, function(err, stdout, stderr){
+			console.log('Archiving package done! --> '+dirname+'.zip');
+		});
+	}
 }
 
-[['darwin','x64'],['linux','ia32'],['linux','x64'],['win32','ia32'],].forEach(function(item){
+require('child_process').exec('rm -r dist/*');
+[['darwin','x64'],['linux','ia32'],['linux','x64'],['win32','ia32']].forEach(function(item){
 	options.platform = item[0];
 	options.arch     = item[1];
 	packager(options, done);

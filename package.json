@@ -21,6 +21,7 @@
   "scripts": {
     "build": "electron .",
     "pack": "node pack.js",
+    "release": "node pack.js --zip",
     "lint": "jshint *.js src/js/*.js src/js/ui/*.js src/popups/*.js"
   }
 }
