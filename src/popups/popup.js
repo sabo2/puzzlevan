@@ -63,3 +63,6 @@ require('ipc').on('config-req', function(idname, val){
 		popupmgr.translate();
 	}
 });
+require('ipc').on('update-menu-caption', function(){
+	require('ipc').send('set-basic-menu');
+});

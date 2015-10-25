@@ -172,7 +172,7 @@ function sendConfigReq(menuitem, focusedWindow){
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
 	if(idname==='language'){
 		var win = BrowserWindow.getFocusedWindow();
-		if(win){ win.hide(); win.show();} // set menu again
+		if(win){ win.webContents.send('update-menu-caption');} // set menu again
 	}
 }
 

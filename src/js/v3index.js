@@ -213,6 +213,9 @@ require('ipc').on('config-req', function(idname, val){
 		v3index.translate();
 	}
 });
+require('ipc').on('update-menu-caption', function(){
+	require('ipc').send('set-basic-menu');
+});
 require('ipc').once('initial-data', function(data){
 	v3index.filedata = data;
 });

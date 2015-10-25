@@ -94,6 +94,9 @@ require('ipc').on('config-req', function(idname, val){
 require('ipc').on('menu-req', function(req){
 	ui.menuarea.recvMenuReq(req);
 });
+require('ipc').on('update-menu-caption', function(){
+	ui.event.onfocus_func();
+});
 window.addEventListener("message", function(e){
 	var msg = JSON.parse(e.data);
 	ui.menuarea.recvMessage(e.source, msg.channel, msg.data);
