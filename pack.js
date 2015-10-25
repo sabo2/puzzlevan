@@ -44,8 +44,9 @@ function done(error, appPath){
 	console.log('Building package done! --> '+appPathLower);
 	
 	if(process.argv.indexOf('--zip')>=2){
-		require('child_process').exec('zip -9r -y ../'+dirname+'.zip *', {cwd:appPathLower}, function(err, stdout, stderr){
-			console.log('Archiving package done! --> '+dirname+'.zip');
+		var zipfilename = dirname.replace(/puzzlevan/,'puzzlevan-v'+pkg.version)+'.zip';
+		require('child_process').exec('zip -9r -y ../'+zipfilename+' *', {cwd:appPathLower}, function(err, stdout, stderr){
+			console.log('Archiving package done! --> '+zipfilename);
 		});
 	}
 }
