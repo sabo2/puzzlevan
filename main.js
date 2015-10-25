@@ -31,7 +31,6 @@ function savePreference(){
 		preference = {app:{lang:(app.getLocale().match(/ja/)?'ja':'en')}, puzzle:{puzzle:{},ui:{}}};
 		errstatus = true;
 	}
-	if(errstatus){ savePreference();}
 })();
 
 //--------------------------------------------------------------------------
@@ -71,6 +70,9 @@ app.on('ready', function(){
 });
 app.on('window-all-closed', function(){
 	if(process.platform !== 'darwin'){ app.quit();}
+});
+app.on('will-quit', function(){
+	savePreference();
 });
 
 //--------------------------------------------------------------------------
@@ -145,7 +147,6 @@ ipc.on('get-puzzle-preference', function(e){
 });
 ipc.on('set-puzzle-preference', function(e, setting){
 	preference.puzzle = setting;
-	savePreference();
 });
 
 //--------------------------------------------------------------------------
@@ -172,7 +173,6 @@ function sendConfigReq(menuitem, focusedWindow){
 	if(idname==='language'){
 		var win = BrowserWindow.getFocusedWindow();
 		if(win){ win.hide(); win.show();} // set menu again
-		savePreference();
 	}
 }
 
