@@ -53,11 +53,7 @@ function bootOpenFile(filepath){
 
 //--------------------------------------------------------------------------
 process.argv.slice(1).forEach(function(arg){
-	try{
-		var stat = fs.statSync(arg);
-		if(stat.isFile()){ bootOpenFile(arg);}
-	}
-	catch(e){}
+	try{ if(fs.statSync(arg).isFile()){ bootOpenFile(arg);} }catch(e){}
 });
 app.on('open-file', function(e, filepath){
 	bootOpenFile(filepath);
@@ -79,94 +75,60 @@ app.on('window-all-closed', function(){
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
-var mainWindow = null;
-var puzzleWindows = {
-	list : [],
-	add : function(win){
-		this.list.push(win);
-	},
-	remove : function(win){
-		var idx = this.list.indexOf(win);
-		if(idx>=0){ this.list.splice(idx,1);}
-	}
-};
-var utilWindows = {
-	list : [],
-	add : puzzleWindows.add,
-	remove : puzzleWindows.remove
-};
+var bzWindows = [];
+app.on('browser-window-created', function(e, win){ // reference
+	bzWindows.push(win);
+	win.once('closed', function(){
+		var idx = bzWindows.indexOf(win);
+		if(idx>=0){ bzWindows.splice(idx,1);}
+	});
+});
 
+//--------------------------------------------------------------------------
 // Window factory function
 function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
 	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.webContents.on('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
-	win.on('closed', function(){ puzzleWindows.remove(win);}); // reference
+	win.webContents.once('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
 	win.loadUrl(srcdir + 'p.html');
-	puzzleWindows.add(win); // reference
 }
 function openPopupWindow(url){
-	var focusedWindow = BrowserWindow.getFocusedWindow(), x = 24, y = 24;
-	if(!!focusedWindow){
-		var bounds = focusedWindow.getBounds();
-		x = bounds.x + 24;
-		y = bounds.y + 24;
-	}
-	var win = new BrowserWindow({x, y, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode, resizable:false});
-	win.on('closed', function(){ utilWindows.remove(win);}); // reference
+	var win = new BrowserWindow({x:36, y:36, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode, resizable:false});
 	win.loadUrl(srcdir+'popups/'+url);
-	utilWindows.add(win); // reference
 }
 function openExplainWindow(menuitem, focusedWindow){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.webContents.on('did-finish-load', function(){ win.show(); if(preference.app.debugmode){ setApplicationMenu();}});
-	win.on('focus', function(){ setApplicationMenu();});
-	win.on('closed', function(){ utilWindows.remove(win);}); // reference
 	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
-	utilWindows.add(win); // reference
 }
+var mainWindow = null;
 function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:preference.app.debugmode});
-	mainWindow.webContents.on('will-navigate', function(e, url){
-		openPopupWindow('newboard.html?'+url.substr(url.indexOf('?')+1));
-		e.preventDefault();
-	});
-	mainWindow.webContents.on('did-finish-load', function(){ mainWindow.show(); if(preference.app.debugmode){ setApplicationMenu();}});
-	mainWindow.on('focus', function(){ setApplicationMenu();});
-	mainWindow.on('closed', function(){ mainWindow = null;});
+	mainWindow.once('closed', function(){ mainWindow = null;});
 	mainWindow.loadUrl(srcdir + 'index.html');
 }
 function openUndefWindow(data){
 	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:preference.app.debugmode});
-	win.webContents.on('will-navigate', function(e, url){
-		openPuzzleWindow(data, url.substr(url.indexOf('?')+1));
-		win.destroy();
-		e.preventDefault();
-	});
-	win.webContents.on('did-finish-load', function(){ win.show();});
-	win.on('closed', function(){ utilWindows.remove(win);}); // reference
+	win.webContents.once('did-finish-load', function(){ win.webContents.send('initial-data', data);});
 	win.loadUrl(srcdir + 'fileindex.html');
-	utilWindows.add(win); // reference
 }
 
 //--------------------------------------------------------------------------
 // IPCs from various windows
 ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
-ipc.on('get-preference', function(e){ e.returnValue = preference;});
 
 // IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
+ipc.on('set-basic-menu', function(e){ setApplicationMenu();});
+ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
 // IPCs from puzzle windows
-ipc.on('update-pid', function(e, pid, config){
-	setApplicationMenu(pid, config);
-});
+ipc.on('set-puzzle-menu', function(e, pid, config){ setApplicationMenu(pid, config);});
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
@@ -198,9 +160,7 @@ function openFile(menuitem, focusedWindow){
 
 function sendMenuReq(content){ 
 	return function(menuitem, focusedWindow){
-		if(focusedWindow && focusedWindow!==mainWindow){
-			focusedWindow.webContents.send('menu-req', content);
-		}
+		focusedWindow.webContents.send('menu-req', content);
 	};
 }
 function sendConfigReq(menuitem, focusedWindow){

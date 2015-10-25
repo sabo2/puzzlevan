@@ -11,6 +11,7 @@ var v3index = {
 	doclang  : 'ja',
 	complete : false,
 	captions : [],
+	filedata : '',
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
 
@@ -38,15 +39,20 @@ v3index.extend({
 	},
 	onload_func : function(){
 		self.doclang = require('ipc').sendSync('get-app-preference').lang;
-		if(!self.current){
-			self.setTabEvent();
-			self.setDragDropEvent();
-			self.setTranslation();
-			self.setAccordion();
-			require('ipc').send('pzpr-version', pzpr.version);
-		}
-		if(location.href.match(/fileindex\.html/)){ self.openUndefFile();}
+		self.setTabEvent();
+		self.setDragDropEvent();
+		self.setTranslation();
+		self.setAccordion();
+		require('ipc').send('pzpr-version', pzpr.version);
+		
+		if(location.href.match(/\/index\.html/)){ self.setNewboardEvent();}
+		else if(location.href.match(/fileindex\.html/)){ self.openUndefFile();}
+		
 		self.disp();
+		
+		require('ipc').send('set-basic-menu');
+		window.addEventListener('focus', function(){ require('ipc').send('set-basic-menu');}, true);
+		require('remote').getCurrentWindow().show();
 	},
 
 	reset_func : function(){
@@ -79,8 +85,8 @@ v3index.extend({
 	},
 
 	/* open new puzzle window as Electron manner */
-	openpuzzle : function(data){
-		require('ipc').send('open-puzzle', data);
+	openpuzzle : function(data, pid){
+		require('ipc').send('open-puzzle', data, pid);
 	},
 
 	setTabEvent : function(){
@@ -109,7 +115,7 @@ v3index.extend({
 		this.addEvent(window, 'drop', function(e){
 			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
 				var reader = new FileReader();
-				reader.onload = function(e){ v3index.openpuzzle(e.target.result);};
+				reader.onload = function(e){ v3index.openpuzzle(e.target.result, '');};
 				reader.readAsText(file);
 			});
 			e.preventDefault();
@@ -160,6 +166,17 @@ v3index.extend({
 		});
 	},
 
+	setNewboardEvent : function(){
+		function newboardEvent(e){
+			var url = e.target.getAttribute('href');
+			require('ipc').send('open-popup-newboard', url.substr(url.indexOf('?')+1));
+			e.preventDefault();
+		}
+		var items = document.querySelectorAll('a');
+		for(var i=0;i<items.length;i++){
+			items[i].addEventListener('click', newboardEvent, true);
+		}
+	},
 	openUndefFile : function(){
 		var items = document.querySelectorAll('ul > li');
 		for(var i=0;i<items.length;i++){
@@ -167,6 +184,17 @@ v3index.extend({
 			if(!pzpr.variety.info[pzpr.variety.toPID(url.substr(url.indexOf('?')+1))].exists.kanpen){ // kanpenとpencilboxが逆
 				items[i].style.display = 'none';
 			}
+		}
+		
+		function selectEvent(e){
+			var url = e.target.getAttribute('href');
+			v3index.openpuzzle(v3index.filedata, url.substr(url.indexOf('?')+1));
+			window.close();
+			e.preventDefault();
+		}
+		items = document.querySelectorAll('a');
+		for(var i=0;i<items.length;i++){
+			items[i].addEventListener('click', selectEvent, true);
 		}
 	}
 });
@@ -184,4 +212,7 @@ require('ipc').on('config-req', function(idname, val){
 		v3index.doclang = val;
 		v3index.translate();
 	}
+});
+require('ipc').once('initial-data', function(data){
+	v3index.filedata = data;
 });
