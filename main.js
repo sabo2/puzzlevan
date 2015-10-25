@@ -197,8 +197,8 @@ function versionInfo(menuitem, focusedWindow){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 function popupNewBoard(menuitem, focusedWindow){
-	if(!latest_pid){ return;}
-	openPopupWindow('newboard.html?'+latest_pid);
+	if(!!latest_pid){ openPopupWindow('newboard.html?'+latest_pid);}
+	else            { openMainWindow();}
 }
 function popupURLImport(menuitem, focusedWindow){
 	openPopupWindow('urlinput.html');
