@@ -1,14 +1,5 @@
 /* exported popupmgr */
 
-window.onload = function(){
-	popupmgr.win = require('remote').getCurrentWindow();
-	popupmgr.walkElement(document.querySelector('body > div'));
-	popupmgr.translate();
-	popupmgr.setFormEvent();
-	popupmgr.adjustWindowSize();
-	popupmgr.win.show();
-};
-
 var popupmgr = {
 	captions : [],
 	win : null,
@@ -55,6 +46,14 @@ var popupmgr = {
 		window.close();
 	},
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
+};
+window.onload = function(){
+	popupmgr.win = require('remote').getCurrentWindow();
+	popupmgr.walkElement(document.querySelector('body > div'));
+	popupmgr.translate();
+	popupmgr.setFormEvent();
+	popupmgr.adjustWindowSize();
+	popupmgr.win.show();
 };
 
 require('ipc').on('config-req', function(idname, val){
