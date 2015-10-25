@@ -2,10 +2,6 @@
 module.exports = function(grunt){
   var pkg = grunt.file.readJSON('package.json'), deps = pkg.devDependencies;
   for(var plugin in deps){ if(plugin.match(/^grunt\-/)){ grunt.loadNpmTasks(plugin);}}
-  
-  var fs = require('fs');
-  var banner_min  = fs.readFileSync('./src/js/common/banner_min.js',  'utf-8');
-  var banner_full = fs.readFileSync('./src/js/common/banner_full.js', 'utf-8');
 
   grunt.initConfig({
     pkg: pkg,
@@ -15,7 +11,6 @@ module.exports = function(grunt){
     concat: {
       release: {
         options: {
-          banner: banner_full,
           process: true
         },
         files: [
@@ -54,7 +49,6 @@ module.exports = function(grunt){
     uglify: {
       release: {
         options: {
-          banner: banner_min,
           report: 'min',
         },
         files: [
