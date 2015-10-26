@@ -8,7 +8,10 @@ var srcdir = 'file://' + __dirname + '/src/';
 // Global objects
 var pzprversion = '';
 var latest_pid = '';
-var openpos = {x:40, y:40, modify:function(){this.x+=24;this.y+=24;}};
+var openpos = {x:40, y:40, width:640, height:360, modify:function(){
+	if((this.x+=24)>this.width) { this.x = 40;}
+	if((this.y+=24)>this.height){ this.y = 40;}
+}};
 
 //--------------------------------------------------------------------------
 var preference = null;
