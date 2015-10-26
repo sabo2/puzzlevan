@@ -50,9 +50,11 @@ v3index.extend({
 		
 		self.disp();
 		
-		require('ipc').send('set-basic-menu');
-		window.addEventListener('focus', function(){ require('ipc').send('set-basic-menu');}, true);
 		require('remote').getCurrentWindow().show();
+		require('ipc').send('set-basic-menu');
+		if(process.platform==='darwin'){
+			window.addEventListener('focus', function(){ require('ipc').send('set-basic-menu');}, true);
+		}
 	},
 
 	reset_func : function(){
@@ -211,10 +213,8 @@ require('ipc').on('config-req', function(idname, val){
 	if(idname==='language'){
 		v3index.doclang = val;
 		v3index.translate();
+		require('ipc').send('set-basic-menu');
 	}
-});
-require('ipc').on('update-menu-caption', function(){
-	require('ipc').send('set-basic-menu');
 });
 require('ipc').once('initial-data', function(data){
 	v3index.filedata = data;

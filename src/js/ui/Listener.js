@@ -145,6 +145,7 @@ ui.listener =
 		}
 		else if(idname==='language'){
 			ui.displayAll();
+			ui.misc.setMenu();
 		}
 	},
 
@@ -169,6 +170,9 @@ ui.listener =
 		var height = (pzpr.util.getRect(document.body).height+8)|0;
 		ui.win.setContentSize(width, height);
 		
-		if(!ui.win.isVisible()){ ui.win.show();}
+		if(!ui.win.isVisible()){ // readyよりresizeが後になる
+			ui.win.show();
+			ui.misc.setMenu();
+		}
 	}
 };

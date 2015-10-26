@@ -60,8 +60,6 @@ require('ipc').on('config-req', function(idname, val){
 	if(idname==='language'){
 		popupmgr.lang = val;
 		popupmgr.translate();
+		require('ipc').send('set-basic-menu');
 	}
-});
-require('ipc').on('update-menu-caption', function(){
-	require('ipc').send('set-basic-menu');
 });

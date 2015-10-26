@@ -126,11 +126,11 @@ ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
 
 // IPCs from puzzle-list window
 ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
-ipc.on('set-basic-menu', function(e){ setApplicationMenu();});
+ipc.on('set-basic-menu', function(e){ setApplicationMenu(e.sender);});
 ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
 // IPCs from puzzle windows
-ipc.on('set-puzzle-menu', function(e, pid, config){ setApplicationMenu(pid, config);});
+ipc.on('set-puzzle-menu', function(e, pid, config){ setApplicationMenu(e.sender, pid, config);});
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
@@ -170,10 +170,6 @@ function sendConfigReq(menuitem, focusedWindow){
 	
 	if(idname==='language'){ preference.app.lang = val;}
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
-	if(idname==='language'){
-		var win = BrowserWindow.getFocusedWindow();
-		if(win){ win.webContents.send('update-menu-caption');} // set menu again
-	}
 }
 
 function windowEvent(content){
@@ -341,9 +337,12 @@ var templateTemplate = [
 		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac'},
 	]}
 ];
-function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef error)
+function setApplicationMenu(webContents, pid, config){ // jshint ignore:line, (avoid latedef error)
+	var win = BrowserWindow.fromWebContents(webContents);
 	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
+	if(isMac && !win.isFocused()){ return;}
+	
 	latest_pid = pid || '';
 	config = config || {};
 	var template = [];
@@ -377,5 +376,7 @@ function setApplicationMenu(pid, config){ // jshint ignore:line, (avoid latedef 
 		});
 	})(templateTemplate, template);
 	
-	appmenu.setApplicationMenu( appmenu.buildFromTemplate(template) );
+	var menu = appmenu.buildFromTemplate(template);
+	if(process.platform !== 'darwin'){ win.setMenu(menu);}
+	else                             { appmenu.setApplicationMenu(menu);}
 }

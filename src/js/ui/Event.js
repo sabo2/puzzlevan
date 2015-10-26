@@ -53,9 +53,6 @@ ui.event =
 
 		// onunloadイベントを割り当てる
 		this.addEvent(window, 'unload', this, this.onunload_func);
-
-		// 1回だけfocusイベントを発生させる
-		ui.event.onfocus_func();
 	},
 
 	//---------------------------------------------------------------------------
@@ -82,8 +79,9 @@ ui.event =
 		ui.puzzle.mouse.mousereset();
 	},
 	onfocus_func : function(){
-		/* pencilboxのファイル向け */
-		require('ipc').send('set-puzzle-menu', ui.puzzle.pid, ui.getCurrentConfigList());
+		if(process.platform==='darwin'){
+			ui.misc.setMenu();
+		}
 	},
 	onbeforeunload_func : function(e){
 		if(!ui.puzzle.ismodified()){ return;}
