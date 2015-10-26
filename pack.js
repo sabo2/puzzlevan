@@ -1,6 +1,8 @@
 var packager = require('electron-packager');
 var pkg = require('./package.json');
 
+var electron_version = require('child_process').execSync('electron -v', {encoding:'utf-8'}).match(/(\d+\.\d+\.\d+)/)[0];
+
 var options = {
 	dir       : './',
 	out       : './dist',
@@ -8,7 +10,7 @@ var options = {
 	asar      : true,
 //	platform  : 'darwin,win32,linux',
 //	arch      : 'x64,ia32',
-	version   : '0.33.8', // version of Electron
+	version   : electron_version,
 	
 	prune     : true,
 	ignore    : 'node_module|tests|dist|pack\.js|Gruntfile\.js|ignore|\.DS_Store|\.jshintrc|\.settings',
