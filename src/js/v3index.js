@@ -38,22 +38,22 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
-		self.doclang = require('ipc').sendSync('get-app-preference').lang;
+		self.doclang = require('electron').ipcRenderer.sendSync('get-app-preference').lang;
 		self.setTabEvent();
 		self.setDragDropEvent();
 		self.setTranslation();
 		self.setAccordion();
-		require('ipc').send('pzpr-version', pzpr.version);
+		require('electron').ipcRenderer.send('pzpr-version', pzpr.version);
 		
 		if(location.href.match(/\/index\.html/)){ self.setNewboardEvent();}
 		else if(location.href.match(/fileindex\.html/)){ self.openUndefFile();}
 		
 		self.disp();
 		
-		require('remote').getCurrentWindow().show();
-		require('ipc').send('set-basic-menu');
+		require('electron').remote.getCurrentWindow().show();
+		require('electron').ipcRenderer.send('set-basic-menu');
 		if(process.platform==='darwin'){
-			window.addEventListener('focus', function(){ require('ipc').send('set-basic-menu');}, true);
+			window.addEventListener('focus', function(){ require('electron').ipcRenderer.send('set-basic-menu');}, true);
 		}
 	},
 
@@ -88,7 +88,7 @@ v3index.extend({
 
 	/* open new puzzle window as Electron manner */
 	openpuzzle : function(data, pid){
-		require('ipc').send('open-puzzle', data, pid);
+		require('electron').ipcRenderer.send('open-puzzle', data, pid);
 	},
 
 	setTabEvent : function(){
@@ -171,7 +171,7 @@ v3index.extend({
 	setNewboardEvent : function(){
 		function newboardEvent(e){
 			var url = e.target.getAttribute('href');
-			require('ipc').send('open-popup-newboard', url.substr(url.indexOf('?')+1));
+			require('electron').ipcRenderer.send('open-popup-newboard', url.substr(url.indexOf('?')+1));
 			e.preventDefault();
 		}
 		var items = document.querySelectorAll('a');
@@ -209,13 +209,13 @@ window.v3index = v3index;
 
 })();
 
-require('ipc').on('config-req', function(idname, val){
+require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 	if(idname==='language'){
 		v3index.doclang = val;
 		v3index.translate();
-		require('ipc').send('set-basic-menu');
+		require('electron').ipcRenderer.send('set-basic-menu');
 	}
 });
-require('ipc').once('initial-data', function(data){
+require('electron').ipcRenderer.once('initial-data', function(e, data){
 	v3index.filedata = data;
 });

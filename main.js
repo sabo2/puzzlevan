@@ -1,7 +1,7 @@
-var app = require('app');
-var ipc = require('ipc');
-var BrowserWindow = require('browser-window');
-var appmenu = require('menu');
+var app = require('electron').app;
+var ipc = require('electron').ipcMain;
+var BrowserWindow = require('electron').BrowserWindow;
+var appmenu = require('electron').Menu;
 
 var srcdir = 'file://' + __dirname + '/src/';
 
@@ -92,21 +92,21 @@ app.on('browser-window-created', function(e, win){ // reference
 //--------------------------------------------------------------------------
 // Window factory function
 function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
-	if(!data){ require('dialog').showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
+	if(!data){ require('electron').dialog.showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.webContents.once('did-finish-load', function(){ win.webContents.send('initial-data', data, pid);});
-	win.loadUrl(srcdir + 'p.html');
+	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid);});
+	win.loadURL(srcdir + 'p.html');
 }
 function openPopupWindow(url){
-	var win = new BrowserWindow({x:36, y:36, width:360, height:360, 'always-on-top':true, show:preference.app.debugmode, resizable:false});
-	win.loadUrl(srcdir+'popups/'+url);
+	var win = new BrowserWindow({x:36, y:36, width:360, height:360, alwaysOnTop:true, show:preference.app.debugmode, resizable:false});
+	win.loadURL(srcdir+'popups/'+url);
 }
 function openExplainWindow(menuitem, focusedWindow){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.loadUrl(srcdir+'faq.html?'+latest_pid+"_edit");
+	win.loadURL(srcdir+'faq.html?'+latest_pid+"_edit");
 }
 var mainWindow = null;
 function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
@@ -114,12 +114,12 @@ function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid 
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:preference.app.debugmode});
 	mainWindow.once('closed', function(){ mainWindow = null;});
-	mainWindow.loadUrl(srcdir + 'index.html');
+	mainWindow.loadURL(srcdir + 'index.html');
 }
 function openUndefWindow(data){
 	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:preference.app.debugmode});
-	win.webContents.once('did-finish-load', function(){ win.webContents.send('initial-data', data);});
-	win.loadUrl(srcdir + 'fileindex.html');
+	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
+	win.loadURL(srcdir + 'fileindex.html');
 }
 
 //--------------------------------------------------------------------------
@@ -137,7 +137,7 @@ ipc.on('set-puzzle-menu', function(e, pid, config){ setApplicationMenu(e.sender,
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
-	require('dialog').showSaveDialog((BrowserWindow.getFocusedWindow()||null), option, function(filename){
+	require('electron').dialog.showSaveDialog((BrowserWindow.getFocusedWindow()||null), option, function(filename){
 		if(!filename){ return;}
 		fs.writeFile(filename, data, {encoding:'utf8'});
 	});
@@ -157,7 +157,7 @@ ipc.on('set-puzzle-preference', function(e, setting){
 //--------------------------------------------------------------------------
 function openFile(menuitem, focusedWindow){
 	var option = {title:"Open File - Puzzlevan", properties:['openFile','multiSelections'], filters:[{name:'Puzzle Files', extensions:['txt','xml']}]};
-	require('dialog').showOpenDialog(focusedWindow, option, function(files){
+	require('electron').dialog.showOpenDialog(focusedWindow, option, function(files){
 		if(!!files){ openFiles(files);}
 	});
 }
@@ -190,7 +190,7 @@ function versionInfo(menuitem, focusedWindow){
 		'PUZ-PRE v'+pzprversion
 	].join('\n');
 	var option = {type:'none', message:msg, buttons:['OK']};
-	require('dialog').showMessageBox(option);
+	require('electron').dialog.showMessageBox(option);
 }
 
 //--------------------------------------------------------------------------

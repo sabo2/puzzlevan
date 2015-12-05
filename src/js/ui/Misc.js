@@ -19,14 +19,14 @@ ui.misc = {
 	// misc.setMenu()  メニューの設定を行う
 	//---------------------------------------------------------------------------
 	setMenu : function(){
-		require('ipc').send('set-puzzle-menu', ui.puzzle.pid, ui.getCurrentConfigList());
+		require('electron').ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.getCurrentConfigList());
 	},
 
 	//--------------------------------------------------------------------------------
 	// misc.openpuzzle()  指定されたデータのパズルを開く　
 	//--------------------------------------------------------------------------------
 	openpuzzle : function(data){
-		require('ipc').send('open-puzzle', data, ui.puzzle.pid);
+		require('electron').ipcRenderer.send('open-puzzle', data, ui.puzzle.pid);
 	},
 
 	//--------------------------------------------------------------------------------
@@ -37,15 +37,15 @@ ui.misc = {
 	alert : function(strJP, strEN){
 		var msg = ui.selectStr(strJP, strEN);
 		var option = {type:'info', message:msg, buttons:['OK']};
-		ui.remote.require('dialog').showMessageBox(ui.win, option);
+		ui.remote.dialog.showMessageBox(ui.win, option);
 	},
 	confirm : function(strJP, strEN, func){
 		var msg = ui.selectStr(strJP, strEN);
 		var option = {type:'question', message:msg, buttons:['OK','cancel']};
 		function onconfirm(response){ if(response===0){ func();}}
-		ui.remote.require('dialog').showMessageBox(ui.win, option, onconfirm);
+		ui.remote.dialog.showMessageBox(ui.win, option, onconfirm);
 	},
 	erralert : function(strJP, strEN){
-		ui.remote.require('dialog').showErrorBox("Puzzlevan", ui.selectStr(strJP, strEN));
+		ui.remote.dialog.showErrorBox("Puzzlevan", ui.selectStr(strJP, strEN));
 	}
 };

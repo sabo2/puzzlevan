@@ -33,7 +33,7 @@ var popupmgr = {
 		var rect = document.querySelector('body > div').getBoundingClientRect();
 		this.win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
 	},
-	lang : require('ipc').sendSync('get-app-preference').lang,
+	lang : require('electron').ipcRenderer.sendSync('get-app-preference').lang,
 	translate : function(){
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];
@@ -48,7 +48,7 @@ var popupmgr = {
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
 window.onload = function(){
-	popupmgr.win = require('remote').getCurrentWindow();
+	popupmgr.win = require('electron').remote.getCurrentWindow();
 	popupmgr.walkElement(document.querySelector('body > div'));
 	popupmgr.translate();
 	popupmgr.setFormEvent();
@@ -56,10 +56,10 @@ window.onload = function(){
 	popupmgr.win.show();
 };
 
-require('ipc').on('config-req', function(idname, val){
+require('electron').ipcRenderer.on('config-req', function(idname, val){
 	if(idname==='language'){
 		popupmgr.lang = val;
 		popupmgr.translate();
-		require('ipc').send('set-basic-menu');
+		require('electron').ipcRenderer.send('set-basic-menu');
 	}
 });

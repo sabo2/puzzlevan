@@ -25,7 +25,7 @@ popupmgr.extend({
 	},
 	openurl : function(e){
 		if(document.urloutput.ta.value!==''){
-			require('shell').openExternal(document.urloutput.ta.value);
+			require('electron').shell.openExternal(document.urloutput.ta.value);
 		}
 	},
 	copy : function(){

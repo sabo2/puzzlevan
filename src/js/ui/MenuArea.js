@@ -8,14 +8,14 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	saveimage : function(filetype){
 		/* 画像出力ルーチン */
-		ui.remote.require('dialog').showSaveDialog(ui.win, {
+		ui.remote.dialog.showSaveDialog(ui.win, {
 			title : "Save Image - Puzzlevan",
 			defaultPath : pzpr.variety.toURLID(ui.puzzle.pid)+'.'+filetype,
 			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
 		}, function(filename){
 			if(!filename){ return;}
 			var base64data = ui.puzzle.toDataURL(filetype).replace(/data\:.+\;base64\,/,'');
-			require('fs').writeFile(filename, base64data, {encoding:'base64'});
+			require('electron').fs.writeFile(filename, base64data, {encoding:'base64'});
 		});
 	},
 	openpopup : function(url){
@@ -24,7 +24,7 @@ ui.menuarea = {
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',
-			'show='+(!require('ipc').sendSync('get-app-preference').debugmode?'no':'yes')
+			'show='+(!require('electron').ipcRenderer.sendSync('get-app-preference').debugmode?'no':'yes')
 		].join(','));
 	},
 
@@ -47,9 +47,9 @@ ui.menuarea = {
 			case 'play-mode': if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);} break;
 			case 'irowake-change': puzzle.irowake(); break;
 			
-			case 'save-pzpr':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
-			case 'save-pbox':     require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid); break;
-			case 'save-pbox-xml': require('ipc').send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml'); break;
+			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
+			case 'save-pbox':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid); break;
+			case 'save-pbox-xml': require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml'); break;
 			case 'saveimage-png': this.saveimage('png'); break;
 			case 'saveimage-svg': this.saveimage('svg'); break;
 			
@@ -88,10 +88,10 @@ ui.menuarea = {
 	}
 };
 
-require('ipc').on('config-req', function(idname, val){
+require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 	ui.setConfig(idname, val);
 });
-require('ipc').on('menu-req', function(req){
+require('electron').ipcRenderer.on('menu-req', function(e, req){
 	ui.menuarea.recvMenuReq(req);
 });
 window.addEventListener("message", function(e){

@@ -88,6 +88,6 @@ ui.event =
 		
 		var msg = ui.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
 		var option = {type:'question', message:msg, buttons:['Yes','No']};
-		return (e.returnValue = (ui.remote.require('dialog').showMessageBox(ui.win, option)===0));
+		return (e.returnValue = (ui.remote.dialog.showMessageBox(ui.win, option)===0));
 	}
 };

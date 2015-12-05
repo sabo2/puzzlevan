@@ -81,7 +81,7 @@ popupmgr.extend({
 		}
 		
 		if(url.length>0){
-			require('ipc').send('open-puzzle', pid+"/"+url.join('/'));
+			require('electron').ipcRenderer.send('open-puzzle', pid+"/"+url.join('/'));
 		}
 		
 		window.close();
