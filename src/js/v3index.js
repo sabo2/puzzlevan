@@ -38,7 +38,7 @@ v3index.extend({
 		},10);
 	},
 	onload_func : function(){
-		self.doclang = require('electron').ipcRenderer.sendSync('get-app-preference').lang;
+		self.doclang = pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang;
 		self.setTabEvent();
 		self.setDragDropEvent();
 		self.setTranslation();
@@ -183,7 +183,7 @@ v3index.extend({
 		var items = document.querySelectorAll('ul > li');
 		for(var i=0;i<items.length;i++){
 			var url = items[i].childNodes[0].getAttribute('href');
-			if(!pzpr.variety.info[pzpr.variety.toPID(url.substr(url.indexOf('?')+1))].exists.kanpen){ // kanpenとpencilboxが逆
+			if(!pzpr.variety.info[pzpr.variety.toPID(url.substr(url.indexOf('?')+1))].exists.pencilbox){
 				items[i].style.display = 'none';
 			}
 		}
@@ -211,7 +211,7 @@ window.v3index = v3index;
 
 require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 	if(idname==='language'){
-		v3index.doclang = val;
+		v3index.doclang = pzpr.lang = val;
 		v3index.translate();
 		require('electron').ipcRenderer.send('set-basic-menu');
 	}

@@ -57,20 +57,15 @@ window.ui = {
 	//--------------------------------------------------------------------------------
 	selectStr : function(strJP, strEN){
 		if(!strEN || !ui.puzzle){ return strJP;}
-		return (ui.puzzle.getConfig('language')==='ja' ? strJP : strEN);
+		return (pzpr.lang==='ja' ? strJP : strEN);
 	},
 
 	//---------------------------------------------------------------------------
 	// ui.getCurrentConfigList() 現在のパズルで有効な設定と設定値を返す
 	//---------------------------------------------------------------------------
 	getCurrentConfigList : function(){
-		var conf = {};
-		for(var idname in ui.puzzle.config.list){
-			if(ui.puzzle.validConfig(idname)){ conf[idname] = ui.puzzle.getConfig(idname);}
-		}
-		for(var idname in ui.menuconfig.list){
-			if(ui.menuconfig.valid(idname)){ conf[idname] = ui.menuconfig.get(idname);}
-		}
+		var conf = ui.puzzle.getCurrentConfig(), conf2 = ui.menuconfig.getList();
+		for(var idname in conf2){ conf[idname] = conf2[idname];}
 		return conf;
 	},
 
@@ -86,6 +81,10 @@ window.ui = {
 		else if(!!ui.menuconfig.list[idname]){
 			ui.menuconfig.set(idname, newval);
 		}
+		else if(idname==='language'){
+			pzpr.lang = newval;
+			ui.displayAll();
+		}
 	},
 	getConfig : function(idname){
 		if(!!ui.puzzle.config.list[idname]){
@@ -93,6 +92,9 @@ window.ui = {
 		}
 		else if(!!ui.menuconfig.list[idname]){
 			return ui.menuconfig.get(idname);
+		}
+		else if(idname==='language'){
+			return pzpr.lang;
 		}
 	},
 	validConfig : function(idname){
@@ -102,6 +104,9 @@ window.ui = {
 		else if(!!ui.menuconfig.list[idname]){
 			return ui.menuconfig.valid(idname);
 		}
+		else if(idname==='language'){
+			return true;
+		}
 	},
 
 	//---------------------------------------------------------------------------
@@ -110,13 +115,14 @@ window.ui = {
 	//---------------------------------------------------------------------------
 	restoreConfig : function(){
 		var setting = require('electron').ipcRenderer.sendSync('get-puzzle-preference');
-		ui.puzzle.restoreConfig(JSON.stringify(setting.puzzle));
-		ui.menuconfig.setAll(JSON.stringify(setting.ui));
+		ui.puzzle.restoreConfig(setting.puzzle);
+		ui.menuconfig.setAll(setting.ui);
+		pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
 	},
 	saveConfig : function(){
 		require('electron').ipcRenderer.send('set-puzzle-preference', {
-			puzzle: JSON.parse(ui.puzzle.saveConfig()),
-			ui:     JSON.parse(ui.menuconfig.getAll())
+			puzzle: ui.puzzle.saveConfig(),
+			ui:     ui.menuconfig.getAll()
 		});
 	}
 };

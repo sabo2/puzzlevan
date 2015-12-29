@@ -43,6 +43,12 @@ ui.menuconfig = {
 	get : Config.get,
 
 	//---------------------------------------------------------------------------
+	// config.getList()  現在有効な設定値のリストを返す
+	//---------------------------------------------------------------------------
+	getList : Config.getList,
+	getexec : function(name){ return true;},
+
+	//---------------------------------------------------------------------------
 	// menu.getAll()  全フラグの設定値を返す
 	// menu.setAll()  全フラグの設定値を設定する
 	//---------------------------------------------------------------------------
@@ -53,10 +59,10 @@ ui.menuconfig = {
 			if(item.val!==item.defval){ object[key] = item.val;}
 		}
 		delete object.autocheck_once;
-		return JSON.stringify(object);
+		return object;
 	},
-	setAll : function(json){
-		Config.setAll.call(this, json);
+	setAll : function(setting){
+		Config.setAll.call(this, setting);
 		this.list.autocheck_once.val = this.list.autocheck.val;
 	},
 

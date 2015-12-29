@@ -12,8 +12,7 @@ ui.listener =
 	//---------------------------------------------------------------------------
 	setListeners : function(puzzle){
 		puzzle.addListener('ready',    this.onReady);
-//		puzzle.addListener('openurl',  this.onOpenURL);
-//		puzzle.addListener('openfile', this.onOpenFile);
+		puzzle.addListener('canvasReady', this.onCanvasReady);
 		
 		puzzle.addListener('key',      this.onKeyInput);
 		puzzle.addListener('mouse',    this.onMouseInput);
@@ -27,6 +26,7 @@ ui.listener =
 
 	//---------------------------------------------------------------------------
 	// listener.onReady()  パズル読み込み完了時に呼び出される関数
+	// listener.onCanvasReady()  Canvas準備完了時に呼び出される関数
 	//---------------------------------------------------------------------------
 	onReady : function(puzzle){
 		var pid = puzzle.pid;
@@ -35,9 +35,6 @@ ui.listener =
 		if(ui.currentpid !== pid){
 			/* 以前設定済みのイベントを削除する */
 			ui.event.removeAllEvents();
-			
-			/* 言語を設定 */
-			ui.puzzle.setConfig('language', require('electron').ipcRenderer.sendSync('get-app-preference').lang);
 			
 			/* メニュー用の設定を消去・再設定する */
 			ui.toolarea.reset();
@@ -52,28 +49,16 @@ ui.listener =
 		ui.adjustcellsize();
 		
 		ui.timer.reset();					/* タイマーリセット(最後) */
-		
-		if(ui.win.isVisible()){ ui.win.focus();}
 	},
-
-//	//---------------------------------------------------------------------------
-//	// listener.onOpenURL()  URL読み込み終了時に呼び出される関数 (readyより前)
-//	// listener.onOpenFile() ファイルデータ読み込み終了時に呼び出される関数 (readyより前)
-//	// listener.setImportData() 上記関数の共通処理
-//	//---------------------------------------------------------------------------
-//	onOpenURL : function(puzzle, url){
-//		ui.listener.setImportData('urldata', url);
-//	},
-//	onOpenFile : function(puzzle, filestr){
-//		ui.listener.setImportData('filedata', filestr);
-//	},
-//	setImportData : function(key, str){
-//		delete localStorage['filedata'];
-//		delete localStorage['urldata'];
-//		if(str!==void 0){
-//			sessionStorage[key] = str;
-//		}
-//	},
+	onCanvasReady : function(puzzle){
+		if(ui.win.isVisible()){
+			ui.win.focus();
+		}
+		else{
+			ui.win.show();
+			ui.misc.setMenu();
+		}
+	},
 
 	//---------------------------------------------------------------------------
 	// listener.onKeyInput()    キー入力時に呼び出される関数 (return false = 処理をキャンセル)
@@ -169,10 +154,5 @@ ui.listener =
 		
 		var height = (pzpr.util.getRect(document.body).height+8)|0;
 		ui.win.setContentSize(width, height);
-		
-		if(!ui.win.isVisible()){ // readyよりresizeが後になる
-			ui.win.show();
-			ui.misc.setMenu();
-		}
 	}
 };
