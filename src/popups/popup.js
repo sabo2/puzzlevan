@@ -48,7 +48,7 @@ var popupmgr = {
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
 window.onload = function(){
-	if(!!pzpr){ pzpr.lang = popupmgr.lang;}
+	if(!!window.pzpr){ pzpr.lang = popupmgr.lang;}
 	popupmgr.win = require('electron').remote.getCurrentWindow();
 	popupmgr.walkElement(document.querySelector('body > div'));
 	popupmgr.translate();
@@ -60,7 +60,7 @@ window.onload = function(){
 require('electron').ipcRenderer.on('config-req', function(idname, val){
 	if(idname==='language'){
 		popupmgr.lang = val;
-		if(!!pzpr){ pzpr.lang = val;}
+		if(!!window.pzpr){ pzpr.lang = val;}
 		popupmgr.translate();
 		require('electron').ipcRenderer.send('set-basic-menu');
 	}
