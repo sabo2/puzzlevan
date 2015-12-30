@@ -75,7 +75,7 @@ ui.menuarea = {
 				}
 				break;
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
-			case 'metadata-set': puzzle.metadata.copydata(data); break;
+			case 'metadata-set': if(!!data){ for(var i in data){ puzzle.metadata[i] = data[i];}} break;
 			case 'adjust':       puzzle.board.exec.execadjust(data); break;
 			case 'color-get':    sender.postMessage(JSON.stringify({name:data.name,color:puzzle.painter[data.name]}), '*'); break;
 			case 'color-set':    puzzle.setConfig('color_'+data.name, data.color); break;
