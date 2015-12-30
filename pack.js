@@ -1,7 +1,6 @@
 var packager = require('electron-packager');
 var pkg = require('./package.json');
-
-var electron_version = require('child_process').execSync('electron -v', {encoding:'utf-8'}).match(/(\d+\.\d+\.\d+)/)[0];
+var electron_version = pkg.devDependencies['electron-prebuilt'].match(/[\d\.]+/)[0];
 
 var options = {
 	dir       : './',
