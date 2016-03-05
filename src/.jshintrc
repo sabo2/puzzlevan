@@ -10,6 +10,9 @@
   "esnext": true,   // Enable ES6 features
 
   // false means enable access, prohibits overwrite
+  "globals": {
+    "pzpr": false
+  },
   "browser": true,  // Allow to use browser defined variable (not console, alert etc.)
   "node": true,     // Allow to use node defined variable (require etc.)
 

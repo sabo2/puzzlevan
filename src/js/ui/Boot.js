@@ -1,4 +1,5 @@
 // Boot.js v3.4.0
+/* jshint latedef:false */
 /* global pzpr:false, ui:false */
 
 (function(){
@@ -14,10 +15,6 @@ function failOpen(){
 	ui.misc.erralert("Fail to import puzzle data or URL.");
 	if(require('electron').ipcRenderer.sendSync('get-app-preference').debugmode){ ui.win.destroy();}
 }
-function openSelectDialog(){
-	require('electron').ipcRenderer.send('open-undef-popup', data);
-	ui.win.destroy();
-}
 
 //---------------------------------------------------------------------------
 // window.onload直後の処理
@@ -25,15 +22,7 @@ function openSelectDialog(){
 require('electron').ipcRenderer.once('initial-data', function(e, data, pid){
 	var onload_pzl = (importFileData(data) || importURL(data) || importFileData(data, pid));
 	if(!onload_pzl || !onload_pzl.pid){
-		var pzl = new pzpr.parser.FileData(data, '');
-		pzl.parseFileType();
-		if(pzl.type===pzpr.parser.FILE_PBOX){
-			/* ファイルの種類が不明なので種類の選択ダイアログを表示 */
-			openSelectDialog();
-		}
-		else{
-			failOpen();
-		}
+		failOpen();
 		return;
 	}
 	

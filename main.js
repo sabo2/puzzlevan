@@ -91,14 +91,6 @@ app.on('browser-window-created', function(e, win){ // reference
 
 //--------------------------------------------------------------------------
 // Window factory function
-function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
-	if(!data){ require('electron').dialog.showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
-	
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
-	openpos.modify();
-	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid);});
-	win.loadURL(srcdir + 'p.html');
-}
 function openPopupWindow(url){
 	var win = new BrowserWindow({x:36, y:36, width:360, height:360, alwaysOnTop:true, show:preference.app.debugmode, resizable:false});
 	win.loadURL(srcdir+'popups/'+url);
@@ -121,6 +113,20 @@ function openUndefWindow(data){
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
 	win.loadURL(srcdir + 'fileindex.html');
 }
+function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
+	if(!data){ require('electron').dialog.showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
+	if(!pid){
+		var pzl = new pzpr.parser.FileData(data, '');
+		pzl.parseFileType();
+		/* ファイルの種類が不明なので種類の選択ダイアログを表示 */
+		if(pzl.type===pzpr.parser.FILE_PBOX){ openUndefWindow(data); return;}
+	}
+	
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
+	openpos.modify();
+	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid);});
+	win.loadURL(srcdir + 'p.html');
+}
 
 //--------------------------------------------------------------------------
 // IPCs from various windows
@@ -140,9 +146,6 @@ ipc.on('save-file', function(e, data, pid, filetype){
 		if(!filename){ return;}
 		fs.writeFile(filename, data, {encoding:'utf8'});
 	});
-});
-ipc.on('open-undef-popup', function(e, data){
-	openUndefWindow(data);
 });
 ipc.on('get-puzzle-preference', function(e){
 	e.returnValue = preference.puzzle;
