@@ -3,7 +3,7 @@
   "productName": "Puzzlevan",
   "version": "0.2.0",
   "description": "Pencil puzzle editor by Javascript",
-  "main": "main.js",
+  "main": "main/main.js",
   "directories": {
     "test": "tests"
   },
@@ -22,7 +22,7 @@
     "build": "electron .",
     "pack": "node pack.js",
     "release": "node pack.js --zip",
-    "lint": "jshint *.js src/js/*.js src/js/ui/*.js src/popups/*.js"
+    "lint": "jshint *.js main/*.js index/*.js puzzle-sdi/ui/*.js popups/*.js"
   },
   "devDependencies": {
     "electron-prebuilt": "^0.36.2",

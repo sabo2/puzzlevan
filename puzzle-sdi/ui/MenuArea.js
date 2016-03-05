@@ -20,7 +20,7 @@ ui.menuarea = {
 	},
 	openpopup : function(url){
 		var bounds = ui.win.getBounds();
-		window.open('popups/'+url, null, [
+		window.open('../popups/'+url, null, [
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',

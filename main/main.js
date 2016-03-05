@@ -3,10 +3,10 @@ var ipc = require('electron').ipcMain;
 var BrowserWindow = require('electron').BrowserWindow;
 var appmenu = require('electron').Menu;
 
-var srcdir = 'file://' + __dirname + '/src/';
+var rootdir = 'file://' + __dirname + '/../';
 
 // Global objects
-var pzpr = require('./src/js/pzpr/pzpr.js');
+var pzpr = require('../pzpr/pzpr.js');
 var latest_pid = '';
 var openpos = {x:40, y:40, width:640, height:360, modify:function(){
 	if((this.x+=24)>this.width) { this.x = 40;}
@@ -93,12 +93,12 @@ app.on('browser-window-created', function(e, win){ // reference
 // Window factory function
 function openPopupWindow(url){
 	var win = new BrowserWindow({x:36, y:36, width:360, height:360, alwaysOnTop:true, show:preference.app.debugmode, resizable:false});
-	win.loadURL(srcdir+'popups/'+url);
+	win.loadURL(rootdir+'popups/'+url);
 }
 function openExplainWindow(menuitem, focusedWindow){
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 720, height: 600, show:preference.app.debugmode});
 	openpos.modify();
-	win.loadURL(srcdir+'faq.html?'+latest_pid+"_edit");
+	win.loadURL(rootdir+'index/faq.html?'+latest_pid+"_edit");
 }
 var mainWindow = null;
 function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
@@ -106,12 +106,12 @@ function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid 
 	
 	mainWindow = new BrowserWindow({x:18, y:18, width: 720, height: 600, show:preference.app.debugmode});
 	mainWindow.once('closed', function(){ mainWindow = null;});
-	mainWindow.loadURL(srcdir + 'index.html');
+	mainWindow.loadURL(rootdir + 'index/index.html');
 }
 function openUndefWindow(data){
 	var win = new BrowserWindow({x:36, y:36, width: 720, height: 400, show:preference.app.debugmode});
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
-	win.loadURL(srcdir + 'fileindex.html');
+	win.loadURL(rootdir + 'index/fileindex.html');
 }
 function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
 	if(!data){ require('electron').dialog.showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
@@ -125,7 +125,7 @@ function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef erro
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid);});
-	win.loadURL(srcdir + 'p.html');
+	win.loadURL(rootdir + 'puzzle-sdi/p.html');
 }
 
 //--------------------------------------------------------------------------
