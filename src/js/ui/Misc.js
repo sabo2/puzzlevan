@@ -18,8 +18,8 @@ ui.misc = {
 	//---------------------------------------------------------------------------
 	// misc.setMenu()  メニューの設定を行う
 	//---------------------------------------------------------------------------
-	setMenu : function(){
-		require('electron').ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.getCurrentConfigList());
+	setMenu : function(firstset){
+		require('electron').ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.getCurrentConfigList(), firstset);
 	},
 
 	//--------------------------------------------------------------------------------

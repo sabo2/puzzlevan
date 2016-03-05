@@ -138,7 +138,7 @@ ipc.on('set-basic-menu', function(e){ setApplicationMenu(e.sender);});
 ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
 // IPCs from puzzle windows
-ipc.on('set-puzzle-menu', function(e, pid, config){ setApplicationMenu(e.sender, pid, config);});
+ipc.on('set-puzzle-menu', function(e, pid, config, first){ setApplicationMenu(e.sender, pid, config, first);});
 ipc.on('save-file', function(e, data, pid, filetype){
 	var ext = filetype || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
@@ -345,11 +345,11 @@ var templateTemplate = [
 		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac'},
 	]}
 ];
-function setApplicationMenu(webContents, pid, config){ // jshint ignore:line, (avoid latedef error)
+function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:line, (avoid latedef error)
 	var win = BrowserWindow.fromWebContents(webContents);
 	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
-//	if(isMac && !win.isFocused()){ return;}
+	if(isMac && (!win.isFocused() && first!==true)){ return;}
 	
 	latest_pid = pid || '';
 	config = config || {};

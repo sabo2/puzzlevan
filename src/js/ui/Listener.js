@@ -54,7 +54,7 @@ ui.listener =
 		}
 		else{
 			ui.win.show();
-			ui.misc.setMenu();
+			ui.misc.setMenu(true);
 		}
 	},
 

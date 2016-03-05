@@ -83,7 +83,7 @@ ui.event =
 	},
 	onfocus_func : function(){
 		if(process.platform==='darwin'){
-			ui.misc.setMenu();
+			ui.misc.setMenu(false);
 		}
 	},
 	onbeforeunload_func : function(e){
