@@ -334,7 +334,6 @@ var templateTemplate = [
 	]},
 	{label:'&Window', role:'window', submenu:[
 		{ label:'&Minimize',        accelerator:'CmdOrCtrl+M', click:windowEvent('minimize')},
-		{ label:'&Reload',          accelerator:'CmdOrCtrl+R', click:windowEvent('reload')},
 		{ type: 'separator', when:'isMac'},
 		{ label:'Bring All to Front', role:'front', when:'isMac'},
 	]},
