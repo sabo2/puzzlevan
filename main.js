@@ -96,7 +96,7 @@ function openPopupWindow(url){
 	win.loadURL(srcdir+'popups/'+url);
 }
 function openExplainWindow(menuitem, focusedWindow){
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 720, height: 600, show:preference.app.debugmode});
 	openpos.modify();
 	win.loadURL(srcdir+'faq.html?'+latest_pid+"_edit");
 }
@@ -104,12 +104,12 @@ var mainWindow = null;
 function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
-	mainWindow = new BrowserWindow({x:18, y:18, width: 600, height: 600, show:preference.app.debugmode});
+	mainWindow = new BrowserWindow({x:18, y:18, width: 720, height: 600, show:preference.app.debugmode});
 	mainWindow.once('closed', function(){ mainWindow = null;});
 	mainWindow.loadURL(srcdir + 'index.html');
 }
 function openUndefWindow(data){
-	var win = new BrowserWindow({x:36, y:36, width: 600, height: 600, show:preference.app.debugmode});
+	var win = new BrowserWindow({x:36, y:36, width: 720, height: 400, show:preference.app.debugmode});
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
 	win.loadURL(srcdir + 'fileindex.html');
 }

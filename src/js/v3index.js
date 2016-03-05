@@ -29,6 +29,7 @@ v3index.extend({
 		self.setTranslation();
 		self.translate();
 		self.setAccordion();
+		if(!!getEL('puztypes')){ getEL('puztypes').style.display = "block";}
 		
 		self.disp_tab();
 		
@@ -41,33 +42,53 @@ v3index.extend({
 
 	/* tab-click function */
 	setTabEvent : function(){
-//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
-//			if(el.id.match(/puzmenu_(.+)$/)){
-//				var typename = RegExp.$1;
-//				el.addEventListener("click",(function(typename){ return function(e){self.click_tab(typename);};})(typename),false);
-//			}
-//		});
+		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+			if(el.id.match(/puzmenu_(.+)$/)){
+				var typename = RegExp.$1;
+				el.addEventListener("click",(function(typename){ return function(e){self.click_tab(typename);};})(typename),false);
+			}
+		});
 	},
-	click_tab : function(e){
-//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
-//			el.className = (el.id==='puzmenu_'+typename ? "puzmenusel" : "puzmenu");
-//		});
+	click_tab : function(typename){
+		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+			el.className = (el.id==='puzmenu_'+typename ? "puzmenusel" : "puzmenu");
+		});
 		self.disp_tab();
-//		if(_doc.querySelector('li.puzmenusel').dataset.table==='all'){ self.set_puzzle_filter(typename);}
+		if(_doc.querySelector('li.puzmenusel').dataset.table==='all'){ self.set_puzzle_filter(typename);}
 	},
 	/* display contents and tables in tabs function */
 	disp_tab : function(){
-//		var isdisp = {};
-//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
-//			if(!el.id.match(/puzmenu_(.+)$/)){ return;}
-//			var tablename = 'table_'+el.dataset.table;
-//			if(isdisp[tablename]===void 0){ isdisp[tablename] = false;}
-//			if(isdisp[tablename]===false && el.className==='puzmenusel'){ isdisp[tablename] = true;}
-//		});
-//		/* 表示するパズルがない場合にはblockを非表示にする */
-//		Array.prototype.slice.call(_doc.querySelectorAll('div.puztable')).forEach(function(el){
-//			el.style.display = (!!isdisp[el.id||'1'] ? 'block' : 'none');
-//		});
+		if(!location.href.match(/\/index\.html/)){ return;}
+		var isdisp = {};
+		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+			if(!el.id.match(/puzmenu_(.+)$/)){ return;}
+			var tablename = 'table_'+el.dataset.table;
+			if(isdisp[tablename]===void 0){ isdisp[tablename] = false;}
+			if(isdisp[tablename]===false && el.className==='puzmenusel'){ isdisp[tablename] = true;}
+		});
+		/* 表示するパズルがない場合にはblockを非表示にする */
+		Array.prototype.slice.call(_doc.querySelectorAll('div.puztable')).forEach(function(el){
+			el.style.display = (!!isdisp[el.id||'1'] ? 'block' : 'none');
+		});
+	},
+
+	/* filter-click function */
+	set_puzzle_filter : function(filtername){
+		/* Set visibility of each puzzle */
+		Array.prototype.slice.call(_doc.querySelectorAll('.lists ul > li')).forEach(function(el){
+			var pid = pzpr.variety.toPID(el.dataset.pid);
+			if(!!pid && self.variety[pid]){
+				el.style.display = ((filtername==='all'||filtername===self.variety[pid].tab) ? '' : 'none');
+			}
+		});
+		/* Set visibility of each flexbox */
+		Array.prototype.slice.call(_doc.querySelectorAll('.lists ul')).forEach(function(el){
+			var count = 0;
+			Array.prototype.slice.call(el.querySelectorAll('li')).forEach(function(el){
+				if(el.style.display!=='none'){ count++;}
+			});
+			el.parentNode.style.display = (count>0 ? '' : 'none');
+		});
 	},
 
 	/* open new puzzle window as Electron manner */
