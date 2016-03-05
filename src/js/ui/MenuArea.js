@@ -10,7 +10,7 @@ ui.menuarea = {
 		/* 画像出力ルーチン */
 		ui.remote.dialog.showSaveDialog(ui.win, {
 			title : "Save Image - Puzzlevan",
-			defaultPath : pzpr.variety.toURLID(ui.puzzle.pid)+'.'+filetype,
+			defaultPath : pzpr.variety(ui.puzzle.pid).urlid+'.'+filetype,
 			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
 		}, function(filename){
 			if(!filename){ return;}
@@ -35,7 +35,7 @@ ui.menuarea = {
 	recvMenuReq : function(req){
 		var toolarea = ui.toolarea;
 		var parser = pzpr.parser;
-		var puzzle = ui.puzzle, pid = pzpr.variety.toURLID(puzzle.pid);
+		var puzzle = ui.puzzle, pid = pzpr.variety(puzzle.pid).urlid;
 		switch(req){
 			case 'undo': puzzle.undo(); break;
 			case 'redo': puzzle.redo(); break;
@@ -43,8 +43,8 @@ ui.menuarea = {
 			case 'ansclear': toolarea.ACconfirm(); break;
 			case 'auxclear': toolarea.ASconfirm(); break;
 			case 'duplicate': ui.misc.openpuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
-			case 'edit-mode': if(puzzle.playmode){ puzzle.setConfig("mode", puzzle.MODE_EDITOR);} break;
-			case 'play-mode': if(puzzle.editmode){ puzzle.setConfig("mode", puzzle.MODE_PLAYER);} break;
+			case 'edit-mode': if(puzzle.playmode){ puzzle.setMode('edit');} break;
+			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play');} break;
 			case 'irowake-change': puzzle.irowake(); break;
 			
 			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
@@ -75,11 +75,11 @@ ui.menuarea = {
 				}
 				break;
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
-			case 'metadata-set': if(!!data){ for(var i in data){ puzzle.metadata[i] = data[i];}} break;
-			case 'adjust':       puzzle.board.exec.execadjust(data); break;
+			case 'metadata-set': puzzle.metadata.update(data); break;
+			case 'adjust':       puzzle.board.operate(data); break;
 			case 'color-get':    sender.postMessage(JSON.stringify({name:data.name,color:puzzle.painter[data.name]}), '*'); break;
-			case 'color-set':    puzzle.setConfig('color_'+data.name, data.color); break;
-			case 'color-clear':  puzzle.setConfig('color_'+data.name, ''); break;
+			case 'color-set':    ui.menuconfig.set('color_'+data.name, data.color); break;
+			case 'color-clear':  ui.menuconfig.reset('color_'+data.name); break;
 			case 'size-get':     sender.postMessage(''+ui.menuconfig.get('cellsizeval'), '*'); break;
 			case 'size-set':     ui.menuconfig.set('cellsizeval', data); break;
 			case 'interval-get': sender.postMessage(''+ui.menuconfig.get('undointerval'), '*'); break;
@@ -89,7 +89,7 @@ ui.menuarea = {
 };
 
 require('electron').ipcRenderer.on('config-req', function(e, idname, val){
-	ui.setConfig(idname, val);
+	ui.menuconfig.set(idname, val);
 });
 require('electron').ipcRenderer.on('menu-req', function(e, req){
 	ui.menuarea.recvMenuReq(req);

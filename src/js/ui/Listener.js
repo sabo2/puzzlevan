@@ -11,17 +11,15 @@ ui.listener =
 	// listener.setListeners()  PuzzleのListenerを登録する
 	//---------------------------------------------------------------------------
 	setListeners : function(puzzle){
-		puzzle.addListener('ready',    this.onReady);
-		puzzle.addListener('canvasReady', this.onCanvasReady);
+		puzzle.on('ready',    this.onReady);
+		puzzle.on('canvasReady', this.onCanvasReady);
 		
-		puzzle.addListener('key',      this.onKeyInput);
-		puzzle.addListener('mouse',    this.onMouseInput);
-		puzzle.addListener('history',  this.onHistoryChange);
+		puzzle.on('key',      this.onKeyInput);
+		puzzle.on('mouse',    this.onMouseInput);
+		puzzle.on('history',  this.onHistoryChange);
 		
-		puzzle.addListener('config',     this.onConfigSet);
-		
-		puzzle.addListener('adjust',     this.onAdjust);
-		puzzle.addListener('resize',     this.onResize);
+		puzzle.on('adjust',     this.onAdjust);
+		puzzle.on('resize',     this.onResize);
 	},
 
 	//---------------------------------------------------------------------------
@@ -29,10 +27,8 @@ ui.listener =
 	// listener.onCanvasReady()  Canvas準備完了時に呼び出される関数
 	//---------------------------------------------------------------------------
 	onReady : function(puzzle){
-		var pid = puzzle.pid;
-		
 		/* パズルの種類が同じならMenuArea等の再設定は行わない */
-		if(ui.currentpid !== pid){
+		if(ui.currentpid !== puzzle.pid){
 			/* 以前設定済みのイベントを削除する */
 			ui.event.removeAllEvents();
 			
@@ -44,7 +40,9 @@ ui.listener =
 			ui.event.setWindowEvents();
 		}
 		
-		ui.currentpid = pid;
+		ui.menuconfig.sync();
+		ui.menuconfig.set('autocheck_once', ui.menuconfig.get('autocheck'));
+		ui.currentpid = puzzle.pid;
 		
 		ui.adjustcellsize();
 		
@@ -82,25 +80,25 @@ ui.listener =
 		else if(!kc.isZ){ ut.stopKeyUndo();}
 		else if(!kc.isY){ ut.stopKeyRedo();}
 		
-		return result;
+		kc.cancelEvent = !result;
 	},
 	onMouseInput : function(puzzle){
 		var mv = puzzle.mouse, result = true;
-		if(mv.mousestart && mv.btn.Middle){ /* 中ボタン */
-			puzzle.modechange();
+		if(mv.mousestart && mv.btn==='middle'){ /* 中ボタン */
+			ui.menuconfig.set('mode', puzzle.playmode ? 'edit' : 'play');
 			mv.mousereset();
 			result = false;
 		}
 		else if(ui.puzzle.pid === "goishi"){
 			if(mv.mousestart && ui.puzzle.playmode){
-				if(mv.btn.Left){
+				if(mv.btn==='left'){
 					var cell = mv.getcell();
 					if(cell.isnull || !cell.isStone() || cell.anum!==-1){
 						ui.undotimer.startAnswerRedo();
 						result = false;
 					}
 				}
-				else if(mv.btn.Right){
+				else if(mv.btn==='right'){
 					ui.undotimer.startAnswerUndo();
 					result = false;
 				}
@@ -111,26 +109,11 @@ ui.listener =
 			}
 		}
 		
-		return result;
+		mv.cancelEvent = !result;
 	},
 	onHistoryChange : function(puzzle){
 		if(!!ui.currentpid){
 			ui.toolarea.setdisplay("operation");
-		}
-	},
-
-	//---------------------------------------------------------------------------
-	// listener.onConfigSet()  config設定時に呼び出される関数
-	//---------------------------------------------------------------------------
-	onConfigSet : function(puzzle, idname, newval){
-		ui.setdisplay(idname);
-		
-		if(idname==='mode'){
-			ui.setdisplay('bgcolor');
-		}
-		else if(idname==='language'){
-			ui.displayAll();
-			ui.misc.setMenu();
 		}
 	},
 

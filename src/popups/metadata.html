@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script>window.pzpr = require('../js/pzpr/pzpr.js');</script>
 <script type="text/javascript" src="./popup.js"></script>
 <script type="text/javascript">
 popupmgr.extend({
 	setFormEvent : function(){
 		var datas = location.search.substr(1).split(/\//);
-		document.getElementById("metadata_variety").innerHTML = pzpr.variety.info[datas[0]][popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
+		document.getElementById("metadata_variety").innerHTML = pzpr.variety(datas[0])[popupmgr.lang] + "&nbsp;" + datas[1]+"×"+datas[2];
 		window.opener.postMessage(JSON.stringify({channel:'metadata-get'}), '*');
 	},
 	initdata : function(meta){

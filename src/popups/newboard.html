@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script>window.pzpr = require('../js/pzpr/pzpr.js');</script>
 <script type="text/javascript" src="./popup.js"></script>
 <script type="text/javascript">
 var pid = '';
@@ -14,7 +14,7 @@ popupmgr.extend({
 	setFormEvent : function(){
 		pid = location.search.substr(1);
 		
-		getEL("newboard_variety").innerHTML = pzpr.variety.info[pid][popupmgr.lang];
+		getEL("newboard_variety").innerHTML = pzpr.variety(pid)[popupmgr.lang];
 		
 		var col = 10, row = 10;
 		

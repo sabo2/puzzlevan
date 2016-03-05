@@ -44,7 +44,7 @@ ui.timer =
 	ACcheck : function(){
 		var puzzle = ui.puzzle;
 		if(this.current>this.nextACtime && puzzle.playmode && !puzzle.checker.inCheck){
-			if(puzzle.check().complete){
+			if(puzzle.check(false).complete){
 				puzzle.mouse.mousereset();
 				ui.menuconfig.set('autocheck_once',false);
 				ui.misc.alert("正解です！","Complete!");
@@ -126,7 +126,7 @@ ui.undotimer = {
 	// ut.stop()  Undo/Redo呼び出しを終了する
 	//---------------------------------------------------------------------------
 	start : function(){
-		var self = this, undoTimerInterval = ui.getConfig('undointerval');
+		var self = this, undoTimerInterval = ui.menuconfig.get('undointerval');
 		function handler(){ self.proc();}
 		function inithandler(){
 			clearInterval(self.TID);

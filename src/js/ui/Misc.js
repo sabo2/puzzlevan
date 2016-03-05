@@ -10,7 +10,7 @@ ui.misc = {
 	// misc.displayDesign()  title表示の設定
 	//---------------------------------------------------------------------------
 	displayDesign : function(){
-		var pinfo = pzpr.variety.info[ui.puzzle.pid];
+		var pinfo = pzpr.variety(ui.puzzle.pid);
 		var title = ui.selectStr(pinfo.ja, pinfo.en);
 		_doc.title = title + " editor - Puzzlevan";
 	},

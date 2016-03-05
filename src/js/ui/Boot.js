@@ -5,44 +5,51 @@
 /********************************/
 /* 初期化時のみ使用するルーチン */
 /********************************/
-if(!window.pzpr || !window.ui){ setTimeout(arguments.callee,0); return;}
 
-var onload_option = {imagesave:true};
+var onload_option = {};
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+function failOpen(){
+	ui.misc.erralert("Fail to import puzzle data or URL.");
+	if(require('electron').ipcRenderer.sendSync('get-app-preference').debugmode){ ui.win.destroy();}
+}
+function openSelectDialog(){
+	require('electron').ipcRenderer.send('open-undef-popup', data);
+	ui.win.destroy();
+}
 
 //---------------------------------------------------------------------------
 // window.onload直後の処理
 //---------------------------------------------------------------------------
 require('electron').ipcRenderer.once('initial-data', function(e, data, pid){
-	data = data.replace(/[\r\n]+/g,'\n');
 	var onload_pzl = (importFileData(data) || importURL(data) || importFileData(data, pid));
-	if(!onload_pzl || !onload_pzl.id){
+	if(!onload_pzl || !onload_pzl.pid){
 		var pzl = new pzpr.parser.FileData(data, '');
 		pzl.parseFileType();
 		if(pzl.type===pzpr.parser.FILE_PBOX){
-			require('electron').ipcRenderer.send('open-undef-popup', data);
+			/* ファイルの種類が不明なので種類の選択ダイアログを表示 */
+			openSelectDialog();
 		}
 		else{
-			ui.misc.erralert("Fail to import puzzle data or URL.");
+			failOpen();
 		}
-		ui.win.destroy();
+		return;
 	}
-	else{
-		pzpr.EDITOR = true;
-		pzpr.PLAYER = false;
-		
-		startPuzzle(onload_pzl);
-	}
+	
+	startPuzzle(onload_pzl);
 });
 function startPuzzle(pzl){
 	/* パズルオブジェクトの作成 */
 	var element = document.getElementById('divques');
-	var puzzle = ui.puzzle = pzpr.createPuzzle(element, onload_option);
+	var puzzle = ui.puzzle = new pzpr.Puzzle(element, onload_option);
 	pzpr.connectKeyEvents(puzzle);
 	
 	/* createPuzzle()後からopen()前に呼ぶ */
 	ui.event.onload_func();
 	
 	// 単体初期化処理のルーチンへ
+	puzzle.once('fail-open', failOpen);
 	puzzle.open(pzl);
 	
 	return true;
@@ -65,7 +72,7 @@ function importURL(search){
 	}
 	
 	var pzl = pzpr.parser.parseURL(search);
-	if(!pzl || !pzl.id){ return null;}
+	if(!pzl || !pzl.pid){ return null;}
 
 	return pzl;
 }
@@ -78,7 +85,7 @@ function importFileData(fstr, pid){
 	if(!fstr){ return null;}
 
 	var pzl = pzpr.parser.parseFile(fstr, pid||'');
-	if(!pzl || !pzl.id){ return null;}
+	if(!pzl || !pzl.pid){ return null;}
 
 	return pzl;
 }

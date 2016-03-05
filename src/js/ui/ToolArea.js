@@ -54,13 +54,13 @@ ui.toolarea = {
 	display : function(){
 		/* ボタン領域 */
 		/* --------- */
-		getEL('btnarea').style.display = (ui.getConfig("buttonarea") ? '' : 'none');
+		getEL('btnarea').style.display = (ui.menuconfig.get("buttonarea") ? '' : 'none');
 		pzpr.util.unselectable(getEL('btnarea'));
 		
 		this.setdisplay("operation");
-		getEL('btnclear2').style.display  = (!ui.puzzle.flags.disable_subclear ? "" : "none");
+		getEL('btnclear2').style.display  = (!ui.puzzle.board.disable_subclear ? "" : "none");
 		getEL('btncolor').style.display   = (ui.puzzle.pid==='tentaisho' ? "" : "none");
-		getEL('btnirowake').style.display = ((ui.puzzle.flags.irowake || ui.puzzle.flags.irowakeblk) ? "" : "none");
+		getEL('btnirowake').style.display = ((ui.puzzle.painter.irowake || ui.puzzle.painter.irowakeblk) ? "" : "none");
 		
 		/* 共通：キャプションの設定 */
 		/* --------------------- */
@@ -76,7 +76,7 @@ ui.toolarea = {
 			getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
 		}
 		else if(idname==='buttonarea'){
-			getEL('btnarea').style.display = (ui.getConfig("buttonarea") ? '' : 'none');
+			getEL('btnarea').style.display = (ui.menuconfig.get("buttonarea") ? '' : 'none');
 			ui.listener.onResize(ui.puzzle);
 		}
 	},
@@ -98,8 +98,8 @@ ui.toolarea = {
 	// toolarea.toggledisp()   帰ってきたパイプリンクでアイスと○などの表示切り替え時の処理を行う
 	//---------------------------------------------------------------------------
 	toggledisp : function(){
-		var current = ui.puzzle.getConfig('disptype_pipelinkr');
-		ui.puzzle.setConfig('disptype_pipelinkr', (current===1?2:1));
+		var current = ui.menuconfig.get('disptype_pipelinkr');
+		ui.menuconfig.set('disptype_pipelinkr', (current===1?2:1));
 	},
 
 	//------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ ui.toolarea = {
 	// toolarea.ASconfirm()  「補助消去」ボタンを押したときの処理
 	//------------------------------------------------------------------------------
 	anscheck : function(){
-		ui.misc.alert(ui.puzzle.check(true).text());
+		ui.misc.alert(ui.puzzle.check(true).text);
 	},
 	ACconfirm : function(){
 		ui.misc.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});

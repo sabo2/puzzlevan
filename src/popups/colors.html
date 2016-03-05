@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script type="text/javascript" src="../js/lib/pzpr.js"></script>
+<script>window.pzpr = require('../js/pzpr/pzpr.js');</script>
 <script type="text/javascript" src="./popup.js"></script>
 <script type="text/javascript">
 popupmgr.extend({
@@ -16,18 +16,24 @@ popupmgr.extend({
 	},
 	
 	setcolor : function(e){
-		var name = e.target.dataset.colorTarget;
+		var name = e.target.parentNode.dataset.colorTarget;
 		window.opener.postMessage(JSON.stringify({channel:'color-set',data:{name:name,color:e.target.value}}));
 	},
 	clearcolor : function(e){
-		var name = e.target.dataset.colorTarget;
+		var name = e.target.parentNode.dataset.colorTarget;
 		window.opener.postMessage(JSON.stringify({channel:'color-clear',data:{name:name}}));
 		window.opener.postMessage(JSON.stringify({channel:'color-get',data:{name:name}}));
 	}
 });
 window.addEventListener("message", function(e){
 	var msg = JSON.parse(e.data);
-	document.querySelector('input[data-color-target="'+msg.name+'"]').value = msg.color;
+	var color = msg.color;
+	switch(color){
+		case 'black': color = '#000000'; break;
+		case 'white': color = '#ffffff'; break;
+	}
+	console.log(color);
+	document.querySelector('div[data-color-target="'+msg.name+'"] > input').value = color;
 }, false);
 </script>
 <title>Change Color Setting</title>
@@ -36,10 +42,16 @@ window.addEventListener("message", function(e){
 <body>
   <div class="popup" id="main">
     <form name="colors">
-      <span>__黒マス (回答入力)__Shaded Cell (Answer)__</span>
-      <input type="color" data-color-target="qanscolor" data-change-exec="setcolor" value="#000000" />
-      <button type="button" class="btn btn-warn" data-color-target="qanscolor" data-button-exec="clearcolor">__クリア__Reset__</button>
-      <br />
+      <div data-color-target="qanscolor">
+        <span>__黒マス (回答入力)__Shaded Cell (Answer)__</span>
+        <input type="color" value="#000000" data-change-exec="setcolor">
+        <button type="button" class="btn btn-warn" data-button-exec="clearcolor">Reset</button>
+      </div>
+      <div data-color-target="bgcolor">
+        <span>__背景色__Background__</span>
+        <input type="color" value="#ffffff" data-change-exec="setcolor">
+        <button type="button" class="btn btn-warn" data-button-exec="clearcolor">Reset</button>
+      </div>
       <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
     </form>
   </div>

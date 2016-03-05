@@ -56,6 +56,7 @@ var translation = {
 	'Original Type'                : 'ニコリ紙面形式',
 	'Sokoban Type'                 : '倉庫番形式',
 	'Waritai Type'                 : 'ワリタイ形式',
+	'Gray Background'              : '背景色をグレーにする',
 	'Line continueous check'       : '線の繋がりをチェック',
 	'Block continueous check'      : '黒マスのつながりをチェック',
 	'Check road'                   : '通り道のチェック',

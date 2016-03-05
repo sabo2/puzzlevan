@@ -80,7 +80,7 @@
 	}
 	div#divques {
 		display:inline-block;
-		position:relative;
+		/* position:relative; */
 		/* border:solid 1px gray; */
 		cursor:default;
 		padding:18px;

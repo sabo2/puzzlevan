@@ -6,7 +6,7 @@ var appmenu = require('electron').Menu;
 var srcdir = 'file://' + __dirname + '/src/';
 
 // Global objects
-var pzprversion = '';
+var pzpr = require('./src/js/pzpr/pzpr.js');
 var latest_pid = '';
 var openpos = {x:40, y:40, width:640, height:360, modify:function(){
 	if((this.x+=24)>this.width) { this.x = 40;}
@@ -128,7 +128,6 @@ ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
 
 // IPCs from puzzle-list window
-ipc.on('pzpr-version', function(e, ver){ pzprversion = ver;});
 ipc.on('set-basic-menu', function(e){ setApplicationMenu(e.sender);});
 ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
@@ -187,7 +186,7 @@ function versionInfo(menuitem, focusedWindow){
 		'',
 		'This application is based on:',
 		'Electron v'+process.versions.electron+' (Chromium v'+process.versions.chrome+')',
-		'PUZ-PRE v'+pzprversion
+		'pzpr.js v'+pzpr.version
 	].join('\n');
 	var option = {type:'none', message:msg, buttons:['OK']};
 	require('electron').dialog.showMessageBox(option);
@@ -263,6 +262,19 @@ var templateTemplate = [
 	{label:'&View', when:'isPuzzle', submenu:[
 		{ label:'Cell &Size',                          click:sendMenuReq('popup-dispsize')},
 		{ label:'&Color Setting',                      click:sendMenuReq('popup-colors')},
+		{ label:'Display', when:'config.disptype_yajilin!==void 0', submenu:[
+			{ label:'Original Type',   config:'disptype_yajilin:1'},
+			{ label:'Gray Background', config:'disptype_yajilin:2'},
+		]},
+		{ label:'Display', when:'config.disptype_pipelinkr!==void 0', submenu:[
+			{ label:'Circle',        config:'disptype_pipelinkr:1'},
+			{ label:'Icebarn',       config:'disptype_pipelinkr:2'},
+		]},
+		{ label:'Display', when:'config.disptype_bosanowa!==void 0', submenu:[
+			{ label:'Original Type', config:'disptype_bosanowa:1'},
+			{ label:'Sokoban Type',  config:'disptype_bosanowa:2'},
+			{ label:'Waritai Type',  config:'disptype_bosanowa:3'},
+		]},
 		{ type: 'separator'},
 		{ label:'Color coding of line',         config:'irowake'},
 		{ label:'Color coding of block',        config:'irowakeblk'},
@@ -289,15 +301,6 @@ var templateTemplate = [
 			{ label:'Corner-side',   config:'use_tri:1'},
 			{ label:'Pull-to-Input', config:'use_tri:2'},
 			{ label:'One button',    config:'use_tri:3'},
-		]},
-		{ label:'Display', when:'config.disptype_pipelinkr!==void 0', submenu:[
-			{ label:'Circle',        config:'disptype_pipelinkr:1'},
-			{ label:'Icebarn',       config:'disptype_pipelinkr:2'},
-		]},
-		{ label:'Display', when:'config.disptype_bosanowa!==void 0', submenu:[
-			{ label:'Original Type', config:'disptype_bosanowa:1'},
-			{ label:'Sokoban Type',  config:'disptype_bosanowa:2'},
-			{ label:'Waritai Type',  config:'disptype_bosanowa:3'},
 		]},
 		{ type: 'separator'},
 		{ label:'Line continueous check',  config:'redline'},
@@ -344,7 +347,7 @@ function setApplicationMenu(webContents, pid, config){ // jshint ignore:line, (a
 	var win = BrowserWindow.fromWebContents(webContents);
 	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
-	if(isMac && !win.isFocused()){ return;}
+//	if(isMac && !win.isFocused()){ return;}
 	
 	latest_pid = pid || '';
 	config = config || {};

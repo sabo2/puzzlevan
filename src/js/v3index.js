@@ -8,7 +8,7 @@
 var v3index = {
 	typelist : [],
 	current  : '',
-	doclang  : 'ja',
+	doclang  : pzpr.lang,
 	complete : false,
 	captions : [],
 	filedata : '',
@@ -17,38 +17,20 @@ var v3index = {
 
 var _doc = document;
 var self = v3index;
-var typelist = self.typelist;
 
 function getEL(id){ return _doc.getElementById(id);}
 
 v3index.extend({
-	/* common function */
-	addEvent : function(element,type,func,capt){
-		if(!!element.addEventListener){ element.addEventListener(type,func,!!capt);}
-		else if(!!element.attachEvent){ element.attachEvent("on"+type,func);}
-		else                          { element["on"+type] = func;}
-	},
-
 	/* onload function */
-	onload_include : function(){
-		setTimeout(function(){
-			if(!window.pzpr){ setTimeout(arguments.callee,50); return;}
-			self.onload_func();
-			self.complete = true;
-		},10);
-	},
 	onload_func : function(){
 		self.doclang = pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang;
 		self.setTabEvent();
 		self.setDragDropEvent();
 		self.setTranslation();
+		self.translate();
 		self.setAccordion();
-		require('electron').ipcRenderer.send('pzpr-version', pzpr.version);
 		
-		if(location.href.match(/\/index\.html/)){ self.setNewboardEvent();}
-		else if(location.href.match(/fileindex\.html/)){ self.openUndefFile();}
-		
-		self.disp();
+		self.disp_tab();
 		
 		require('electron').remote.getCurrentWindow().show();
 		require('electron').ipcRenderer.send('set-basic-menu');
@@ -57,33 +39,35 @@ v3index.extend({
 		}
 	},
 
-	reset_func : function(){
-		typelist = [];
-		self.current  = '';
-		self.onload_func();
-	},
-
 	/* tab-click function */
-	click_tab : function(e){
-		var el = (e.target || e.srcElement);
-		if(!!el){ self.current = el.id.substr(8); self.disp();}
+	setTabEvent : function(){
+//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+//			if(el.id.match(/puzmenu_(.+)$/)){
+//				var typename = RegExp.$1;
+//				el.addEventListener("click",(function(typename){ return function(e){self.click_tab(typename);};})(typename),false);
+//			}
+//		});
 	},
-
-	/* display tabs and tables function */
-	disp : function(){
-		for(var i=0;i<typelist.length;i++){
-			var el = getEL("puzmenu_"+typelist[i]);
-			var table = getEL("table_"+typelist[i]);
-			if(typelist[i]===self.current){
-				el.className = "puzmenusel";
-				table.style.display = 'table';
-			}
-			else{
-				el.className = "puzmenu";
-				table.style.display = 'none';
-			}
-		}
-		self.translate();
+	click_tab : function(e){
+//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+//			el.className = (el.id==='puzmenu_'+typename ? "puzmenusel" : "puzmenu");
+//		});
+		self.disp_tab();
+//		if(_doc.querySelector('li.puzmenusel').dataset.table==='all'){ self.set_puzzle_filter(typename);}
+	},
+	/* display contents and tables in tabs function */
+	disp_tab : function(){
+//		var isdisp = {};
+//		Array.prototype.slice.call(_doc.querySelectorAll('#puztypes > li')).forEach(function(el){
+//			if(!el.id.match(/puzmenu_(.+)$/)){ return;}
+//			var tablename = 'table_'+el.dataset.table;
+//			if(isdisp[tablename]===void 0){ isdisp[tablename] = false;}
+//			if(isdisp[tablename]===false && el.className==='puzmenusel'){ isdisp[tablename] = true;}
+//		});
+//		/* 表示するパズルがない場合にはblockを非表示にする */
+//		Array.prototype.slice.call(_doc.querySelectorAll('div.puztable')).forEach(function(el){
+//			el.style.display = (!!isdisp[el.id||'1'] ? 'block' : 'none');
+//		});
 	},
 
 	/* open new puzzle window as Electron manner */
@@ -91,30 +75,10 @@ v3index.extend({
 		require('electron').ipcRenderer.send('open-puzzle', data, pid);
 	},
 
-	setTabEvent : function(){
-		if(!getEL("puztypes")){
-			getEL("table_all").style.display = "table";
-			return;
-		}
-		var el = getEL("puztypes").firstChild;
-		while(!!el){
-			if(!!el.tagName && el.tagName.toLowerCase()==='li' &&
-				!!el.id      && el.id.match(/puzmenu_(.+)$/)){
-				var typename = RegExp.$1;
-				typelist.push(typename);
-				self.addEvent(el,"click",self.click_tab);
-				if(el.className==="puzmenusel"){ self.current = typename;}
-			}
-			el = el.nextSibling;
-		}
-		if(!self.current && typelist.length>0){ self.current = typelist[0];}
-		getEL("puztypes").style.display = "block";
-	},
-
 	setDragDropEvent : function(){
 		// File API＋Drag&Drop APIの設定
-		this.addEvent(window, 'dragover', function(e){ e.preventDefault();}, true);
-		this.addEvent(window, 'drop', function(e){
+		window.addEventListener('dragover', function(e){ e.preventDefault();}, true);
+		window.addEventListener('drop', function(e){
 			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
 				var reader = new FileReader();
 				reader.onload = function(e){ v3index.openpuzzle(e.target.result, '');};
@@ -125,29 +89,51 @@ v3index.extend({
 		}, true);
 	},
 
+	/* Language display functions */
+	setlang : function(lang){
+		self.doclang = pzpr.lang = lang;
+		self.translate();
+	},
 	setTranslation : function(){
-		var els = [_doc.getElementById("table_all")];
-		while(els.length>0){
-			var el = els.pop();
-			if(!el){ continue;}
-			if(el.nodeType===1 && el.nodeName==="LI"){
-				var href = el.firstChild.href;
-				var pid  = pzpr.variety.toPID(href.substr(href.indexOf("?")+1));
-				self.captions.push({textnode:el.firstChild.firstChild, str_ja:pzpr.variety.info[pid].ja, str_en:pzpr.variety.info[pid].en});
+		Array.prototype.slice.call(_doc.querySelectorAll('.lists li')).forEach(function(el){
+			var pinfo = pzpr.variety(el.dataset.pid);
+			var pid = pinfo.pid;
+			if(!pinfo.valid){ return;}
+			if(el.childNodes.length===0){
+				el.className = self.variety[pid].state;
+				var linkel = document.createElement('a');
+				linkel.href = "javascript:void(0);"; // jshint ignore:line
+				if(location.href.match(/\/index\.html/)){
+					linkel.addEventListener('click', function(e){ self.newboardEvent(e,pid);}, false);
+				}
+				else if(location.href.match(/fileindex\.html/)){
+					if(!pzpr.variety(pid).exists.pencilbox){
+						el.style.display = 'none';
+					}
+					else{
+						linkel.addEventListener('click', function(e){ self.selectEvent(e,pid);}, false);
+					}
+				}
+				el.appendChild(linkel);
 			}
-			else if(el.nodeType===3 && el.data.match(/^__(.+)__(.+)__$/)){
-				self.captions.push({textnode:el, str_ja:RegExp.$1, str_en:RegExp.$2});
-			}
-			if(!!el.nextSibling){ els.push(el.nextSibling);}
-			if(el.childNodes.length>0){ els.push(el.firstChild);}
-		}
+			self.captions.push({anode:el.firstChild, str_jp:pinfo.ja, str_en:pinfo.en});
+		});
 	},
 	translate : function(){
 		/* キャプションの設定 */
 		for(var i=0;i<this.captions.length;i++){
 			var obj = this.captions[i];
-			if(!!obj.textnode){ obj.textnode.data = obj['str_'+self.doclang];}
+			if(!!obj.anode){
+				var text = (self.doclang==="ja" ? obj.str_jp : obj.str_en);
+				obj.anode.innerHTML = text.replace(/(\(.+\))/g, "<small>$1</small>");
+			}
 		}
+		Array.prototype.slice.call(_doc.body.querySelectorAll('[lang="ja"]')).forEach(function(el){
+			el.style.display = (self.doclang==='ja' ? '' : 'none');
+		});
+		Array.prototype.slice.call(_doc.body.querySelectorAll('[lang="en"]')).forEach(function(el){
+			el.style.display = (self.doclang==='en' ? '' : 'none');
+		});
 	},
 
 	setAccordion : function(){
@@ -168,41 +154,20 @@ v3index.extend({
 		});
 	},
 
-	setNewboardEvent : function(){
-		function newboardEvent(e){
-			var url = e.target.getAttribute('href');
-			require('electron').ipcRenderer.send('open-popup-newboard', url.substr(url.indexOf('?')+1));
-			e.preventDefault();
-		}
-		var items = document.querySelectorAll('a');
-		for(var i=0;i<items.length;i++){
-			items[i].addEventListener('click', newboardEvent, true);
-		}
+	/* Puzzlevan specific functions */
+	newboardEvent : function(e,pid){
+		require('electron').ipcRenderer.send('open-popup-newboard', pid);
+		e.preventDefault();
 	},
-	openUndefFile : function(){
-		var items = document.querySelectorAll('ul > li');
-		for(var i=0;i<items.length;i++){
-			var url = items[i].childNodes[0].getAttribute('href');
-			if(!pzpr.variety.info[pzpr.variety.toPID(url.substr(url.indexOf('?')+1))].exists.pencilbox){
-				items[i].style.display = 'none';
-			}
-		}
-		
-		function selectEvent(e){
-			var url = e.target.getAttribute('href');
-			v3index.openpuzzle(v3index.filedata, url.substr(url.indexOf('?')+1));
-			window.close();
-			e.preventDefault();
-		}
-		items = document.querySelectorAll('a');
-		for(var i=0;i<items.length;i++){
-			items[i].addEventListener('click', selectEvent, true);
-		}
+	selectEvent : function(e,pid){
+		v3index.openpuzzle(v3index.filedata, pid);
+		window.close();
+		e.preventDefault();
 	}
 });
 
 /* addEventListener */
-self.addEvent(window, 'load', self.onload_include);
+window.addEventListener('load', self.onload_func, false);
 
 /* extern */
 window.v3index = v3index;
@@ -211,11 +176,55 @@ window.v3index = v3index;
 
 require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 	if(idname==='language'){
-		v3index.doclang = pzpr.lang = val;
-		v3index.translate();
+		v3index.setlang(val);
 		require('electron').ipcRenderer.send('set-basic-menu');
 	}
 });
 require('electron').ipcRenderer.once('initial-data', function(e, data){
 	v3index.filedata = data;
 });
+
+/*******************/
+/* List of puzzles */
+/*******************/
+(function(){
+
+var v3index = window.v3index;
+
+var pstate = {
+	lunch :['nurikabe','tilepaint','norinori','nurimaze','heyawake','hitori','slither','mashu','yajilin',
+			'slalom','numlin','hashikake','herugolf','shikaku','tentaisho','kakuro','sudoku','fillomino','ripple',
+			'akari','shakashaka'],
+	testa :['nagare','makaro','juosan','dosufuwa'],
+	trial :[],
+	lunch2:['box','lits','kurodoko','goishi'],
+	lunch3:['minarism','factors'],
+	nigun :['creek','mochikoro','tasquare','kurotto','shimaguni','yajikazu','bag','country','reflect','icebarn',
+			'firefly','kaero','yosenabe','bdblock','fivecells','sashigane','tatamibari','sukoro',
+			'gokigen','tateyoko','kinkonkan','snakes'],
+	omopa :['nuribou','tawa','lookair','paintarea','chocona','kurochute','mejilink',
+			'pipelink','loopsp','nagenawa','kouchoku','ringring','pipelinkr','barns','icelom','icelom2',
+			'wblink','kusabi','ichimaga','ichimagam','ichimagax','amibo','bonsan','heyabon','rectslider',
+			'nawabari','triplace','fourcells','kramma','kramman','shwolf','loute','fillmat','usotatami','yajitatami',
+			'kakuru','view','bosanowa','nanro','cojun','renban','sukororoom','hanare','kazunori',
+			'wagiri','shugaku','hakoiri','roma','toichika','cbblock'],
+	orig  :['mochinyoro','ayeheya','aho'],
+	genre :['tapa']
+};
+var tabstate = {
+	lunch:'lunch', lunch2:'lunch', lunch3:'nigun',
+	testa:'nigun', nigun:'nigun',
+	trial:'omopa', omopa:'omopa',
+	orig :'extra', genre:'extra'
+};
+
+var genres = {};
+for(var state in pstate){
+	pstate[state].forEach(function(pid){
+		genres[pzpr.variety.toPID(pid)] = {state:state, tab:tabstate[state]};
+	});
+}
+
+v3index.extend({variety:genres});
+
+})();

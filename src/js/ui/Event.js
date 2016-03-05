@@ -1,5 +1,5 @@
 // Event.js v3.4.0
-/* global ui:false, _doc:false */
+/* global ui:false */
 
 //---------------------------------------------------------------------------
 // ★UIEventsクラス イベント設定の管理を行う
@@ -17,11 +17,9 @@ ui.event =
 		this.evlist.push({el:el, event:event, func:func, capt:!!capt});
 	},
 	removeAllEvents : function(){
-		var islt = !!_doc.removeEventListener;
 		for(var i=0,len=this.evlist.length;i<len;i++){
 			var e=this.evlist[i];
-			if(islt){ e.el.removeEventListener(e.event, e.func, e.capt);}
-			else    { e.el.detachEvent('on'+e.event, e.func);}
+			e.el.removeEventListener(e.event, e.func, e.capt);
 		}
 		this.evlist=[];
 	},
@@ -66,13 +64,12 @@ ui.event =
 	// event.onunload_func() ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
 	onload_func : function(){
-		ui.menuconfig.init();
-		ui.restoreConfig();
+		ui.menuconfig.restore();
 		
 		ui.listener.setListeners(ui.puzzle);
 	},
 	onunload_func : function(){
-		ui.saveConfig();
+		ui.menuconfig.save();
 	},
 
 	//---------------------------------------------------------------------------
