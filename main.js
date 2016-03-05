@@ -134,7 +134,7 @@ ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
 
 // IPCs from puzzle-list window
-ipc.on('set-basic-menu', function(e){ setApplicationMenu(e.sender);});
+ipc.on('set-basic-menu', function(e, first){ setApplicationMenu(e.sender, null, null, first);});
 ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
 // IPCs from puzzle windows

@@ -34,7 +34,7 @@ v3index.extend({
 		self.disp_tab();
 		
 		require('electron').remote.getCurrentWindow().show();
-		require('electron').ipcRenderer.send('set-basic-menu');
+		require('electron').ipcRenderer.send('set-basic-menu',true);
 		if(process.platform==='darwin'){
 			window.addEventListener('focus', function(){ require('electron').ipcRenderer.send('set-basic-menu');}, true);
 		}

@@ -90,6 +90,9 @@ ui.menuarea = {
 
 require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 	ui.menuconfig.set(idname, val);
+	if(idname==='language'){
+		ui.misc.setMenu(false);
+	}
 });
 require('electron').ipcRenderer.on('menu-req', function(e, req){
 	ui.menuarea.recvMenuReq(req);
