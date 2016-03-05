@@ -24,7 +24,7 @@
 		var dir = (function getpath(){
 			var srcs=document.getElementsByTagName('script');
 			for(var i=0;i<srcs.length;i++){
-				var result = srcs[i].src.match(/^(.*\/)sdi-ui\.js$/);
+				var result = srcs[i].src.match(/^(.*\/)ui\.js$/);
 				if(result){ return result[1] + (!result[1].match(/\/$/) ? '/' : '');}
 			}
 			return "";
