@@ -90,13 +90,10 @@ app.on('will-quit', function(){
 
 //--------------------------------------------------------------------------
 // Window references so as not to happen memory leak
-var bzWindows = [];
+var bzWindows = new Set();
 app.on('browser-window-created', function(e, win){ // reference
-	bzWindows.push(win);
-	win.once('closed', function(){
-		var idx = bzWindows.indexOf(win);
-		if(idx>=0){ bzWindows.splice(idx,1);}
-	});
+	bzWindows.add(win);
+	win.once('closed', function(){ bzWindows.delete(win);});
 });
 
 //--------------------------------------------------------------------------
@@ -123,10 +120,13 @@ function openUndefWindow(data){
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
 	win.loadURL(rootdir + 'index/fileindex.html');
 }
+var sdiWindows = new Set();
 function openPuzzleSDI(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
+	sdiWindows.add(win);
+	win.once('closed', function(){ sdiWindows.delete(win);});
 	win.loadURL(rootdir + 'puzzle/p.html');
 }
 var mdiWindow = null;
@@ -225,6 +225,11 @@ function sendConfigReq(menuitem, focusedWindow){
 	
 	if(idname==='language'){ preference.app.lang = val;}
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
+}
+function changeWindowMode(menuitem, focusedWindow){
+	if(preference.app.windowmode!==menuitem.id){
+		preference.app.windowmode = menuitem.id;
+	}
 }
 
 function windowEvent(content){
@@ -395,6 +400,11 @@ var templateTemplate = [
 	{label:'&Window', role:'window', submenu:[
 		{ label:'Reload',           accelerator:'CmdOrCtrl+R', click:windowEvent('reload'), when:'preference.app.debugmode'},
 		{ label:'&Minimize',        accelerator:'CmdOrCtrl+M', click:windowEvent('minimize')},
+		{ type: 'separator'},
+		{ label:'Window mode', submenu:[
+			{ label:'Sepated window', windowmode:'sdi'},
+			{ label:'Unified window', windowmode:'mdi'},
+		]},
 		{ type: 'separator', when:'isMac'},
 		{ label:'Bring All to Front', role:'front', when:'isMac'},
 	]},
@@ -427,13 +437,20 @@ function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:l
 				generateProperTemplate(titem.submenu, item.submenu);
 			}
 			else if(!!titem.config){
-				var idname = titem.config, val = ''+true;
+				var idname = titem.config, val = '';
 				if(titem.config.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
 				if(idname!=='language' && (!isPuzzle || config[idname]===void 0)){ return;}
 				
 				var item = {label:translator(titem.label), click:sendConfigReq, id:titem.config};
 				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
 				item.checked = (idname!=='language' ? ''+config[idname]===val : preference.app.lang===val);
+				array.push(item);
+			}
+			else if(!!titem.windowmode){
+				var idname = 'windowmode', val = titem.windowmode;
+				var item = {label:translator(titem.label), click:changeWindowMode, id:titem.windowmode};
+				item.type    = 'radio';
+				item.checked = (preference.app.windowmode===val);
 				array.push(item);
 			}
 			else{
