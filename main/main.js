@@ -127,7 +127,7 @@ function openPuzzleSDI(data, pid, filename){ // jshint ignore:line, (avoid lated
 	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
 	openpos.modify();
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
-	win.loadURL(rootdir + 'puzzle-sdi/p.html');
+	win.loadURL(rootdir + 'puzzle/p.html');
 }
 var mdiWindow = null;
 function openPuzzleMDI(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
@@ -142,7 +142,7 @@ function openPuzzleMDI(data, pid, filename){ // jshint ignore:line, (avoid lated
 			mdiWindow.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
 		}
 		mdiWindow.once('closed', function(){ mdiWindow = null;});
-		mdiWindow.loadURL(rootdir + 'puzzle-sdi/p.html');
+		mdiWindow.loadURL(rootdir + 'puzzle/p.html');
 	}
 }
 function openPuzzleWindow(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
