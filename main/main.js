@@ -227,8 +227,9 @@ function sendConfigReq(menuitem, focusedWindow){
 	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
 }
 function changeWindowMode(menuitem, focusedWindow){
-	if(preference.app.windowmode!==menuitem.id){
-		preference.app.windowmode = menuitem.id;
+	var val = (menuitem.checked ? 'sdi' : 'mdi');
+	if(preference.app.windowmode!==val){
+		preference.app.windowmode = val;
 	}
 }
 
@@ -399,10 +400,7 @@ var templateTemplate = [
 		{ label:'Reload',           accelerator:'CmdOrCtrl+R', click:windowEvent('reload'), when:'preference.app.debugmode'},
 		{ label:'&Minimize',        accelerator:'CmdOrCtrl+M', click:windowEvent('minimize')},
 		{ type: 'separator'},
-		{ label:'Window mode', submenu:[
-			{ label:'Sepated window', windowmode:'sdi'},
-			{ label:'Unified window', windowmode:'mdi'},
-		]},
+		{ label:'Create individual puzzle window', windowmode:'checkbox'},
 		{ type: 'separator', when:'isMac'},
 		{ label:'Bring All to Front', role:'front', when:'isMac'},
 	]},
@@ -446,9 +444,9 @@ function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:l
 			}
 			else if(!!titem.windowmode){
 				var idname = 'windowmode', val = titem.windowmode;
-				var item = {label:translator(titem.label), click:changeWindowMode, id:titem.windowmode};
-				item.type    = 'radio';
-				item.checked = (preference.app.windowmode===val);
+				var item = {label:translator(titem.label), click:changeWindowMode};
+				item.type    = 'checkbox';
+				item.checked = (preference.app.windowmode==='sdi');
 				array.push(item);
 			}
 			else{
