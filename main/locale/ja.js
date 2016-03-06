@@ -3,7 +3,8 @@ var translation = {
 	'&File'                    : 'ファイル',
 	'&New Board'               : '新規盤面作成',
 	'&Open File'               : 'ファイルを開く',
-	'&Save File As...'         : 'ファイルを保存...',
+	'&Save File'               : '上書き保存',
+	'Save File &As...'         : 'ファイルを保存...',
 	'&PUZ-PRE format'          : 'ぱずぷれ形式',
 	'pencilbox format (&text)' : 'Pencilbox形式',
 	'pencilbox format (&XML)'  : 'Pencilbox(XML)形式',
@@ -13,7 +14,6 @@ var translation = {
 	'&PNG Format (png)'        : 'PNG形式',
 	'&Vector Format (SVG)'     : 'SVG形式',
 	'Edit Puzzle &Properties'  : 'パズルのプロパティ',
-	'Open Puzzle &List'        : 'パズル一覧を開く',
 	'&Close Window'            : 'ウィンドウを閉じる',
 	'&Quit Puzzlevan'          : 'Puzzlevanを終了',
 	
@@ -78,8 +78,8 @@ var translation = {
 	
 	'&Window'            : 'ウィンドウ',
 	'&Minimize'          : '最小化',
-	'&Reload'            : '再読み込み',
 	'Bring All to Front' : '全てのウィンドウを前面へ',
+	'Create individual puzzle window' : 'パズル別ウィンドウを作成する',
 	
 	'Help'             : 'ヘルプ',
 	'How to Input'     : '入力方法',

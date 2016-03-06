@@ -288,7 +288,7 @@ var templateTemplate = [
 	{label:'&File', submenu:[
 		{ label:'&New Board',    accelerator:'CmdOrCtrl+N', click:popupNewBoard},
 		{ label:'&Open File',    accelerator:'CmdOrCtrl+O', click:openFile},
-		{ label:'&Save File',    accelerator:'CmdOrCtrl+S', click:sendMenuReq('save-update')},
+		{ label:'&Save File',    accelerator:'CmdOrCtrl+S', click:sendMenuReq('save-update'), when:'isPuzzle'},
 		{ label:'Save File &As...', when:'isPuzzle', submenu:[
 			{ label:'&PUZ-PRE format',                            click:sendMenuReq('save-pzpr')},
 			{ label:'pencilbox format (&text)',                   click:sendMenuReq('save-pbox')},
