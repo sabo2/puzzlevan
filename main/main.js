@@ -38,10 +38,18 @@ function savePreference(){
 })();
 
 //--------------------------------------------------------------------------
+function setRecentFile(filename){
+	if('addRecentDocument' in app){
+		app.addRecentDocument(filename);
+	}
+}
 function openFiles(files){
 	files.forEach(function(filename){
 		fs.readFile(filename, {encoding:'utf8'}, function(error, data){
-			if(!error){ openPuzzleWindow(data, latest_pid, filename);}
+			if(!error){
+				setRecentFile(filename);
+				openPuzzleWindow(data, latest_pid, filename);
+			}
 		});
 	});
 }
@@ -174,6 +182,7 @@ ipc.on('save-file', function(e, data, pid, fileext, filetype){
 		if(!filename){ return;}
 		fs.writeFile(filename, data, {encoding:'utf8'});
 		e.sender.send('update-filename', filename, filetype);
+		setRecentFile(filename);
 	});
 });
 ipc.on('update-file', function(e, data, filename){
