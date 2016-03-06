@@ -58,7 +58,7 @@ ui.menuarea = {
 			
 			case 'popup-urloutput': this.openpopup('urloutput.html?'+pid); break;
 			case 'popup-adjust':    this.openpopup('adjust.html?'+pid); break;
-			case 'popup-metadata':  this.openpopup('metadata.html?'+pid+'/'+puzzle.board.qcols+'/'+puzzle.board.qrows); break;
+			case 'popup-metadata':  this.openpopup('metadata.html?'+pid+'/'+puzzle.board.cols+'/'+puzzle.board.rows); break;
 			case 'popup-dispsize':  this.openpopup('dispsize.html'); break;
 			case 'popup-colors':    this.openpopup('colors.html'); break;
 			case 'popup-undotime':  this.openpopup('undotime.html'); break;
