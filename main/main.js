@@ -167,14 +167,18 @@ ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'
 
 // IPCs from puzzle windows
 ipc.on('set-puzzle-menu', function(e, pid, config, first){ setApplicationMenu(e.sender, pid, config, first);});
-ipc.on('save-file', function(e, data, pid, filetype){
-	var ext = filetype || 'txt';
+ipc.on('save-file', function(e, data, pid, fileext, filetype){
+	var ext = fileext || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
 	require('electron').dialog.showSaveDialog((BrowserWindow.getFocusedWindow()||null), option, function(filename){
 		if(!filename){ return;}
 		fs.writeFile(filename, data, {encoding:'utf8'});
-		e.sender.send('update-filename', filename);
+		e.sender.send('update-filename', filename, filetype);
 	});
+});
+ipc.on('update-file', function(e, data, filename){
+	fs.writeFile(filename, data, {encoding:'utf8'});
+	e.sender.send('update-filename');
 });
 ipc.on('get-puzzle-preference', function(e){
 	e.returnValue = preference.puzzle.puzzle;
@@ -269,8 +273,9 @@ var templateTemplate = [
 	{label:'&File', submenu:[
 		{ label:'&New Board',    accelerator:'CmdOrCtrl+N', click:popupNewBoard},
 		{ label:'&Open File',    accelerator:'CmdOrCtrl+O', click:openFile},
-		{ label:'&Save File As...', when:'isPuzzle', submenu:[
-			{ label:'&PUZ-PRE format', accelerator:'CmdOrCtrl+S', click:sendMenuReq('save-pzpr')},
+		{ label:'&Save File',    accelerator:'CmdOrCtrl+S', click:sendMenuReq('save-update')},
+		{ label:'Save File &As...', when:'isPuzzle', submenu:[
+			{ label:'&PUZ-PRE format',                            click:sendMenuReq('save-pzpr')},
 			{ label:'pencilbox format (&text)',                   click:sendMenuReq('save-pbox')},
 			{ label:'pencilbox format (&XML)',                    click:sendMenuReq('save-pbox-xml')},
 		]},

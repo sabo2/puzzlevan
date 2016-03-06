@@ -17,6 +17,7 @@ window.ui = {
 	puzzles   : [],
 	
 	reffile   : new WeakMap(),
+	reffiletype:new WeakMap(),
 	reflist   : new WeakMap(),
 	refcanvas : new WeakMap(),
 	
@@ -41,8 +42,9 @@ window.ui = {
 		var puzzle = new pzpr.Puzzle();
 		ui.puzzles.push(puzzle);
 		
-		if(!!filename){
+		if(!!filename && pzl.isfile){
 			ui.reffile.set(puzzle, filename);
+			ui.reffiletype.set(puzzle, pzl.type);
 		}
 		
 		var element = document.createElement('div');
@@ -79,6 +81,9 @@ window.ui = {
 			
 			ui.reflist.get(puzzle).remove();
 			ui.reflist.delete(puzzle);
+			
+			ui.reffile.delete(puzzle);
+			ui.reffiletype.delete(puzzle);
 			
 			ui.puzzles.splice(idx,1);
 			if(idx>=ui.puzzles.length){ idx = ui.puzzles.length-1;}
@@ -140,11 +145,12 @@ window.ui = {
 	}
 };
 
-require('electron').ipcRenderer.on('update-filename', function(e, filename){
+require('electron').ipcRenderer.on('update-filename', function(e, filename, filetype){
 	if(ui.puzzle){
 		ui.puzzle.opemgr.initpos = ui.puzzle.opemgr.position; /* modified状態を解消する */
 		
-		ui.reffile.set(ui.puzzle, filename);
+		if(!!filename){ ui.reffile.set(ui.puzzle, filename);}
+		if(!!filetype){ ui.reffiletype.set(ui.puzzle, filetype);}
 		ui.misc.setTitle();
 		ui.misc.setListCaption(ui.puzzle);
 	}

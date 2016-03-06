@@ -28,6 +28,18 @@ ui.menuarea = {
 			'show='+(!ui.debugmode?'no':'yes')
 		].join(','));
 	},
+	saveFile : function(puzzle, filetype){
+		var filedata = puzzle.getFileData(filetype);
+		var fileext = (filetype===pzpr.parser.FILE_PBOX_XML ? 'xml' : '');
+		require('electron').ipcRenderer.send('save-file', filedata, puzzle.pid, fileext, filetype);
+	},
+	updateFile : function(puzzle){
+		var filename = (ui.reffile.has(puzzle) ? ui.reffile.get(puzzle) : '') || '';
+		if(!!filename){
+			var filedata = puzzle.getFileData(ui.reffiletype.get(puzzle));
+			require('electron').ipcRenderer.send('update-file', filedata, filename);
+		}
+	},
 
 	//---------------------------------------------------------------------------
 	// menuarea.recvMenuReq()  main processから送信されたメニューに関するipc通信の処理を行う
@@ -50,9 +62,10 @@ ui.menuarea = {
 			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play'); ui.misc.setTitle();} break;
 			case 'irowake-change': puzzle.irowake(); break;
 			
-			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;
-			case 'save-pbox':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid); break;
-			case 'save-pbox-xml': require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml'); break;
+			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid, '', parser.FILE_PZPR); break;
+			case 'save-pbox':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid, '' ,parser.FILE_PBOX); break;
+			case 'save-pbox-xml': require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml', parser.FILE_PBOX_XML); break;
+			case 'save-update':   ui.menuarea.updateFile(puzzle); break;
 			case 'saveimage-png': this.saveimage('png'); break;
 			case 'saveimage-svg': this.saveimage('svg'); break;
 			
