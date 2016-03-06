@@ -43,7 +43,7 @@ ui.timer =
 	//---------------------------------------------------------------------------
 	ACcheck : function(){
 		var puzzle = ui.puzzle;
-		if(this.current>this.nextACtime && puzzle.playmode && !puzzle.checker.inCheck){
+		if(puzzle && this.current>this.nextACtime && puzzle.playmode && !puzzle.checker.inCheck){
 			if(puzzle.check(false).complete){
 				puzzle.mouse.mousereset();
 				ui.menuconfig.set('autocheck_once',false);
@@ -153,6 +153,7 @@ ui.undotimer = {
 		else if(!!this.TID){ this.exec();}
 	},
 	exec : function(){
+		if(!ui.puzzle){ return;}
 		var kc = ui.puzzle.key;
 		if(!this.checknextprop()){ this.stop();}
 		else if(this.inUNDO){
@@ -169,6 +170,7 @@ ui.undotimer = {
 	// ut.checknextprop()  次にUndo/Redoができるかどうかの判定を行う
 	//---------------------------------------------------------------------------
 	checknextprop : function(){
+		if(!ui.puzzle){ return;}
 		var opemgr = ui.puzzle.opemgr;
 		var isenable = ((this.inUNDO && opemgr.enableUndo) || (this.inREDO && opemgr.enableRedo));
 		if(isenable && ui.puzzle.pid==="goishi"){

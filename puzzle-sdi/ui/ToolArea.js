@@ -8,15 +8,11 @@ ui.toolarea = {
 	captions : [],		// 言語指定を切り替えた際のキャプションを保持する
 
 	//---------------------------------------------------------------------------
-	// toolarea.reset()  ツールパネル・ボタン領域の初期設定を行う
+	// toolarea.init()  ツールパネル・ボタン領域の初期設定を行う
 	//---------------------------------------------------------------------------
-	reset : function(){
-		if(this.items===null){
-			this.items = {};
-			this.walkElement();
-		}
-		
-		this.display();
+	init : function(){
+		this.items = {};
+		this.walkElement();
 	},
 
 	//---------------------------------------------------------------------------
@@ -48,36 +44,38 @@ ui.toolarea = {
 	},
 	
 	//---------------------------------------------------------------------------
-	// toolarea.display()    全てのラベルに対して文字列を設定する
+	// toolarea.displayAll() 全てのラベルに対して文字列を設定する
 	// toolarea.setdisplay() 管理パネルに表示する文字列を個別に設定する
 	//---------------------------------------------------------------------------
-	display : function(){
+	displayAll : function(){
 		/* ボタン領域 */
 		/* --------- */
 		getEL('btnarea').style.display = (ui.menuconfig.get("buttonarea") ? '' : 'none');
 		pzpr.util.unselectable(getEL('btnarea'));
 		
 		this.setdisplay("operation");
-		getEL('btnclear2').style.display  = (!ui.puzzle.board.disable_subclear ? "" : "none");
-		getEL('btncolor').style.display   = (ui.puzzle.pid==='tentaisho' ? "" : "none");
-		getEL('btnirowake').style.display = ((ui.puzzle.painter.irowake || ui.puzzle.painter.irowakeblk) ? "" : "none");
+		getEL('btnclear2').style.display  = (!ui.puzzle || !ui.puzzle.board.disable_subclear ? "" : "none");
+		getEL('btncolor').style.display   = (ui.puzzle && ui.puzzle.pid==='tentaisho' ? "" : "none");
+		getEL('btnirowake').style.display = (ui.puzzle && (ui.puzzle.painter.irowake || ui.puzzle.painter.irowakeblk) ? "" : "none");
 		
 		/* 共通：キャプションの設定 */
 		/* --------------------- */
 		for(var i=0;i<this.captions.length;i++){
 			var obj = this.captions[i];
-			obj.textnode.data = ui.selectStr(obj.str_jp, obj.str_en);
+			obj.textnode.data = ui.misc.selectStr(obj.str_jp, obj.str_en);
 		}
 	},
 	setdisplay : function(idname){
 		if(idname==="operation"){
-			var opemgr = ui.puzzle.opemgr;
-			getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
-			getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
+			if(ui.puzzle){
+				var opemgr = ui.puzzle.opemgr;
+				getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
+				getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
+			}
 		}
 		else if(idname==='buttonarea'){
 			getEL('btnarea').style.display = (ui.menuconfig.get("buttonarea") ? '' : 'none');
-			ui.listener.onResize(ui.puzzle);
+			if(ui.puzzle){ ui.listener.onResize(ui.puzzle);}
 		}
 	},
 
@@ -108,12 +106,15 @@ ui.toolarea = {
 	// toolarea.ASconfirm()  「補助消去」ボタンを押したときの処理
 	//------------------------------------------------------------------------------
 	anscheck : function(){
+		if(!ui.puzzle){ return;}
 		ui.misc.alert(ui.puzzle.check(true).text);
 	},
 	ACconfirm : function(){
+		if(!ui.puzzle){ return;}
 		ui.misc.confirm("回答を消去しますか？","Do you want to erase the Answer?", function(){ ui.puzzle.ansclear();});
 	},
 	ASconfirm : function(){
+		if(!ui.puzzle){ return;}
 		ui.misc.confirm("補助記号を消去しますか？","Do you want to erase the auxiliary marks?", function(){ ui.puzzle.subclear();});
 	}
 };

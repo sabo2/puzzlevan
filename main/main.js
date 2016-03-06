@@ -28,19 +28,20 @@ function savePreference(){
 	preference = null;
 	try{
 		preference = JSON.parse(fs.readFileSync(prefFile));
-		preference.app.debugmode = (process.argv.indexOf('--debug')>0);
 	}
 	catch(e){
 		preference = {app:{lang:(app.getLocale().match(/ja/)?'ja':'en')}, puzzle:{puzzle:{},ui:{}}};
 		errstatus = true;
 	}
+	preference.app.windowmode = preference.app.windowmode || 'mdi';
+	preference.app.debugmode = (process.argv.indexOf('--debug')>0);
 })();
 
 //--------------------------------------------------------------------------
 function openFiles(files){
 	files.forEach(function(filename){
 		fs.readFile(filename, {encoding:'utf8'}, function(error, data){
-			if(!error){ openPuzzleWindow(data, latest_pid);}
+			if(!error){ openPuzzleWindow(data, latest_pid, filename);}
 		});
 	});
 }
@@ -69,6 +70,7 @@ app.on('open-url', function(e, url){
 app.on('ready', function(){
 	isReady = true;
 	if(initFiles.length>0){ openFiles(initFiles);}
+	else if(preference.app.windowmode==='mdi'){ openPuzzleMDI();}
 	else if(openStandAlone){ openMainWindow();}
 });
 app.on('window-all-closed', function(){
@@ -113,7 +115,29 @@ function openUndefWindow(data){
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
 	win.loadURL(rootdir + 'index/fileindex.html');
 }
-function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef error)
+function openPuzzleSDI(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
+	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
+	openpos.modify();
+	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
+	win.loadURL(rootdir + 'puzzle-sdi/p.html');
+}
+var mdiWindow = null;
+function openPuzzleMDI(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
+	if(!!mdiWindow){
+		if(!!data){
+			mdiWindow.webContents.send('initial-data', data, pid, filename);
+		}
+	}
+	else{
+		mdiWindow = new BrowserWindow({x:16, y:16, width: 960, height: 720, minWidth:480, minHeight:240, show:true});
+		if(!!data){
+			mdiWindow.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
+		}
+		mdiWindow.once('closed', function(){ mdiWindow = null;});
+		mdiWindow.loadURL(rootdir + 'puzzle-sdi/p.html');
+	}
+}
+function openPuzzleWindow(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
 	if(!data){ require('electron').dialog.showErrorBox("Puzzlevan", "No Puzzle Data Error!!"); return;}
 	if(!pid){
 		var pzl = new pzpr.parser.FileData(data, '');
@@ -122,15 +146,19 @@ function openPuzzleWindow(data, pid){ // jshint ignore:line, (avoid latedef erro
 		if(pzl.type===pzpr.parser.FILE_PBOX){ openUndefWindow(data); return;}
 	}
 	
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
-	openpos.modify();
-	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid);});
-	win.loadURL(rootdir + 'puzzle-sdi/p.html');
+	if(preference.app.windowmode==='mdi'){
+		openPuzzleMDI(data, pid, filename);
+	}
+	else{
+		openPuzzleSDI(data, pid, filename);
+	}
 }
 
 //--------------------------------------------------------------------------
 // IPCs from various windows
 ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
+ipc.on('open-file', function(e, filename){ openFiles([filename]);});
+ipc.on('close-mainWindow', function(e){ mainWindow.close();});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
 
 // IPCs from puzzle-list window
@@ -145,13 +173,20 @@ ipc.on('save-file', function(e, data, pid, filetype){
 	require('electron').dialog.showSaveDialog((BrowserWindow.getFocusedWindow()||null), option, function(filename){
 		if(!filename){ return;}
 		fs.writeFile(filename, data, {encoding:'utf8'});
+		e.sender.send('update-filename', filename);
 	});
 });
 ipc.on('get-puzzle-preference', function(e){
-	e.returnValue = preference.puzzle;
+	e.returnValue = preference.puzzle.puzzle;
 });
 ipc.on('set-puzzle-preference', function(e, setting){
-	preference.puzzle = setting;
+	preference.puzzle.puzzle = setting;
+});
+ipc.on('get-ui-preference', function(e){
+	e.returnValue = preference.puzzle.ui;
+});
+ipc.on('set-ui-preference', function(e, setting){
+	preference.puzzle.ui = setting;
 });
 
 //--------------------------------------------------------------------------
@@ -166,7 +201,9 @@ function openFile(menuitem, focusedWindow){
 
 function sendMenuReq(content){ 
 	return function(menuitem, focusedWindow){
-		focusedWindow.webContents.send('menu-req', content);
+		if(focusedWindow.webContents){
+			focusedWindow.webContents.send('menu-req', content);
+		}
 	};
 }
 function sendConfigReq(menuitem, focusedWindow){
@@ -195,11 +232,20 @@ function versionInfo(menuitem, focusedWindow){
 	require('electron').dialog.showMessageBox(option);
 }
 
+function closeWindow(menuitem, focusedWindow){
+	if(focusedWindow!==mdiWindow){
+		windowEvent('close')(menuitem, focusedWindow);
+	}
+	else{
+		mdiWindow.webContents.send('menu-req', 'close-puzzle');
+	}
+}
+
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 function popupNewBoard(menuitem, focusedWindow){
-	if(!!latest_pid){ openPopupWindow('newboard.html?'+latest_pid);}
-	else            { openMainWindow();}
+	if(!latest_pid || preference.app.windowmode==='mdi'){ openMainWindow();}
+	else{ openPopupWindow('newboard.html?'+latest_pid);}
 }
 function popupURLImport(menuitem, focusedWindow){
 	openPopupWindow('urlinput.html');
@@ -241,7 +287,7 @@ var templateTemplate = [
 		{ type: 'separator'},
 		{ label:'Open Puzzle &List', accelerator:'CmdOrCtrl+L', click:openMainWindow},
 		{ type: 'separator'},
-		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:windowEvent('close')},
+		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:closeWindow},
 		{ type: 'separator', when:'!isMac'},
 		{ label:'&Quit Puzzlevan', accelerator:'Ctrl+Q', click:function(){ app.quit();}, when:'!isMac'},
 	]},
@@ -333,6 +379,7 @@ var templateTemplate = [
 		]}
 	]},
 	{label:'&Window', role:'window', submenu:[
+		{ label:'Reload',           accelerator:'CmdOrCtrl+R', click:windowEvent('reload'), when:'preference.app.debugmode'},
 		{ label:'&Minimize',        accelerator:'CmdOrCtrl+M', click:windowEvent('minimize')},
 		{ type: 'separator', when:'isMac'},
 		{ label:'Bring All to Front', role:'front', when:'isMac'},

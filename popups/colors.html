@@ -32,7 +32,6 @@ window.addEventListener("message", function(e){
 		case 'black': color = '#000000'; break;
 		case 'white': color = '#ffffff'; break;
 	}
-	console.log(color);
 	document.querySelector('div[data-color-target="'+msg.name+'"] > input').value = color;
 }, false);
 </script>

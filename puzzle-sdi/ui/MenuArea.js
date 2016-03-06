@@ -7,6 +7,7 @@ ui.menuarea = {
 	// メニューがクリックされた時の動作を呼び出す
 	//---------------------------------------------------------------------------
 	saveimage : function(filetype){
+		if(!ui.puzzle){ return;}
 		/* 画像出力ルーチン */
 		ui.remote.dialog.showSaveDialog(ui.win, {
 			title : "Save Image - Puzzlevan",
@@ -24,7 +25,7 @@ ui.menuarea = {
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',
-			'show='+(!require('electron').ipcRenderer.sendSync('get-app-preference').debugmode?'no':'yes')
+			'show='+(!ui.debugmode?'no':'yes')
 		].join(','));
 	},
 
@@ -33,6 +34,8 @@ ui.menuarea = {
 	// menuarea.recvMessage()  popup windowから送信されたpostMessageの処理を行う
 	//---------------------------------------------------------------------------
 	recvMenuReq : function(req){
+		if(req==='close-puzzle'){ ui.closePuzzle();}
+		if(!ui.puzzle){ return;}
 		var toolarea = ui.toolarea;
 		var parser = pzpr.parser;
 		var puzzle = ui.puzzle, pid = pzpr.variety(puzzle.pid).urlid;
@@ -42,7 +45,7 @@ ui.menuarea = {
 			case 'check':    toolarea.answercheck(); break;
 			case 'ansclear': toolarea.ACconfirm(); break;
 			case 'auxclear': toolarea.ASconfirm(); break;
-			case 'duplicate': ui.misc.openpuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
+			case 'duplicate': ui.openPuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
 			case 'edit-mode': if(puzzle.playmode){ puzzle.setMode('edit');} break;
 			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play');} break;
 			case 'irowake-change': puzzle.irowake(); break;
@@ -64,6 +67,7 @@ ui.menuarea = {
 		}
 	},
 	recvMessage : function(sender, channel, data){
+		if(!ui.puzzle){ return;}
 		var puzzle = ui.puzzle;
 		switch(channel){
 			case 'urloutput':
@@ -88,12 +92,6 @@ ui.menuarea = {
 	}
 };
 
-require('electron').ipcRenderer.on('config-req', function(e, idname, val){
-	ui.menuconfig.set(idname, val);
-	if(idname==='language'){
-		ui.misc.setMenu(false);
-	}
-});
 require('electron').ipcRenderer.on('menu-req', function(e, req){
 	ui.menuarea.recvMenuReq(req);
 });

@@ -27,24 +27,12 @@ ui.listener =
 	// listener.onCanvasReady()  Canvas準備完了時に呼び出される関数
 	//---------------------------------------------------------------------------
 	onReady : function(puzzle){
-		/* パズルの種類が同じならMenuArea等の再設定は行わない */
-		if(ui.currentpid !== puzzle.pid){
-			/* 以前設定済みのイベントを削除する */
-			ui.event.removeAllEvents();
-			
-			/* メニュー用の設定を消去・再設定する */
-			ui.toolarea.reset();
-			ui.misc.displayDesign();
-			
-			/* Windowへのイベント設定 */
-			ui.event.setWindowEvents();
-		}
+		ui.selectPuzzle(puzzle);
 		
 		ui.menuconfig.sync();
 		ui.menuconfig.set('autocheck_once', ui.menuconfig.get('autocheck'));
-		ui.currentpid = puzzle.pid;
 		
-		ui.adjustcellsize();
+		ui.misc.adjustcellsize();
 		
 		ui.timer.reset();					/* タイマーリセット(最後) */
 	},
@@ -89,8 +77,8 @@ ui.listener =
 			mv.mousereset();
 			result = false;
 		}
-		else if(ui.puzzle.pid === "goishi"){
-			if(mv.mousestart && ui.puzzle.playmode){
+		else if(puzzle.pid === "goishi"){
+			if(mv.mousestart && puzzle.playmode){
 				if(mv.btn==='left'){
 					var cell = mv.getcell();
 					if(cell.isnull || !cell.isStone() || cell.anum!==-1){
@@ -112,8 +100,9 @@ ui.listener =
 		mv.cancelEvent = !result;
 	},
 	onHistoryChange : function(puzzle){
-		if(!!ui.currentpid){
+		if(ui.puzzle){
 			ui.toolarea.setdisplay("operation");
+			if(ui.isMDI){ ui.misc.setListCaption(ui.puzzle);}
 		}
 	},
 
@@ -121,21 +110,29 @@ ui.listener =
 	// listener.onAdjust()  盤面の大きさが変わったときの処理を呼び出す
 	//---------------------------------------------------------------------------
 	onAdjust : function(puzzle){
-		ui.adjustcellsize();
+		ui.misc.adjustcellsize();
 	},
 
 	//---------------------------------------------------------------------------
 	// listener.onResize()  canvasのサイズを変更したときの処理を呼び出す
 	//---------------------------------------------------------------------------
 	onResize : function(puzzle){
-		puzzle.canvas.parentNode.style.padding = ui.getBoardPaddingSize()+'px';
+		puzzle.canvas.parentNode.style.padding = ui.misc.getBoardPaddingSize()+'px';
 		
-		var width = pzpr.util.getRect(puzzle.canvas.parentNode).width|0;
-		if(width<=0){ return;}
-		var winsize = ui.win.getContentSize();
-		ui.win.setContentSize(width, winsize[1]);
-		
-		var height = (pzpr.util.getRect(document.body).height+8)|0;
-		ui.win.setContentSize(width, height);
+		if(!ui.isMDI){
+			var width = pzpr.util.getRect(puzzle.canvas.parentNode).width|0;
+			if(width<=0){ return;}
+			var winsize = ui.win.getContentSize();
+			ui.win.setContentSize(width, winsize[1]);
+			
+			var height = pzpr.util.getRect(document.querySelector('.puzzles')).height;
+			height += pzpr.util.getRect(document.querySelector('#topinfo')).height;
+			height += pzpr.util.getRect(document.querySelector('#btnarea')).height;
+			ui.win.setContentSize(width, (height+4)|0);
+		}
+		else{
+			ui.misc.setTitle();
+			if(ui.puzzle){ ui.misc.setListCaption(ui.puzzle);}
+		}
 	}
 };

@@ -7,56 +7,34 @@
 // メニュー描画/取得/html表示系
 ui.event =
 {
-	//----------------------------------------------------------------------
-	// event.addEvent()        addEventListener(など)を呼び出す
-	// event.removeAllEvents() addEventで登録されたイベントを削除する
-	//----------------------------------------------------------------------
-	evlist : [],
-	addEvent : function(el, event, self, callback, capt){
-		var func = pzpr.util.addEvent(el, event, self, callback, !!capt);
-		this.evlist.push({el:el, event:event, func:func, capt:!!capt});
-	},
-	removeAllEvents : function(){
-		for(var i=0,len=this.evlist.length;i<len;i++){
-			var e=this.evlist[i];
-			e.el.removeEventListener(e.event, e.func, e.capt);
-		}
-		this.evlist=[];
-	},
-
 	//---------------------------------------------------------------------------
 	// event.setWindowEvents()  マウス入力、キー入力以外のイベントの設定を行う
 	//---------------------------------------------------------------------------
 	setWindowEvents : function(){
 		// File API＋Drag&Drop APIの設定
-		this.addEvent(window, 'dragover', this, function(e){ e.preventDefault();}, true);
-		this.addEvent(window, 'drop', this, function(e){
+		window.addEventListener('dragover', function(e){ e.preventDefault();}, true);
+		window.addEventListener('drop', function(e){
 			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
-				var reader = new FileReader();
-				reader.onload = function(e){ ui.misc.openpuzzle(e.target.result);};
-				reader.readAsText(file);
+				require('electron').ipcRenderer.send('open-file', file.path);
 			});
 			e.preventDefault();
 			e.stopPropagation();
 		}, true);
 
 		// onBlurにイベントを割り当てる
-		this.addEvent(window, 'blur', this, this.onblur_func);
+		window.addEventListener('blur', this.onblur_func, false);
 
 		// onFocusにイベントを割り当てる
-		this.addEvent(window, 'focus', this, this.onfocus_func);
+		window.addEventListener('focus', this.onfocus_func, false);
+
+		// onloadイベントを割り当てる
+		pzpr.on('load', this.onload_func);
 
 		// onbeforeunloadイベントを割り当てる
-		this.addEvent(window, 'beforeunload', this, this.onbeforeunload_func);
+		window.addEventListener('beforeunload', this.onbeforeunload_func, false);
 
 		// onunloadイベントを割り当てる
-		this.addEvent(window, 'unload', this, this.onunload_func);
-
-		// エラー表示を消去する
-		this.addEvent(document.getElementById('quesboard'), 'mousedown', this, function(e){
-			ui.puzzle.errclear();
-			e.stopPropagation();
-		});
+		window.addEventListener('unload', this.onunload_func, false);
 	},
 
 	//---------------------------------------------------------------------------
@@ -65,8 +43,15 @@ ui.event =
 	//---------------------------------------------------------------------------
 	onload_func : function(){
 		ui.menuconfig.restore();
+		ui.toolarea.init();
 		
-		ui.listener.setListeners(ui.puzzle);
+		ui.misc.displayAll();
+		
+		// エラー表示を消去する
+		pzpr.util.addEvent(document.getElementById('quesboard'), 'mousedown', this, function(e){
+			if(ui.puzzle){ ui.puzzle.errclear();}
+			e.stopPropagation();
+		});
 	},
 	onunload_func : function(){
 		ui.menuconfig.save();
@@ -78,8 +63,10 @@ ui.event =
 	// event.onbeforeunload_func()  ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
 	onblur_func : function(){
-		ui.puzzle.key.keyreset();
-		ui.puzzle.mouse.mousereset();
+		if(ui.puzzle){
+			ui.puzzle.key.keyreset();
+			ui.puzzle.mouse.mousereset();
+		}
 	},
 	onfocus_func : function(){
 		if(process.platform==='darwin'){
@@ -87,10 +74,14 @@ ui.event =
 		}
 	},
 	onbeforeunload_func : function(e){
-		if(!ui.puzzle.ismodified()){ return;}
-		
-		var msg = ui.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
-		var option = {type:'question', message:msg, buttons:['Yes','No']};
-		return (e.returnValue = (ui.remote.dialog.showMessageBox(ui.win, option)===0));
+		var result = true;
+		ui.puzzles.forEach(function(puzzle){
+			var result_sub = ui.closePuzzleInquiry(puzzle);
+			result = result && result_sub;
+		});
+		e.returnValue = result;
 	}
 };
+
+/* Windowへのイベント設定 */
+ui.event.setWindowEvents();

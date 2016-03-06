@@ -84,6 +84,9 @@ popupmgr.extend({
 			require('electron').ipcRenderer.send('open-puzzle', pid+"/"+url.join('/'));
 		}
 		
+		if(require('electron').ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'){
+			require('electron').ipcRenderer.send('close-mainWindow');
+		}
 		window.close();
 	},
 

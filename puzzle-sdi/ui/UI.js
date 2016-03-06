@@ -14,13 +14,17 @@ function createEL(tagName){ return _doc.createElement(tagName);}
 window.ui = {
 	/* このサイトで使用するパズルのオブジェクト */
 	puzzle    : null,
+	puzzles   : [],
+	
+	reffile   : new WeakMap(),
+	reflist   : new WeakMap(),
+	refcanvas : new WeakMap(),
 	
 	/* Electron用のオブジェクト */
 	remote    : require('electron').remote,
 	win       : require('electron').remote.getCurrentWindow(),
-	
-	/* どの種類のパズルのメニューを表示しているか */
-	currentpid : '',
+	isMDI     :(require('electron').ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'),
+	debugmode : require('electron').ipcRenderer.sendSync('get-app-preference').debugmode,
 	
 	/* メンバオブジェクト */
 	event     : null,
@@ -29,40 +33,119 @@ window.ui = {
 	toolarea  : null,
 
 	//---------------------------------------------------------------------------
-	// ui.displayAll()     全てのメニュー、ボタン、ラベルに対して文字列を設定する
-	// ui.setdisplay()     個別のメニュー、ボタン、ラベルに対して文字列を設定する
+	// ui.appendPuzzle()   パズルを追加する
 	//---------------------------------------------------------------------------
-	displayAll : function(){
-		ui.toolarea.display();
-		ui.misc.displayDesign();
-	},
-	setdisplay : function(idname){
-		ui.toolarea.setdisplay(idname);
+	firstboot : true,
+	appendPuzzle : function(pzl, filename){
+		/* パズルオブジェクトの作成 */
+		var puzzle = new pzpr.Puzzle();
+		ui.puzzles.push(puzzle);
+		
+		if(!!filename){
+			ui.reffile.set(puzzle, filename);
+		}
+		
+		var element = document.createElement('div');
+		element.className = 'puzzles';
+		document.querySelector('#quesboard').appendChild(element);
+		ui.refcanvas.set(puzzle, element);
+		puzzle.setCanvas(element);
+		
+		if(ui.isMDI){
+			var itemel = document.createElement('div');
+			itemel.className = 'puzzleitem';
+			itemel.innerHTML = '<span class="modified"></span><span class="puzzleinfo"></span><br><span class="filename"></span>';
+			document.querySelector('#puzzlelist').appendChild(itemel);
+			itemel.addEventListener('click', function(){ ui.selectPuzzle(puzzle);}, false);
+			ui.reflist.set(puzzle, itemel);
+		}
+		
+		ui.listener.setListeners(puzzle);
+		
+		// 単体初期化処理のルーチンへ
+		puzzle.once('fail-open', ui.misc.failOpen);
+		puzzle.open(pzl);
 	},
 
 	//---------------------------------------------------------------------------
-	// ui.adjustcellsize()  resizeイベント時に、pc.cw, pc.chのサイズを(自動)調節する
-	// ui.getBoardPaddingSize() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
+	// ui.removePuzzle()   パズルを削除する
 	//---------------------------------------------------------------------------
-	adjustcellsize : function(){
-		ui.puzzle.setCanvasSizeByCellSize(ui.menuconfig.get('cellsizeval'));
+	removePuzzle : function(puzzle){
+		if(!ui.isMDI){ return;}
+		var idx = ui.puzzles.indexOf(puzzle);
+		if(idx>=0){
+			ui.refcanvas.get(puzzle).remove();
+			ui.refcanvas.delete(puzzle);
+			
+			ui.reflist.get(puzzle).remove();
+			ui.reflist.delete(puzzle);
+			
+			ui.puzzles.splice(idx,1);
+			if(idx>=ui.puzzles.length){ idx = ui.puzzles.length-1;}
+			
+			ui.puzzle = null;
+		}
+		ui.selectPuzzle(ui.puzzles[idx] || null);
 	},
-	getBoardPaddingSize : function(){
-		return 12;
+
+	//---------------------------------------------------------------------------
+	// ui.selectPuzzle()   複数あるうち表示するパズルを選択する
+	//---------------------------------------------------------------------------
+	selectPuzzle : function(puzzle){
+		var prevpuzzle = ui.puzzle;
+		ui.puzzle = puzzle;
+		pzpr.connectKeyEvents(puzzle);
+		if(ui.isMDI){
+			if(prevpuzzle){ ui.refcanvas.get(prevpuzzle).style.display = 'none';}
+			if(puzzle)    { ui.refcanvas.get(puzzle).style.display = '';}
+			
+			if(prevpuzzle){ ui.reflist.get(prevpuzzle).className = 'puzzleitem';}
+			if(puzzle)    { ui.reflist.get(puzzle).className = 'puzzleitem puzzleitemsel';}
+		}
+		ui.misc.displayAll(true);
 	},
 
 	//--------------------------------------------------------------------------------
-	// ui.selectStr()  現在の言語に応じた文字列を返す
+	// ui.openPuzzle()  指定されたデータのパズルを開く　
 	//--------------------------------------------------------------------------------
-	selectStr : function(strJP, strEN){
-		if(!strEN || !ui.puzzle){ return strJP;}
-		return (pzpr.lang==='ja' ? strJP : strEN);
+	openPuzzle : function(data){
+		require('electron').ipcRenderer.send('open-puzzle', data, (ui.puzzle ? ui.puzzle.pid : null));
 	},
 
 	//---------------------------------------------------------------------------
-	// ui.getCurrentConfigList() 現在のパズルで有効な設定と設定値を返す
+	// ui.closePuzzle()         パズルのクローズ要求が出された時の処理
+	// ui.closePuzzleInquiry()  パズルをクローズしていいか問い合わせる
 	//---------------------------------------------------------------------------
-	getCurrentConfigList : function(){
-		return ui.menuconfig.getList();
+	closePuzzle : function(){
+		if(ui.isMDI){
+			if(ui.puzzle && ui.closePuzzleInquiry(ui.puzzle)){
+				ui.removePuzzle(ui.puzzle);
+			}
+			else if(ui.puzzles.length===0){
+				ui.win.close();
+			}
+		}
+		else{
+			if(ui.closePuzzleInquiry(ui.puzzle)){
+				ui.win.close();
+			}
+		}
+	},
+	closePuzzleInquiry : function(puzzle){
+		if(!puzzle.ismodified()){ return true;}
+		
+		var msg = ui.misc.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
+		var option = {type:'question', message:msg, buttons:['Yes','No']};
+		return (ui.remote.dialog.showMessageBox(ui.win, option)===0);
 	}
 };
+
+require('electron').ipcRenderer.on('update-filename', function(e, filename){
+	if(ui.puzzle){
+		ui.puzzle.opemgr.initpos = ui.puzzle.opemgr.position; /* modified状態を解消する */
+		
+		ui.reffile.set(ui.puzzle, filename);
+		ui.misc.setTitle();
+		ui.misc.setListCaption(ui.puzzle);
+	}
+});

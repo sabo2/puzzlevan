@@ -28,13 +28,6 @@ ui.menuconfig = {
 		this.add('cellsizeval', 36);						/* セルのサイズ設定用 */
 		
 		this.add('buttonarea', true);						/* ボタン類の表示 */
-
-		/* puzzle.configを一括で扱うため登録 */
-		for(var name in ui.puzzle.config.list){
-			this.add(name, ui.puzzle.config.list[name].defval, ui.puzzle.config.list[name].option);
-			this.list[name].volatile = true;
-			this.list[name].puzzle = true;
-		}
 	},
 	add : Config.add,
 
@@ -57,15 +50,58 @@ ui.menuconfig = {
 	// menuconfig.reset() 各フラグの設定値を初期化する
 	//---------------------------------------------------------------------------
 	set : function(idname, newval){
-		if(!this.list[idname]){ return;}
-		
-		newval = this.setproper(idname, newval);
-		if(this.list[idname].puzzle){ ui.puzzle.setConfig(idname, newval);}
-		
+		if(!!this.list[idname]){
+			newval = this.setproper(idname, newval);
+		}
+		else if(ui.puzzle && !!ui.puzzle.config.list[idname]){
+			ui.puzzles.forEach(function(puzzle){
+				puzzle.setConfig(idname, newval);
+			});
+			newval = ui.puzzle.getConfig(idname);
+		}
+		else if(idname==='language'){
+			pzpr.lang = newval;
+		}
+		else{ return;}
 		this.configevent(idname,newval);
 	},
-	get : Config.get,
-	reset : Config.reset,
+	get : function(idname){
+		if(!!this.list[idname]){
+			return this.list[idname].val;
+		}
+		else if(ui.puzzle && !!ui.puzzle.config.list[idname]){
+			return ui.puzzle.config.get(idname);
+		}
+		return null;
+	},
+	reset : function(idname){
+		if(!!this.list[idname]){
+			this.set(idname, this.list[idname].defval);
+		}
+		else if(ui.puzzle && !!ui.puzzle.config.list[idname]){
+			ui.puzzle.config.set(idname, ui.puzzle.config.list[idname].defval);
+		}
+	},
+
+	//---------------------------------------------------------------------------
+	// config.getList()  現在有効な設定値のリストを返す
+	//---------------------------------------------------------------------------
+	getList : function(){
+		var conf = (ui.puzzle ? ui.puzzle.config.getList() : {});
+		for(var idname in this.list){
+			if(this.getexec(idname)){ conf[idname] = this.get(idname);}
+		}
+		return conf;
+	},
+	getexec : function(idname){
+		if(!!this.list[idname]){
+			return true;
+		}
+		else if(ui.puzzle && !!ui.puzzle.config.list[idname]){
+			return ui.puzzle.validConfig(name);
+		}
+		return false;
+	},
 
 	//---------------------------------------------------------------------------
 	// menuconfig.restore()  保存された各種設定値を元に戻す
@@ -73,35 +109,38 @@ ui.menuconfig = {
 	//---------------------------------------------------------------------------
 	restore : function(){
 		/* 設定が保存されている場合は元に戻す */
-		ui.puzzle.config.init();
 		this.init();
-		var setting = require('electron').ipcRenderer.sendSync('get-puzzle-preference');
-		this.setAll(setting.puzzle);
-		this.setAll(setting.ui);
+		this.setAll(require('electron').ipcRenderer.sendSync('get-ui-preference'));
 		pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
 	},
 	save : function(){
-		require('electron').ipcRenderer.send('set-puzzle-preference', {
-			puzzle: ui.puzzle.saveConfig(),
-			ui:     this.getAll()
-		});
+		require('electron').ipcRenderer.send('set-ui-preference', this.getAll());
 	},
 
 	//---------------------------------------------------------------------------
-	// config.getList()  現在有効な設定値のリストを返す
+	// menuconfig.restorePuzzle()  パズルごとに保存された各種設定値を元に戻す
+	// menuconfig.savePuzzle()     パズルごとの各種設定値を保存する
 	//---------------------------------------------------------------------------
-	getList : Config.getList,
-	getexec : function(name){
-		if(!this.list[name]){ return false;}
-		if(this.list[name].puzzle){ return ui.puzzle.validConfig(name);}
-		return true;
+	restorePuzzle : function(){
+		ui.puzzle.config.init();
+		this.setAll(require('electron').ipcRenderer.sendSync('get-puzzle-preference'));
+	},
+	savePuzzle : function(){
+		require('electron').ipcRenderer.send('set-puzzle-preference', ui.puzzle.saveConfig());
 	},
 
 	//---------------------------------------------------------------------------
 	// menu.getAll()  全フラグの設定値を返す
 	// menu.setAll()  全フラグの設定値を設定する
 	//---------------------------------------------------------------------------
-	getAll : Config.getAll,
+	getAll : function(){
+		var object = (ui.puzzle ? ui.puzzle.config.getList() : {});
+		for(var key in this.list){
+			var item = this.list[key];
+			if(item.val!==item.defval && !item.volatile){ object[key] = item.val;}
+		}
+		return object;
+	},
 	setAll : function(setting){
 		for(var key in setting){ this.set(key,setting[key]);}
 		this.list.autocheck_once.val = this.list.autocheck.val;
@@ -113,20 +152,25 @@ ui.menuconfig = {
 	//---------------------------------------------------------------------------
 	setproper : Config.setproper,
 	valid : function(idname){
-		if(!!this.list[name]){ return false;}
-		if(idname==='mode'){ return true;}
-		else if(this.list[idname].puzzle){ return ui.puzzle.validConfig(idname);}
-		return !!this.list[idname];
+		if(!!this.list[name]){ return !!this.list[idname];}
+		else if(ui.puzzle && !!ui.puzzle.config.list[idname]){ return ui.puzzle.validConfig(idname);}
+		else if(idname==='mode'){ return true;}
+		return false;
 	},
 
 	//---------------------------------------------------------------------------
 	// config.configevent()  設定変更時の動作を記述する
 	//---------------------------------------------------------------------------
 	configevent : function(idname, newval){
-		ui.setdisplay(idname);
-		if(idname==='cellsizeval'){ ui.adjustcellsize();}
+		ui.toolarea.setdisplay(idname);
+		if(idname==='cellsizeval'){ ui.misc.adjustcellsize();}
 		else if(idname==='autocheck'){ this.list.autocheck_once.val = newval;}
+		else if(idname==='language'){ ui.misc.displayAll();}
 	}
 };
+
+require('electron').ipcRenderer.on('config-req', function(e, idname, val){
+	ui.menuconfig.set(idname, val);
+});
 
 })();
