@@ -262,8 +262,8 @@ function closeWindow(menuitem, focusedWindow){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 function popupNewBoard(menuitem, focusedWindow){
-	if(!latest_pid || preference.app.windowmode==='mdi'){ openMainWindow();}
-	else{ openPopupWindow('newboard.html?'+latest_pid);}
+	if(preference.app.windowmode==='mdi' && !mdiWindow){ openPuzzleMDI();}
+	else{ openMainWindow();}
 }
 function popupURLImport(menuitem, focusedWindow){
 	openPopupWindow('urlinput.html');
@@ -303,8 +303,6 @@ var templateTemplate = [
 		]},
 		{ type: 'separator', when:'isPuzzle'},
 		{ label:'Edit Puzzle &Properties', accelerator:'CmdOrCtrl+P', when:'isPuzzle', click:sendMenuReq('popup-metadata')},
-		{ type: 'separator'},
-		{ label:'Open Puzzle &List', accelerator:'CmdOrCtrl+L', click:openMainWindow},
 		{ type: 'separator'},
 		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:closeWindow},
 		{ type: 'separator', when:'!isMac'},
