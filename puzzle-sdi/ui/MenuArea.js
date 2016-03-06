@@ -46,8 +46,8 @@ ui.menuarea = {
 			case 'ansclear': toolarea.ACconfirm(); break;
 			case 'auxclear': toolarea.ASconfirm(); break;
 			case 'duplicate': ui.openPuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
-			case 'edit-mode': if(puzzle.playmode){ puzzle.setMode('edit');} break;
-			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play');} break;
+			case 'edit-mode': if(puzzle.playmode){ puzzle.setMode('edit'); ui.misc.setTitle();} break;
+			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play'); ui.misc.setTitle();} break;
 			case 'irowake-change': puzzle.irowake(); break;
 			
 			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid); break;

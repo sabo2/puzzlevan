@@ -163,6 +163,9 @@
 	span#puzzlesize {
 		font-size : 90%;
 	}
+	span#puzzlemode {
+		font-size : 90%;
+	}
 	span#puzzlefile {
 		color : #999999;
 		font-size : 80%;

@@ -31,11 +31,20 @@ ui.misc = {
 			var pinfo = pzpr.variety(ui.puzzle.pid);
 			document.getElementById('puzzlegenre').innerText = ui.misc.selectStr(pinfo.ja, pinfo.en);
 			document.getElementById('puzzlesize').innerText = ''+ui.puzzle.board.cols+'x'+ui.puzzle.board.rows;
+			if(ui.puzzle.editmode){
+				document.getElementById('puzzlemode').innerText = ui.misc.selectStr('[問題入力モード]', '[Edit Mode]');
+				document.getElementById('puzzlemode').style.color = '#990000';
+			}
+			else{
+				document.getElementById('puzzlemode').innerText = ui.misc.selectStr('[回答入力モード]', '[Play Mode]');
+				document.getElementById('puzzlemode').style.color = '#000099';
+			}
 			document.getElementById('puzzlefile').innerText = (ui.reffile.has(ui.puzzle) ? ui.reffile.get(ui.puzzle) : '');
 		}
 		else{
 			document.getElementById('puzzlegenre').innerText = '';
 			document.getElementById('puzzlesize').innerText = '';
+			document.getElementById('puzzlemode').innerText = '';
 			document.getElementById('puzzlefile').innerText = '';
 		}
 	},
