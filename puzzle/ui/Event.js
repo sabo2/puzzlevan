@@ -74,12 +74,9 @@ ui.event =
 		}
 	},
 	onbeforeunload_func : function(e){
-		var result = true;
-		ui.puzzles.forEach(function(puzzle){
-			var result_sub = ui.closePuzzleInquiry(puzzle);
-			result = result && result_sub;
-		});
-		e.returnValue = result;
+		if(ui.puzzles.some((puzzle) => puzzle.ismodified())){
+			e.returnValue = ui.misc.closePuzzleInquiry();
+		}
 	}
 };
 

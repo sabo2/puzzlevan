@@ -114,6 +114,15 @@ ui.misc = {
 	},
 
 	//--------------------------------------------------------------------------------
+	// misc.closePuzzleInquiry()  パズルをクローズしていいか問い合わせる
+	//--------------------------------------------------------------------------------
+	closePuzzleInquiry : function(){
+		var msg = ui.misc.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
+		var option = {type:'question', message:msg, buttons:['Yes','No']};
+		return (ui.remote.dialog.showMessageBox(ui.win, option)===0);
+	},
+
+	//--------------------------------------------------------------------------------
 	// misc.failOpen()  パズルのopenに失敗した場合の処理
 	//--------------------------------------------------------------------------------
 	failOpen : function(puzzle){

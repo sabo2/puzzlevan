@@ -117,30 +117,18 @@ window.ui = {
 	},
 
 	//---------------------------------------------------------------------------
-	// ui.closePuzzle()         パズルのクローズ要求が出された時の処理
-	// ui.closePuzzleInquiry()  パズルをクローズしていいか問い合わせる
+	// ui.closePuzzle() パズルのクローズ要求が出された時の処理
 	//---------------------------------------------------------------------------
 	closePuzzle : function(){
-		if(ui.isMDI){
-			if(ui.puzzle && ui.closePuzzleInquiry(ui.puzzle)){
-				ui.removePuzzle(ui.puzzle);
-			}
-			else if(ui.puzzles.length===0){
-				ui.win.close();
-			}
+		if(ui.isMDI && ui.puzzles.length===0){
+			ui.win.close();
 		}
-		else{
-			if(ui.closePuzzleInquiry(ui.puzzle)){
-				ui.win.close();
-			}
+		if(ui.puzzle && (!ui.puzzle.ismodified() || ui.misc.closePuzzleInquiry())){
+			ui.removePuzzle(ui.puzzle);
 		}
-	},
-	closePuzzleInquiry : function(puzzle){
-		if(!puzzle.ismodified()){ return true;}
-		
-		var msg = ui.misc.selectStr("盤面が更新されていますが、盤面を破棄しますか？", "Do you want to destroy the board regardless of the edited board?");
-		var option = {type:'question', message:msg, buttons:['Yes','No']};
-		return (ui.remote.dialog.showMessageBox(ui.win, option)===0);
+		if(!ui.isMDI && ui.puzzles.length===0){
+			ui.win.close();
+		}
 	}
 };
 
