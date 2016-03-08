@@ -39,7 +39,7 @@ ui.misc = {
 				document.getElementById('puzzlemode').innerText = ui.misc.selectStr('[回答入力モード]', '[Play Mode]');
 				document.getElementById('puzzlemode').style.color = '#000099';
 			}
-			document.getElementById('puzzlefile').innerText = (ui.reffile.has(ui.puzzle) ? ui.reffile.get(ui.puzzle) : '');
+			document.getElementById('puzzlefile').innerText = ui.refinfo.get(ui.puzzle).filename;
 		}
 		else{
 			document.getElementById('puzzlegenre').innerText = '';
@@ -53,11 +53,11 @@ ui.misc = {
 	// misc.setListCaption()  パズル一覧部の表記を修正します
 	//---------------------------------------------------------------------------
 	setListCaption : function(puzzle){
-		var listel = ui.reflist.get(puzzle);
+		var listel = ui.refinfo.get(puzzle).listel;
 		var pinfo = pzpr.variety(puzzle.pid);
 		listel.childNodes[0].style.display = (puzzle.ismodified() ? '' : 'none');
 		listel.childNodes[1].innerText = ui.misc.selectStr(pinfo.ja, pinfo.en).replace(/\(.+\)/g,'')+' '+puzzle.board.cols+'x'+puzzle.board.rows;
-		listel.childNodes[3].innerText = require('path').basename(ui.reffile.has(puzzle) ? ui.reffile.get(puzzle) : '');
+		listel.childNodes[3].innerText = require('path').basename(ui.refinfo.get(puzzle).filename);
 	},
 
 	//---------------------------------------------------------------------------

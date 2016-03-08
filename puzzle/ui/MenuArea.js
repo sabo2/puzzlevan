@@ -34,9 +34,9 @@ ui.menuarea = {
 		require('electron').ipcRenderer.send('save-file', filedata, puzzle.pid, fileext, filetype);
 	},
 	updateFile : function(puzzle){
-		var filename = (ui.reffile.has(puzzle) ? ui.reffile.get(puzzle) : '') || '';
+		var filename = ui.refinfo.get(puzzle).filename;
 		if(!!filename){
-			var filedata = puzzle.getFileData(ui.reffiletype.get(puzzle));
+			var filedata = puzzle.getFileData(ui.refinfo.get(puzzle).filetype);
 			require('electron').ipcRenderer.send('update-file', filedata, filename);
 		}
 	},

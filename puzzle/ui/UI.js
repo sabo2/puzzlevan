@@ -15,11 +15,7 @@ window.ui = {
 	/* このサイトで使用するパズルのオブジェクト */
 	puzzle    : null,
 	puzzles   : [],
-	
-	reffile   : new WeakMap(),
-	reffiletype:new WeakMap(),
-	reflist   : new WeakMap(),
-	refcanvas : new WeakMap(),
+	refinfo   : new WeakMap(),
 	
 	/* Electron用のオブジェクト */
 	remote    : require('electron').remote,
@@ -41,25 +37,24 @@ window.ui = {
 		var puzzle = new pzpr.Puzzle();
 		ui.puzzles.push(puzzle);
 		
-		if(!!filename && pzl.isfile){
-			ui.reffile.set(puzzle, filename);
-			ui.reffiletype.set(puzzle, pzl.type);
-		}
+		var info = {};
+		info.filename = filename || '';
+		info.filetype = pzl.type || 0;
 		
-		var element = document.createElement('div');
+		var element = info.canvas = document.createElement('div');
 		element.className = 'puzzles';
 		document.querySelector('#quesboard').appendChild(element);
-		ui.refcanvas.set(puzzle, element);
 		puzzle.setCanvas(element);
 		
 		if(ui.isMDI){
-			var itemel = document.createElement('div');
+			var itemel = info.listel = document.createElement('div');
 			itemel.className = 'puzzleitem';
 			itemel.innerHTML = '<span class="modified"></span><span class="puzzleinfo"></span><br><span class="filename"></span>';
 			document.querySelector('#puzzlelist').appendChild(itemel);
 			itemel.addEventListener('click', function(){ ui.selectPuzzle(puzzle);}, false);
-			ui.reflist.set(puzzle, itemel);
 		}
+		
+		ui.refinfo.set(puzzle, info);
 		
 		ui.listener.setListeners(puzzle);
 		
@@ -75,14 +70,10 @@ window.ui = {
 		if(!ui.isMDI){ return;}
 		var idx = ui.puzzles.indexOf(puzzle);
 		if(idx>=0){
-			ui.refcanvas.get(puzzle).remove();
-			ui.refcanvas.delete(puzzle);
+			ui.refinfo.get(puzzle).canvas.remove();
+			ui.refinfo.get(puzzle).listel.remove();
 			
-			ui.reflist.get(puzzle).remove();
-			ui.reflist.delete(puzzle);
-			
-			ui.reffile.delete(puzzle);
-			ui.reffiletype.delete(puzzle);
+			ui.refinfo.delete(puzzle);
 			
 			ui.puzzles.splice(idx,1);
 			if(idx>=ui.puzzles.length){ idx = ui.puzzles.length-1;}
@@ -100,11 +91,11 @@ window.ui = {
 		ui.puzzle = puzzle;
 		pzpr.connectKeyEvents(puzzle);
 		if(ui.isMDI){
-			if(prevpuzzle){ ui.refcanvas.get(prevpuzzle).style.display = 'none';}
-			if(puzzle)    { ui.refcanvas.get(puzzle).style.display = '';}
+			if(prevpuzzle){ ui.refinfo.get(prevpuzzle).canvas.style.display = 'none';}
+			if(puzzle)    { ui.refinfo.get(puzzle).canvas.style.display = '';}
 			
-			if(prevpuzzle){ ui.reflist.get(prevpuzzle).className = 'puzzleitem';}
-			if(puzzle)    { ui.reflist.get(puzzle).className = 'puzzleitem puzzleitemsel';}
+			if(prevpuzzle){ ui.refinfo.get(prevpuzzle).listel.className = 'puzzleitem';}
+			if(puzzle)    { ui.refinfo.get(puzzle).listel.className = 'puzzleitem puzzleitemsel';}
 		}
 		ui.misc.displayAll(true);
 	},
@@ -136,8 +127,11 @@ require('electron').ipcRenderer.on('update-filename', function(e, filename, file
 	if(ui.puzzle){
 		ui.puzzle.opemgr.initpos = ui.puzzle.opemgr.position; /* modified状態を解消する */
 		
-		if(!!filename){ ui.reffile.set(ui.puzzle, filename);}
-		if(!!filetype){ ui.reffiletype.set(ui.puzzle, filetype);}
+		var info = ui.refinfo.get(ui.puzzle);
+		info.filename = filename || info.filename || '';
+		info.filetype = filetype || info.filetype || 0;
+		ui.refinfo.set(ui.puzzle, info);
+		
 		ui.misc.setTitle();
 		ui.misc.setListCaption(ui.puzzle);
 	}
