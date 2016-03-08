@@ -77,9 +77,9 @@ ui.misc = {
 	// misc.getBoardPaddingSize() Canvasと境界線の周りの間にあるpaddingのサイズを求めます
 	//---------------------------------------------------------------------------
 	adjustcellsize : function(){
-		if(ui.puzzle){
-			ui.puzzle.setCanvasSizeByCellSize(ui.menuconfig.get('cellsizeval'));
-		}
+		ui.puzzles.forEach((puzzle)=>{
+			puzzle.setCanvasSizeByCellSize(ui.menuconfig.get('cellsizeval'));
+		});
 	},
 	getBoardPaddingSize : function(){
 		return 12;
