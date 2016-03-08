@@ -12,6 +12,7 @@ var v3index = {
 	complete : false,
 	captions : [],
 	filedata : '',
+	filename : '',
 	extend : function(obj){ for(var n in obj){ this[n] = obj[n];}}
 };
 
@@ -92,8 +93,8 @@ v3index.extend({
 	},
 
 	/* open new puzzle window as Electron manner */
-	openpuzzle : function(data, pid){
-		require('electron').ipcRenderer.send('open-puzzle', data, pid);
+	openpuzzle : function(data, pid, filename){
+		require('electron').ipcRenderer.send('open-puzzle', data, pid, filename);
 	},
 
 	setDragDropEvent : function(){
@@ -102,7 +103,7 @@ v3index.extend({
 		window.addEventListener('drop', function(e){
 			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
 				var reader = new FileReader();
-				reader.onload = function(e){ v3index.openpuzzle(e.target.result, '');};
+				reader.onload = function(e){ v3index.openpuzzle(e.target.result, '', file.path);};
 				reader.readAsText(file);
 			});
 			e.preventDefault();
@@ -181,7 +182,7 @@ v3index.extend({
 		e.preventDefault();
 	},
 	selectEvent : function(e,pid){
-		v3index.openpuzzle(v3index.filedata, pid);
+		v3index.openpuzzle(v3index.filedata, pid, v3index.filename);
 		window.close();
 		e.preventDefault();
 	}
@@ -201,8 +202,9 @@ require('electron').ipcRenderer.on('config-req', function(e, idname, val){
 		require('electron').ipcRenderer.send('set-basic-menu');
 	}
 });
-require('electron').ipcRenderer.once('initial-data', function(e, data){
+require('electron').ipcRenderer.once('initial-data', function(e, data, filename){
 	v3index.filedata = data;
+	v3index.filename = filename;
 });
 
 /*******************/

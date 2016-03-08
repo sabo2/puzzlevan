@@ -115,9 +115,9 @@ function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid 
 	mainWindow.once('closed', function(){ mainWindow = null;});
 	mainWindow.loadURL(rootdir + 'index/index.html');
 }
-function openUndefWindow(data){
+function openUndefWindow(data, filename){
 	var win = new BrowserWindow({x:36, y:36, width: 720, height: 400, show:preference.app.debugmode});
-	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data);});
+	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, filename);});
 	win.loadURL(rootdir + 'index/fileindex.html');
 }
 var sdiWindows = new Set();
@@ -151,7 +151,7 @@ function openPuzzleWindow(data, pid, filename){ // jshint ignore:line, (avoid la
 		var pzl = new pzpr.parser.FileData(data, '');
 		pzl.parseFileType();
 		/* ファイルの種類が不明なので種類の選択ダイアログを表示 */
-		if(pzl.type===pzpr.parser.FILE_PBOX){ openUndefWindow(data); return;}
+		if(pzl.type===pzpr.parser.FILE_PBOX){ openUndefWindow(data, filename); return;}
 	}
 	
 	if(preference.app.windowmode==='mdi'){
@@ -164,7 +164,7 @@ function openPuzzleWindow(data, pid, filename){ // jshint ignore:line, (avoid la
 
 //--------------------------------------------------------------------------
 // IPCs from various windows
-ipc.on('open-puzzle', function(e, data, pid){ openPuzzleWindow(data, pid);});
+ipc.on('open-puzzle', function(e, data, pid, filename){ openPuzzleWindow(data, pid, filename);});
 ipc.on('open-file', function(e, filename){ openFiles([filename]);});
 ipc.on('close-mainWindow', function(e){ mainWindow.close();});
 ipc.on('get-app-preference', function(e){ e.returnValue = preference.app;});
