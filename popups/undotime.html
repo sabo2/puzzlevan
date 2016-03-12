@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script type="text/javascript" src="./popup.js"></script>
-<script type="text/javascript">
+<script src="./popup.js"></script>
+<script>
 popupmgr.extend({
 	setFormEvent : function(){
 		window.opener.postMessage(JSON.stringify({channel:'interval-get'}));

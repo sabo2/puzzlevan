@@ -33,7 +33,7 @@
 		
 		for(var i=0; i<component.length; i++){
 			var file = dir+component[i]+".js";
-			document.write('<script type="text/javascript" src="'+file+'"></script>');
+			document.write('<script src="'+file+'"></script>');
 		}
 	}
 	else{
