@@ -9,5 +9,12 @@
 		return "";
 	})();
 	
-	window.pzpr = require(dir+'pzpr.js');
+	try{
+		window.pzpr = require(dir+'pzpr.js');
+	}
+	catch(e){
+		// Windowsの共有フォルダでファイルが開けない仮対策
+		console.log("Fallback to open pzpr.js on shared folder on Windows");
+		window.pzpr = require(process.resourcesPath+'/app.asar/pzpr/pzpr.js');
+	}
 })();
