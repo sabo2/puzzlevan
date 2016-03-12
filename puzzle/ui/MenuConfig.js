@@ -32,19 +32,6 @@ ui.menuconfig = {
 	add : Config.add,
 
 	//---------------------------------------------------------------------------
-	// menuconfig.sync()  URL形式などによって変化する可能性がある設定値を同期する
-	//---------------------------------------------------------------------------
-	sync : function(){
-		var idname = null;
-		switch(ui.puzzle.pid){
-			case 'yajirin':   idname = 'disptype_yajilin';   break;
-			case 'pipelinkr': idname = 'disptype_pipelinkr'; break;
-			case 'bosanowa':  idname = 'disptype_bosanowa';  break;
-		}
-		if(!!idname){ this.set(idname, ui.puzzle.getConfig(idname));}
-	},
-
-	//---------------------------------------------------------------------------
 	// menuconfig.get()  各フラグの設定値を返す
 	// menuconfig.set()  各フラグの設定値を設定する
 	// menuconfig.reset() 各フラグの設定値を初期化する
@@ -107,14 +94,33 @@ ui.menuconfig = {
 	// menuconfig.restore()  保存された各種設定値を元に戻す
 	// menuconfig.save()     各種設定値を保存する
 	//---------------------------------------------------------------------------
-	restore : function(){
-		/* 設定が保存されている場合は元に戻す */
+	restore : function(setting){
+		setting = setting || {};
 		this.init();
-		this.setAll(require('electron').ipcRenderer.sendSync('get-ui-preference'));
-		pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
+		for(var key in setting){ this.set(key,setting[key]);}
 	},
 	save : function(){
-		require('electron').ipcRenderer.send('set-ui-preference', this.getAll());
+		var setting = {};
+		for(var key in this.list){
+			var item = this.list[key];
+			if(item.val!==item.defval && !item.volatile){ setting[key] = item.val;}
+		}
+		return setting;
+	},
+
+	//---------------------------------------------------------------------------
+	// menuconfig.restoreUI()  UI側の保存された各種設定値を元に戻す
+	// menuconfig.saveUI()     UI側の各種設定値を保存する
+	//---------------------------------------------------------------------------
+	restoreUI : function(){
+		/* 設定が保存されている場合は元に戻す */
+		this.restore(require('electron').ipcRenderer.sendSync('get-ui-preference'));
+		
+		/* 言語設定をpzpr.langにも反映させる */
+		pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
+	},
+	saveUI : function(){
+		require('electron').ipcRenderer.send('set-ui-preference', this.save());
 	},
 
 	//---------------------------------------------------------------------------
@@ -122,28 +128,10 @@ ui.menuconfig = {
 	// menuconfig.savePuzzle()     パズルごとの各種設定値を保存する
 	//---------------------------------------------------------------------------
 	restorePuzzle : function(){
-		ui.puzzle.config.init();
-		this.setAll(require('electron').ipcRenderer.sendSync('get-puzzle-preference'));
+		ui.puzzle.restoreConfig(require('electron').ipcRenderer.sendSync('get-puzzle-preference'));
 	},
 	savePuzzle : function(){
 		require('electron').ipcRenderer.send('set-puzzle-preference', ui.puzzle.saveConfig());
-	},
-
-	//---------------------------------------------------------------------------
-	// menu.getAll()  全フラグの設定値を返す
-	// menu.setAll()  全フラグの設定値を設定する
-	//---------------------------------------------------------------------------
-	getAll : function(){
-		var object = (ui.puzzle ? ui.puzzle.config.getList() : {});
-		for(var key in this.list){
-			var item = this.list[key];
-			if(item.val!==item.defval && !item.volatile){ object[key] = item.val;}
-		}
-		return object;
-	},
-	setAll : function(setting){
-		for(var key in setting){ this.set(key,setting[key]);}
-		this.list.autocheck_once.val = this.list.autocheck.val;
 	},
 
 	//---------------------------------------------------------------------------

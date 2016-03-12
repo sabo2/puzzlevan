@@ -42,7 +42,7 @@ ui.event =
 	// event.onunload_func() ウィンドウをクローズする前に呼ばれる関数
 	//---------------------------------------------------------------------------
 	onload_func : function(){
-		ui.menuconfig.restore();
+		ui.menuconfig.restoreUI();
 		ui.toolarea.init();
 		
 		ui.misc.displayAll();
@@ -54,7 +54,7 @@ ui.event =
 		});
 	},
 	onunload_func : function(){
-		ui.menuconfig.save();
+		ui.menuconfig.saveUI();
 	},
 
 	//---------------------------------------------------------------------------

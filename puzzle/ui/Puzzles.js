@@ -47,7 +47,7 @@ ui.puzzles = {
 	// puzzles.delete()   パズルを削除する
 	//---------------------------------------------------------------------------
 	delete : function(puzzle){
-		if(!ui.isMDI){ return;}
+		if(this.length===1){ ui.menuconfig.savePuzzle();}
 		var idx = this.indexOf(puzzle);
 		if(idx>=0){
 			_refinfo.get(puzzle).canvas.remove();
