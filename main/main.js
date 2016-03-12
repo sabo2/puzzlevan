@@ -223,13 +223,12 @@ function sendConfigReq(menuitem, focusedWindow){
 	var idname = menuitem.id, val = menuitem.checked;
 	if(menuitem.id.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
 	
-	if(idname==='language'){ preference.app.lang = val;}
-	BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
-}
-function changeWindowMode(menuitem, focusedWindow){
-	var val = (menuitem.checked ? 'sdi' : 'mdi');
-	if(preference.app.windowmode!==val){
-		preference.app.windowmode = val;
+	if(idname!=='windowsdi'){
+		if(idname==='language'){ preference.app.lang = val;}
+		BrowserWindow.getAllWindows().forEach(function(win){ win.webContents.send('config-req', idname, val);});
+	}
+	else{
+		preference.app.windowmode = (menuitem.checked ? 'sdi' : 'mdi');
 	}
 }
 
@@ -305,7 +304,8 @@ var templateTemplate = [
 		{ type: 'separator', when:'isPuzzle'},
 		{ label:'Edit Puzzle &Properties', accelerator:'CmdOrCtrl+P', when:'isPuzzle', click:sendMenuReq('popup-metadata')},
 		{ type: 'separator'},
-		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:closeWindow},
+		{ label:'&Close Puzzle',   accelerator:'CmdOrCtrl+W', click:closeWindow, when:'!config.windowsdi && isPuzzle'},
+		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:closeWindow, when:' config.windowsdi ||!isPuzzle'},
 		{ type: 'separator', when:'!isMac'},
 		{ label:'&Quit Puzzlevan', accelerator:'Ctrl+Q', click:function(){ app.quit();}, when:'!isMac'},
 	]},
@@ -400,7 +400,7 @@ var templateTemplate = [
 		{ label:'Reload',           accelerator:'CmdOrCtrl+R', click:windowEvent('reload'), when:'preference.app.debugmode'},
 		{ label:'&Minimize',        accelerator:'CmdOrCtrl+M', click:windowEvent('minimize')},
 		{ type: 'separator'},
-		{ label:'Create individual puzzle window', windowmode:'checkbox'},
+		{ label:'Create individual puzzle window', config:'windowsdi'},
 		{ type: 'separator', when:'isMac'},
 		{ label:'Bring All to Front', role:'front', when:'isMac'},
 	]},
@@ -421,40 +421,47 @@ function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:l
 	latest_pid = pid || '';
 	config = config || {};
 	config.language = preference.app.lang;
+	config.windowsdi = (preference.app.windowmode==='sdi');
 	var template = [];
 	var translator = require('./locale/'+preference.app.lang);
+	var prevtype = '';
 	(function generateProperTemplate(tarray, array){
 		tarray.forEach(function(titem){
 			// jshint evil:true
+			var item = null;
 			if(titem.when && !eval(titem.when)){}
 			else if(!!titem.submenu){
-				var item = {label:translator(titem.label), submenu:[]};
+				item = {label:titem.label, type:'submenu', submenu:[]};
 				if(!!titem.role){ item.role = titem.role;}
-				array.push(item);
 				generateProperTemplate(titem.submenu, item.submenu);
 			}
 			else if(!!titem.config){
 				var idname = titem.config, val = '';
 				if(titem.config.match(/(.+)\:(.+)/)){ idname = RegExp.$1; val = RegExp.$2;}
-				if(idname!=='language' && (!isPuzzle || config[idname]===void 0)){ return;}
+				if(idname!=='language' && idname!=='windowsdi' && (!isPuzzle || config[idname]===void 0)){ return;}
 				
-				var item = {label:translator(titem.label), click:sendConfigReq, id:titem.config};
-				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
-				item.checked = (typeof config[idname]==='boolean' ? config[idname] : ''+config[idname]===val);
-				array.push(item);
+				item = {
+					label  : titem.label,
+					type   : (idname===titem.config ? 'checkbox' : 'radio'),
+					checked:(typeof config[idname]==='boolean' ? config[idname] : ''+config[idname]===val),
+					click  : sendConfigReq,
+					id     : titem.config
+				};
 			}
-			else if(!!titem.windowmode){
-				var idname = 'windowmode', val = titem.windowmode;
-				var item = {label:translator(titem.label), click:changeWindowMode};
-				item.type    = 'checkbox';
-				item.checked = (preference.app.windowmode==='sdi');
-				array.push(item);
+			else if(titem.type==='separator'){
+				if(prevtype!=='separator' && array.length>0){
+					item = {type:'separator'};
+				}
 			}
 			else{
-				var item = {};
+				item = {type:'normal'};
 				for(var i in titem){ item[i]=titem[i];}
+			}
+			
+			if(!!item){
 				if(!!item.label){ item.label = translator(item.label);}
 				array.push(item);
+				prevtype = item.type;
 			}
 		});
 	})(templateTemplate, template);

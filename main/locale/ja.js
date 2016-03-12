@@ -14,6 +14,7 @@ var translation = {
 	'&PNG Format (png)'        : 'PNG形式',
 	'&Vector Format (SVG)'     : 'SVG形式',
 	'Edit Puzzle &Properties'  : 'パズルのプロパティ',
+	'&Close Puzzle'            : 'パズルを閉じる',
 	'&Close Window'            : 'ウィンドウを閉じる',
 	'&Quit Puzzlevan'          : 'Puzzlevanを終了',
 	
