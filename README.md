@@ -21,25 +21,27 @@ Released files are [here](https://github.com/sabo2/puzzlevan/releases).
 
 ## How to Build Puzzlevan
 
-In addition to cloning the source code, you should install `electron-packager`.
-Also if you want to debug, you should use `electron-prebuilt`.
+`electron-prebuilt` and `electron-packager` are included in devDependency property.
 
-Currently, I have used electron-prebuilt v0.33.8.
+For v0.3.0, Puzzlevan is built against Electron v0.36.11. To build executable files for Window, Mac and Linux, use commands below.
 
 ```
-$ npm install -g electron-prebuilt@0.33.8
-$ npm install -g electron-packager
+$ npm install
 $ npm run pack
 ```
 
-After that, you are able to run Puzzlevan on your local environment by using the following command.
+Alternatively, you are able to run Puzzlevan on your local machine by using the following command.
 
 ```
 $ electron .
 ```
+If you give `--debug` option additionaly, opening DevTools menu will appear.
+
 
 ## Releases
 
+* 2016-03-13  v0.3.0  Introduce MDI interface
+* 2015-12-30  v0.2.0  Add Sodun-Fuwari support
 * 2015-10-25  v0.1.0  Initial release
 
 ## License
