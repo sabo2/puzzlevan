@@ -10,9 +10,28 @@ ui.puzzles = {
 	length : 0,
 
 	//---------------------------------------------------------------------------
-	// puzzles.add()   パズルを追加する
+	// puzzles.add()    パズルを追加する前に同じファイルが開かれていないかどうかチェックする
 	//---------------------------------------------------------------------------
 	add : function(pzl, filename){
+		var currentPuzzle = null;
+		this.some(function(puzzle){
+			if(_refinfo.get(puzzle).filename===filename){
+				currentPuzzle = puzzle;
+			}
+			return !!currentPuzzle;
+		});
+		if(!currentPuzzle){
+			this.append(pzl, filename);
+		}
+		else{
+			this.select(currentPuzzle);
+		}
+	},
+
+	//---------------------------------------------------------------------------
+	// puzzles.append() パズルを追加する
+	//---------------------------------------------------------------------------
+	append : function(pzl, filename){
 		/* パズルオブジェクトの作成 */
 		var puzzle = new pzpr.Puzzle();
 		this.push(puzzle);
