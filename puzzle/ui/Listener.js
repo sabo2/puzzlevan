@@ -29,7 +29,6 @@ ui.listener =
 	onReady : function(puzzle){
 		ui.puzzles.select(puzzle);
 		
-		ui.menuconfig.restorePuzzle();
 		ui.menuconfig.set('autocheck_once', ui.menuconfig.get('autocheck'));
 		
 		ui.misc.adjustcellsize();

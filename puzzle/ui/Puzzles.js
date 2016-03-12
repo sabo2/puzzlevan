@@ -77,6 +77,7 @@ ui.puzzles = {
 			if(prevpuzzle){ _refinfo.get(prevpuzzle).listel.className = 'puzzleitem';}
 			if(puzzle)    { _refinfo.get(puzzle).listel.className = 'puzzleitem puzzleitemsel';}
 		}
+		ui.menuconfig.restorePuzzle();
 		ui.misc.displayAll(true);
 	},
 

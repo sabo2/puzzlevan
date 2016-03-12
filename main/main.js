@@ -420,6 +420,7 @@ function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:l
 	
 	latest_pid = pid || '';
 	config = config || {};
+	config.language = preference.app.lang;
 	var template = [];
 	var translator = require('./locale/'+preference.app.lang);
 	(function generateProperTemplate(tarray, array){
@@ -439,7 +440,7 @@ function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:l
 				
 				var item = {label:translator(titem.label), click:sendConfigReq, id:titem.config};
 				item.type    = (idname===titem.config ? 'checkbox' : 'radio');
-				item.checked = (idname!=='language' ? ''+config[idname]===val : preference.app.lang===val);
+				item.checked = (typeof config[idname]==='boolean' ? config[idname] : ''+config[idname]===val);
 				array.push(item);
 			}
 			else if(!!titem.windowmode){
