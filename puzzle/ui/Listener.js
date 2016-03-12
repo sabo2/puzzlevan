@@ -27,7 +27,7 @@ ui.listener =
 	// listener.onCanvasReady()  Canvas準備完了時に呼び出される関数
 	//---------------------------------------------------------------------------
 	onReady : function(puzzle){
-		ui.selectPuzzle(puzzle);
+		ui.puzzles.select(puzzle);
 		
 		ui.menuconfig.sync();
 		ui.menuconfig.set('autocheck_once', ui.menuconfig.get('autocheck'));

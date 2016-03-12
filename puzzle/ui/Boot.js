@@ -13,7 +13,7 @@ require('electron').ipcRenderer.on('initial-data', function(e, data, pid, filena
 		ui.misc.failOpen();
 	}
 	else{
-		ui.appendPuzzle(onload_pzl, filename);
+		ui.puzzles.add(onload_pzl, filename);
 	}
 });
 

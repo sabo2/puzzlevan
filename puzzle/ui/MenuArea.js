@@ -34,10 +34,29 @@ ui.menuarea = {
 		require('electron').ipcRenderer.send('save-file', filedata, puzzle.pid, fileext, filetype);
 	},
 	updateFile : function(puzzle){
-		var filename = ui.refinfo.get(puzzle).filename;
+		var info = ui.puzzles.getInfo(puzzle);
+		var filename = info.filename;
 		if(!!filename){
-			var filedata = puzzle.getFileData(ui.refinfo.get(puzzle).filetype);
+			var filedata = puzzle.getFileData(info.filetype);
 			require('electron').ipcRenderer.send('update-file', filedata, filename);
+		}
+	},
+
+	closePuzzle : function(){
+		if(ui.isMDI && ui.puzzles.length===0){
+			ui.win.close();
+		}
+		if(ui.puzzle && (!ui.puzzle.ismodified() || ui.misc.closePuzzleInquiry())){
+			ui.puzzles.delete(ui.puzzle);
+		}
+		if(!ui.isMDI && ui.puzzles.length===0){
+			ui.win.close();
+		}
+	},
+	clonePuzzle : function(){
+		if(ui.puzzle){
+			var data = ui.puzzle.getFileData(pzpr.parser.FILE_PZPR,{history:true});
+			require('electron').ipcRenderer.send('open-puzzle', data, ui.puzzle.pid);
 		}
 	},
 
@@ -46,7 +65,7 @@ ui.menuarea = {
 	// menuarea.recvMessage()  popup windowから送信されたpostMessageの処理を行う
 	//---------------------------------------------------------------------------
 	recvMenuReq : function(req){
-		if(req==='close-puzzle'){ ui.closePuzzle();}
+		if(req==='close-puzzle'){ ui.menuarea.closePuzzle();}
 		if(!ui.puzzle){ return;}
 		var toolarea = ui.toolarea;
 		var parser = pzpr.parser;
@@ -57,7 +76,7 @@ ui.menuarea = {
 			case 'check':    toolarea.answercheck(); break;
 			case 'ansclear': toolarea.ACconfirm(); break;
 			case 'auxclear': toolarea.ASconfirm(); break;
-			case 'duplicate': ui.openPuzzle(puzzle.getFileData(parser.FILE_PZPR,{history:true})); break;
+			case 'duplicate': ui.menuarea.clonePuzzle(); break;
 			case 'edit-mode': if(puzzle.playmode){ puzzle.setMode('edit'); ui.misc.setTitle();} break;
 			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play'); ui.misc.setTitle();} break;
 			case 'irowake-change': puzzle.irowake(); break;

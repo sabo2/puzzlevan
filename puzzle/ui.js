@@ -7,6 +7,7 @@
 	var component = [
 		"ui/Boot",
 		"ui/UI",
+		"ui/Puzzles",
 		"ui/Event",
 		"ui/Listener",
 		"ui/MenuConfig",
