@@ -8,13 +8,12 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	openpopup : function(url){
 		var bounds = ui.win.getBounds();
-		return window.open('../popups/'+url, null, [
+		window.open('../popups/'+url, null, [
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',
 			'show='+(!ui.debugmode?'no':'yes')
 		].join(','));
-		
 	},
 	saveFile : function(puzzle, filetype){
 		var filedata = puzzle.getFileData(filetype);
@@ -80,10 +79,7 @@ ui.menuarea = {
 			case 'popup-dispsize':  this.openpopup('dispsize.html'); break;
 			case 'popup-colors':    this.openpopup('colors.html'); break;
 			case 'popup-undotime':  this.openpopup('undotime.html'); break;
-			case 'popup-imagesave':
-				var win = this.openpopup('imagesave.html?'+ui.menuconfig.get('cellsizeval'));
-				win.postMessage();
-				break;
+			case 'popup-imagesave': this.openpopup('imagesave.html?'+pid+'/'+puzzle.painter.getCanvasCols()+'/'+puzzle.painter.getCanvasRows()+'/'+ui.menuconfig.get('cellsizeval')); break;
 			
 			default: /* DO NOTHING */ break;
 		}
@@ -100,7 +96,9 @@ ui.menuarea = {
 					case 'heyaapp': sender.postMessage(puzzle.getURL(parser.URL_HEYAAPP),'*'); break;
 				}
 				break;
-			case 'filedata-get': sender.postMessage(puzzle.getFileData(parser.FILE_PZPR), '*'); break;
+			case 'imagesave':
+				require('electron').ipcRenderer.send('save-image', data.filename, puzzle.toDataURL(data.filetype, data.option).replace(/data\:.+\;base64\,/,''));
+				break;
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
 			case 'metadata-set': puzzle.metadata.update(data); break;
 			case 'adjust':       puzzle.board.operate(data); break;

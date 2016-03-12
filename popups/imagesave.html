@@ -3,62 +3,50 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script src="../pzpr/pzpr-import.js"></script>
 <script src="./popup.js"></script>
 <script>
 var puzzle;
 popupmgr.extend({
 	setFormEvent : function(){
 		var form = document.imagesave;
-		var cellsize = location.search.substr(1);
+		var datas = location.search.substr(1).split(/\//);
 		
-		this.anchor   = document.getElementById("saveanchor");
-		this.showsize = document.getElementById("showsize");
+		popupmgr.pid  = datas[0];
+		popupmgr.cols = +datas[1];
+		popupmgr.rows = +datas[2];
+		popupmgr.cellsize = +datas[3];
 		
-		form.cellsize.value = cellsize;
+		form.cellsize.value = popupmgr.cellsize;
 		
-		window.opener.postMessage(JSON.stringify({channel:'filedata-get'}), '*');
-	},
-	onReceiveData : function(filedata){
-		new pzpr.Puzzle().open(filedata, (p) => {
-			puzzle = p;
-			document.imagesave.filename.value = pzpr.variety(puzzle.pid).urlid+".png";
-			this.changefilename();
-			this.estimatesize();
-		});
-	},
-	changefilename : function(){
-		var filename = document.imagesave.filename.value.replace(/\.\w{3,4}$/,'.');
-		document.imagesave.filename.value = filename + document.imagesave.filetype.value;
+		this.estimatesize();
 	},
 	estimatesize : function(){
 		var cellsize = +document.imagesave.cellsize.value;
-		var width  = (+cellsize * puzzle.painter.getCanvasCols())|0;
-		var height = (+cellsize * puzzle.painter.getCanvasRows())|0;
-		this.showsize.replaceChild(document.createTextNode(width+" x "+height), this.showsize.firstChild);
+		var width  = (+cellsize * popupmgr.cols)|0;
+		var height = (+cellsize * popupmgr.rows)|0;
+		var showsize = document.getElementById("showsize");
+		showsize.replaceChild(document.createTextNode(width+" x "+height), showsize.firstChild);
 	},
 	
 	//------------------------------------------------------------------------------
 	// saveimage()    画像を保存する
  	//------------------------------------------------------------------------------
 	saveimage : function(){
-		var filetype = document.imagesave.filetype.value;
-		var option = {cellsize:+document.imagesave.cellsize.value};
-		if(document.imagesave.transparent.checked){ option.bgcolor = '';}
+		var form = document.imagesave;
+		var filetype = form.filetype.value;
+		var option = {cellsize:+form.cellsize.value};
+		if(form.transparent.checked){ option.bgcolor = '';}
 		require('electron').remote.dialog.showSaveDialog(popupmgr.win, {
 			title : "Save Image - Puzzlevan",
-			defaultPath : pzpr.variety(puzzle.pid).pid+'.'+filetype,
-			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
+			defaultPath : popupmgr.pid+'.'+filetype,
+			filters : [ {name:filetype.toUpperCase()+' Images', extensions:[filetype]} ]
 		}, function(filename){
 			if(!filename){ return;}
-			var base64data = puzzle.toDataURL(filetype, option).replace(/data\:.+\;base64\,/,'');
-			require('electron').ipcRenderer.send('save-image', filename, base64data);
+			window.opener.postMessage(JSON.stringify({channel:'imagesave', data:{filetype, filename, option}}), '*');
+			popupmgr.win.close();
 		});
 	}
 });
-window.addEventListener("message", function(e){
-	popupmgr.onReceiveData(e.data);
-}, false);
 </script>
 <title>Save Image</title>
 </head>
@@ -66,17 +54,12 @@ window.addEventListener("message", function(e){
 <body>
   <div class="popup" id="main">
     <form name="imagesave">
-      <input type="hidden" name="operation" value="imagesave">
-      <input type="hidden" name="urlstr" value="">
       <span>__ファイル形式__File format__</span>
-      <select name="filetype" data-change-exec="changefilename">
+      <select name="filetype">
         <option value="png">__PNG形式__PNG Format__</option>
         <option value="svg">__ベクター画像(SVG)__Vector Image (SVG)__</option>
         <option value="jpeg">__jpeg形式__jpeg Format__</option>
       </select>
-      <br>
-      <span>__ファイル名__Filename__</span>
-      <input type="text" name="filename" value="">
       <br>
       <span>__画像のサイズ__Image Size__</span>
       <input type="number" name="cellsize" value="36" size=4 maxlength=3 min=8 max=999 data-change-exec="estimatesize">
