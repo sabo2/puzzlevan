@@ -4,6 +4,13 @@
 (function(){
 
 var _refinfo = new WeakMap();
+var _puzlist = null;
+window.addEventListener('DOMContentLoaded', function(){
+	_puzlist = document.querySelector('#puzzlelist');
+}, false);
+function getItemIndex(itemel){
+	return Array.from(_puzlist.childNodes).indexOf(itemel);
+}
 
 // メニュー描画/取得/html表示系
 ui.puzzles = {
@@ -49,8 +56,18 @@ ui.puzzles = {
 			var itemel = info.listel = document.createElement('div');
 			itemel.className = 'puzzleitem';
 			itemel.innerHTML = '<span class="modified"></span><span class="puzzleinfo"></span><br><span class="filename"></span>';
-			document.querySelector('#puzzlelist').appendChild(itemel);
+			_puzlist.appendChild(itemel);
 			itemel.addEventListener('click', function(){ ui.puzzles.select(puzzle);}, false);
+			itemel.draggable = true;
+			itemel.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text', getItemIndex(itemel));}, true);
+			itemel.addEventListener('dragover', function(e){ e.preventDefault();}, true);
+			itemel.addEventListener('drop', function(e){
+				var previndex = +e.dataTransfer.getData('text');
+				var movingel = _puzlist.childNodes[previndex];
+				var index = getItemIndex(itemel);
+				if     (index < previndex){ _puzlist.insertBefore(movingel, itemel);}
+				else if(previndex < index){ _puzlist.insertBefore(movingel, itemel.nextSibling);}
+			},true);
 		}
 		
 		_refinfo.set(puzzle, info);
@@ -67,19 +84,21 @@ ui.puzzles = {
 	//---------------------------------------------------------------------------
 	delete : function(puzzle){
 		if(this.length===1){ ui.menuconfig.savePuzzle();}
-		var idx = this.indexOf(puzzle);
-		if(idx>=0){
-			_refinfo.get(puzzle).canvas.remove();
+		
+		var nextPuzzle = null;
+		if(ui.isMDI){
+			var itemel = _refinfo.get(puzzle).listel.nextSibling || _refinfo.get(puzzle).listel.previousSibling;
+			this.some(function(puzzle){
+				if(_refinfo.get(puzzle).listel===itemel){ nextPuzzle = puzzle;}
+				return !!nextPuzzle;
+			});
 			_refinfo.get(puzzle).listel.remove();
-			
-			_refinfo.delete(puzzle);
-			
-			this.splice(idx,1);
-			if(idx>=this.length){ idx = this.length-1;}
-			
-			ui.puzzle = null;
 		}
-		ui.puzzles.select(this[idx] || null);
+		_refinfo.get(puzzle).canvas.remove();
+		_refinfo.delete(puzzle);
+		this.splice(this.indexOf(puzzle),1);
+		ui.puzzle = null;
+		ui.puzzles.select(nextPuzzle);
 	},
 
 	//---------------------------------------------------------------------------

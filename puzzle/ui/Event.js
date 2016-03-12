@@ -14,11 +14,14 @@ ui.event =
 		// File API＋Drag&Drop APIの設定
 		window.addEventListener('dragover', function(e){ e.preventDefault();}, true);
 		window.addEventListener('drop', function(e){
-			Array.prototype.slice.call(e.dataTransfer.files||[]).forEach(function(file){
-				require('electron').ipcRenderer.send('open-file', file.path);
-			});
-			e.preventDefault();
-			e.stopPropagation();
+			var files = Array.from(e.dataTransfer.files||[]);
+			if(files.length>0){
+				files.forEach(function(file){
+					require('electron').ipcRenderer.send('open-file', file.path);
+				});
+				e.preventDefault();
+				e.stopPropagation();
+			}
 		}, true);
 
 		// onBlurにイベントを割り当てる
