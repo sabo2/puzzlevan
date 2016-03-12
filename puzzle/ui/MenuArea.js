@@ -16,7 +16,7 @@ ui.menuarea = {
 		}, function(filename){
 			if(!filename){ return;}
 			var base64data = ui.puzzle.toDataURL(filetype).replace(/data\:.+\;base64\,/,'');
-			require('electron').fs.writeFile(filename, base64data, {encoding:'base64'});
+			require('electron').ipcRenderer.send('save-image', filename, base64data);
 		});
 	},
 	openpopup : function(url){

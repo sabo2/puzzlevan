@@ -185,6 +185,9 @@ ipc.on('save-file', function(e, data, pid, fileext, filetype){
 		setRecentFile(filename);
 	});
 });
+ipc.on('save-image', function(e, filename, base64data){
+	fs.writeFile(filename, base64data, {encoding:'base64'});
+});
 ipc.on('update-file', function(e, data, filename){
 	fs.writeFile(filename, data, {encoding:'utf8'});
 	e.sender.send('update-filename');
