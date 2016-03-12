@@ -3,8 +3,7 @@
 	body {
 		text-align:center;
 		color:black;
-		line-height:120%;
-		font-family: 'MS PGothic', serif;
+		font-family: 100%/1.2 'Meiryo UI', sans-serif;
 	}
 
 	h2#title {

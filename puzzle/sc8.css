@@ -14,14 +14,12 @@
 		margin  : 0pt;
 		padding : 0pt;
 		color : black;
-		line-height : 120%;
-		font-family: 'MS PGothic', sans-serif;
+		font   : 100%/1.2 'Meiryo UI', sans-serif;
 	}
 
 	/* 盤面外の表示部分(管理領域・メニュー・ポップアップ・ボタン) */
 	.outofboard {
-		font-size   : 1.0em;
-		line-height : 1.2;
+		font   : 1.0em/1.2 'Meiryo UI', sans-serif;
 	}
 
 	.btn {
@@ -35,7 +33,7 @@
 		background     : linear-gradient(to bottom, white, silver);
 		text-align     : center;
 		vertical-align : middle;
-		font   : 90%/1.2 'MS PGothic', sans-serif;
+		font   : 1.0em/1.2 'Meiryo UI', sans-serif;
 		cursor : default;
 	}
 	.btn:active {

@@ -1,19 +1,29 @@
 @charset "UTF-8" ;
 
+	html {
+		overflow : hidden;
+	}
 	body {
+		overflow : hidden;
 		margin  : 0pt;
 		padding : 0pt;
 		color : black;
-		font-size   : 1.0em;
-		line-height : 120%;
-		font-family: 'MS PGothic', sans-serif;
+		font   : 1.0em/1.2 'Meiryo UI', sans-serif;
 		background-color:#efefef;
 		-webkit-user-select:none;
 		user-select:none;
 	}
-	input, button, select, textarea{ font-size:1.0em; line-height:1;}
-	input[type="button"], button { font-size:0.9em; line-height:1.2;}
-	input[type="checkbox"] { width:0.9em; height:0.9em;}
+	input, button, select, textarea{
+		font-size:1.0em; line-height:1;
+		font   : 1.0em/1 'Meiryo UI', sans-serif;
+	}
+	input[type="button"], button {
+		font   : 0.9em/1.2 'Meiryo UI', sans-serif;
+	}
+	input[type="checkbox"] {
+		width:0.9em;
+		height:0.9em;
+	}
 
 	#main {
 		display:inline-block;
@@ -32,7 +42,6 @@
 		background     : linear-gradient(to bottom, white, silver);
 		text-align     : center;
 		vertical-align : middle;
-		font   : 90%/1.2 'MS PGothic', sans-serif;
 		cursor : default;
 	}
 	.btn:active {
