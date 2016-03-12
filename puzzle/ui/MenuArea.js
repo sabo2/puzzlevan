@@ -6,27 +6,15 @@ ui.menuarea = {
 	//---------------------------------------------------------------------------
 	// メニューがクリックされた時の動作を呼び出す
 	//---------------------------------------------------------------------------
-	saveimage : function(filetype){
-		if(!ui.puzzle){ return;}
-		/* 画像出力ルーチン */
-		ui.remote.dialog.showSaveDialog(ui.win, {
-			title : "Save Image - Puzzlevan",
-			defaultPath : pzpr.variety(ui.puzzle.pid).urlid+'.'+filetype,
-			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
-		}, function(filename){
-			if(!filename){ return;}
-			var base64data = ui.puzzle.toDataURL(filetype).replace(/data\:.+\;base64\,/,'');
-			require('electron').ipcRenderer.send('save-image', filename, base64data);
-		});
-	},
 	openpopup : function(url){
 		var bounds = ui.win.getBounds();
-		window.open('../popups/'+url, null, [
+		return window.open('../popups/'+url, null, [
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',
 			'show='+(!ui.debugmode?'no':'yes')
 		].join(','));
+		
 	},
 	saveFile : function(puzzle, filetype){
 		var filedata = puzzle.getFileData(filetype);
@@ -85,8 +73,6 @@ ui.menuarea = {
 			case 'save-pbox':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid, '' ,parser.FILE_PBOX); break;
 			case 'save-pbox-xml': require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml', parser.FILE_PBOX_XML); break;
 			case 'save-update':   ui.menuarea.updateFile(puzzle); break;
-			case 'saveimage-png': this.saveimage('png'); break;
-			case 'saveimage-svg': this.saveimage('svg'); break;
 			
 			case 'popup-urloutput': this.openpopup('urloutput.html?'+pid); break;
 			case 'popup-adjust':    this.openpopup('adjust.html?'+pid); break;
@@ -94,6 +80,10 @@ ui.menuarea = {
 			case 'popup-dispsize':  this.openpopup('dispsize.html'); break;
 			case 'popup-colors':    this.openpopup('colors.html'); break;
 			case 'popup-undotime':  this.openpopup('undotime.html'); break;
+			case 'popup-imagesave':
+				var win = this.openpopup('imagesave.html?'+ui.menuconfig.get('cellsizeval'));
+				win.postMessage();
+				break;
 			
 			default: /* DO NOTHING */ break;
 		}
@@ -101,15 +91,16 @@ ui.menuarea = {
 	recvMessage : function(sender, channel, data){
 		if(!ui.puzzle){ return;}
 		var puzzle = ui.puzzle;
+		var parser = pzpr.parser;
 		switch(channel){
 			case 'urloutput':
-				var parser = pzpr.parser;
 				switch(data){
 					case 'pzprv3':  sender.postMessage(puzzle.getURL(parser.URL_PZPRV3), '*'); break;
 					case 'kanpen':  sender.postMessage(puzzle.getURL(parser.URL_KANPEN), '*'); break;
 					case 'heyaapp': sender.postMessage(puzzle.getURL(parser.URL_HEYAAPP),'*'); break;
 				}
 				break;
+			case 'filedata-get': sender.postMessage(puzzle.getFileData(parser.FILE_PZPR), '*'); break;
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
 			case 'metadata-set': puzzle.metadata.update(data); break;
 			case 'adjust':       puzzle.board.operate(data); break;

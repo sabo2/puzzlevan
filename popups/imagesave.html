@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./popup.css" type="text/css" />
+<script src="../pzpr/pzpr-import.js"></script>
+<script src="./popup.js"></script>
+<script>
+var puzzle;
+popupmgr.extend({
+	setFormEvent : function(){
+		var form = document.imagesave;
+		var cellsize = location.search.substr(1);
+		
+		this.anchor   = document.getElementById("saveanchor");
+		this.showsize = document.getElementById("showsize");
+		
+		form.cellsize.value = cellsize;
+		
+		window.opener.postMessage(JSON.stringify({channel:'filedata-get'}), '*');
+	},
+	onReceiveData : function(filedata){
+		new pzpr.Puzzle().open(filedata, (p) => {
+			puzzle = p;
+			document.imagesave.filename.value = pzpr.variety(puzzle.pid).urlid+".png";
+			this.changefilename();
+			this.estimatesize();
+		});
+	},
+	changefilename : function(){
+		var filename = document.imagesave.filename.value.replace(/\.\w{3,4}$/,'.');
+		document.imagesave.filename.value = filename + document.imagesave.filetype.value;
+	},
+	estimatesize : function(){
+		var cellsize = +document.imagesave.cellsize.value;
+		var width  = (+cellsize * puzzle.painter.getCanvasCols())|0;
+		var height = (+cellsize * puzzle.painter.getCanvasRows())|0;
+		this.showsize.replaceChild(document.createTextNode(width+" x "+height), this.showsize.firstChild);
+	},
+	
+	//------------------------------------------------------------------------------
+	// saveimage()    画像を保存する
+ 	//------------------------------------------------------------------------------
+	saveimage : function(){
+		var filetype = document.imagesave.filetype.value;
+		var option = {cellsize:+document.imagesave.cellsize.value};
+		if(document.imagesave.transparent.checked){ option.bgcolor = '';}
+		require('electron').remote.dialog.showSaveDialog(popupmgr.win, {
+			title : "Save Image - Puzzlevan",
+			defaultPath : pzpr.variety(puzzle.pid).pid+'.'+filetype,
+			filters : [ {name:(filetype==='png'?'PNG':'SVG')+' Images', extensions:[filetype]} ]
+		}, function(filename){
+			if(!filename){ return;}
+			var base64data = puzzle.toDataURL(filetype, option).replace(/data\:.+\;base64\,/,'');
+			require('electron').ipcRenderer.send('save-image', filename, base64data);
+		});
+	}
+});
+window.addEventListener("message", function(e){
+	popupmgr.onReceiveData(e.data);
+}, false);
+</script>
+<title>Save Image</title>
+</head>
+
+<body>
+  <div class="popup" id="main">
+    <form name="imagesave">
+      <input type="hidden" name="operation" value="imagesave">
+      <input type="hidden" name="urlstr" value="">
+      <span>__ファイル形式__File format__</span>
+      <select name="filetype" data-change-exec="changefilename">
+        <option value="png">__PNG形式__PNG Format__</option>
+        <option value="svg">__ベクター画像(SVG)__Vector Image (SVG)__</option>
+        <option value="jpeg">__jpeg形式__jpeg Format__</option>
+      </select>
+      <br>
+      <span>__ファイル名__Filename__</span>
+      <input type="text" name="filename" value="">
+      <br>
+      <span>__画像のサイズ__Image Size__</span>
+      <input type="number" name="cellsize" value="36" size=4 maxlength=3 min=8 max=999 data-change-exec="estimatesize">
+      <span id="showsize">x</span>
+      <br>
+      <label>
+        <span>__背景色を透明にする__Set background to transparent__</span>
+        <input type="checkbox" name="transparent">
+      </label>
+      <br>
+      <br>
+      <button type="button" class="btn btn-ok"   data-button-exec="saveimage">__保存__Save__</button>
+      <button type="button" class="btn" data-button-exec="close">__閉じる__Close__</button>
+    </form>
+  </div>
+</body>
+</html>

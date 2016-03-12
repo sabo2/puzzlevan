@@ -300,10 +300,12 @@ var templateTemplate = [
 		{ label:'&Import URL',                         click:popupURLImport},
 		{ label:'&Export URL', when:'isPuzzle',        click:sendMenuReq('popup-urloutput')},
 		{ type: 'separator', when:'isPuzzle'},
-		{ label:'Save Ima&ge', when:'isPuzzle', submenu:[
-			{ label:'&PNG Format (png)',               click:sendMenuReq('saveimage-png')},
-			{ label:'&Vector Format (SVG)',            click:sendMenuReq('saveimage-svg')},
-		]},
+		{ label:'Save Ima&ge', when:'isPuzzle',        click:sendMenuReq('popup-imagesave')},
+//		{ label:'Save Ima&ge', when:'isPuzzle'},
+//		, submenu:[
+//			{ label:'&PNG Format (png)',               click:sendMenuReq('saveimage-png')},
+//			{ label:'&Vector Format (SVG)',            click:sendMenuReq('saveimage-svg')},
+//		]},
 		{ type: 'separator', when:'isPuzzle'},
 		{ label:'Edit Puzzle &Properties', accelerator:'CmdOrCtrl+P', when:'isPuzzle', click:sendMenuReq('popup-metadata')},
 		{ type: 'separator'},
