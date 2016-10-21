@@ -25,7 +25,7 @@
     "lint": "jshint *.js main/*.js index/*.js puzzle/ui/*.js popups/*.js"
   },
   "devDependencies": {
-    "electron-packager": "^5.2.1",
-    "electron-prebuilt": "^0.36.11"
+    "electron": "^1.4.4",
+    "electron-packager": "^8.1.0"
   }
 }
