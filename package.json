@@ -19,8 +19,9 @@
     "url": "https://github.com/sabo2/puzzlevan"
   },
   "scripts": {
-    "build": "electron .",
-    "pack": "node pack.js",
+    "debug": "electron . --debug",
+    "start": "electron .",
+    "build": "node pack.js",
     "release": "node pack.js --zip",
     "lint": "jshint *.js main/*.js index/*.js puzzle/ui/*.js popups/*.js"
   },
