@@ -21,13 +21,13 @@ Released files are [here](https://github.com/sabo2/puzzlevan/releases).
 
 ## How to Build Puzzlevan
 
-`electron-prebuilt` and `electron-packager` are included in devDependency property.
+Puzzlevan depends on `pzpr` and includes `electron` and `electron-packager` as devDependency.
 
 For v0.3.0, Puzzlevan is built against Electron v0.36.11. To build executable files for Window, Mac and Linux, use commands below.
 
 ```
 $ npm install
-$ npm run pack
+$ npm start
 ```
 
 Alternatively, you are able to run Puzzlevan on your local machine by using the following command.
@@ -50,5 +50,6 @@ MIT
 
 ## Links
 
-* [sabo2/pzprv3 - bitbucket](https://bitbucket.org/sabo2/pzprv3)
+* [pzpr.js project - github](https://github.com/sabo2/pzprjs)
+* [sabo2/pzprv3 - github](https://github.com/sabo2/pzprv3)
 * [sabo2/puzzlevan - github](https://github.com/sabo2/puzzlevan)
