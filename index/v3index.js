@@ -78,8 +78,9 @@ v3index.extend({
 		/* Set visibility of each puzzle */
 		Array.prototype.slice.call(_doc.querySelectorAll('.lists ul > li')).forEach(function(el){
 			var pid = pzpr.variety.toPID(el.dataset.pid);
-			if(!!pid && self.variety[pid]){
-				el.style.display = ((filtername==='all'||filtername===self.variety[pid].tab) ? '' : 'none');
+			if(!!pid){
+				var isdisp = (filtername==='all' || filtername===(self.variety[pid] ? self.variety[pid].tab : 'extra'));
+				el.style.display = (isdisp ? '' : 'none');
 			}
 		});
 		/* Set visibility of each flexbox */
@@ -122,7 +123,7 @@ v3index.extend({
 			var pid = pinfo.pid;
 			if(!pinfo.valid){ return;}
 			if(el.childNodes.length===0){
-				el.className = self.variety[pid].state;
+				el.className = (self.variety[pid] ? self.variety[pid].state : 'omopa');
 				var linkel = document.createElement('a');
 				linkel.href = "javascript:void(0);"; // jshint ignore:line
 				if(location.href.match(/\/index\.html/)){
@@ -218,21 +219,21 @@ var pstate = {
 	lunch :['nurikabe','tilepaint','norinori','nurimaze','heyawake','hitori','slither','mashu','yajilin',
 			'slalom','numlin','hashikake','herugolf','shikaku','tentaisho','kakuro','sudoku','fillomino','ripple',
 			'akari','shakashaka'],
-	testa :['nagare','makaro','juosan','dosufuwa'],
-	trial :[],
+	testa :['nagare','juosan','dosufuwa','usoone'],
+	trial :['moonsun','stostone','onsen'],
 	lunch2:['box','lits','kurodoko','goishi'],
 	lunch3:['minarism','factors'],
 	nigun :['creek','mochikoro','tasquare','kurotto','shimaguni','yajikazu','bag','country','reflect','icebarn',
 			'firefly','kaero','yosenabe','bdblock','fivecells','sashigane','tatamibari','sukoro',
-			'gokigen','tateyoko','kinkonkan','snakes'],
+			'gokigen','tateyoko','kinkonkan','hebi', 'makaro'],
 	omopa :['nuribou','tawa','lookair','paintarea','chocona','kurochute','mejilink',
 			'pipelink','loopsp','nagenawa','kouchoku','ringring','pipelinkr','barns','icelom','icelom2',
 			'wblink','kusabi','ichimaga','ichimagam','ichimagax','amibo','bonsan','heyabon','rectslider',
 			'nawabari','triplace','fourcells','kramma','kramman','shwolf','loute','fillmat','usotatami','yajitatami',
 			'kakuru','view','bosanowa','nanro','cojun','renban','sukororoom','hanare','kazunori',
-			'wagiri','shugaku','hakoiri','roma','toichika','cbblock'],
+			'wagiri','shugaku','hakoiri','roma','toichika','cbblock', 'nondango'],
 	orig  :['mochinyoro','ayeheya','aho'],
-	genre :['tapa']
+	genre :['tapa', 'arukone', 'yinyang']
 };
 var tabstate = {
 	lunch:'lunch', lunch2:'lunch', lunch3:'nigun',

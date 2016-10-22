@@ -83,6 +83,19 @@ ui.menuarea = {
 			case 'popup-undotime':  this.openpopup('undotime.html'); break;
 			case 'popup-imagesave': this.openpopup('imagesave.html?'+pid+'/'+puzzle.painter.getCanvasCols()+'/'+puzzle.painter.getCanvasRows()+'/'+ui.menuconfig.get('cellsizeval')); break;
 			
+			case 'enter-trial':          if(puzzle.board.trialstage===0){ puzzle.enterTrial();} break;
+			case 'enter-further-trial':  puzzle.enterTrial(); break;
+			case 'accept-trial':         puzzle.acceptTrial(); break;
+			case 'reject-trial':         puzzle.rejectTrial(); break;
+			case 'reject-current-trial': puzzle.rejectCurrentTrial(); break;
+			
+			case 'drop-blocks':  puzzle.board.operate('drop'); break;
+			case 'raise-blocks': puzzle.board.operate('raise'); break;
+			case 'reset-blocks': puzzle.board.operate('resetpos'); break;
+			
+			case 'show-gatenum': puzzle.board.operate('showgatenumber'); break;
+			case 'hide-gatenum': puzzle.board.operate('hidegatenumber'); break;
+			
 			default: /* DO NOTHING */ break;
 		}
 	},

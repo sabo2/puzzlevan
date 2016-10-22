@@ -66,7 +66,9 @@ ui.misc = {
 	//---------------------------------------------------------------------------
 	setMenu : function(firstset){
 		if(ui.puzzle){
-			electron.ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.menuconfig.getList(), firstset);
+			var config = ui.menuconfig.getList();
+			var pinfo = {pid:ui.puzzle.pid, trialstage:ui.puzzle.board.trialstage};
+			electron.ipcRenderer.send('set-puzzle-menu', config, pinfo, firstset);
 		}
 		else{
 			electron.ipcRenderer.send('set-basic-menu', firstset);

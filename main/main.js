@@ -193,7 +193,7 @@ ipc.on('set-basic-menu', function(e, first){ setApplicationMenu(e.sender, null, 
 ipc.on('open-popup-newboard', function(e, pid){ openPopupWindow('newboard.html?'+pid);});
 
 // IPCs from puzzle windows
-ipc.on('set-puzzle-menu', function(e, pid, config, first){ setApplicationMenu(e.sender, pid, config, first);});
+ipc.on('set-puzzle-menu', function(e, config, pinfo, first){ setApplicationMenu(e.sender, config, pinfo, first);});
 ipc.on('save-file', function(e, data, pid, fileext, filetype){
 	var ext = fileext || 'txt';
 	var option = {title:"Save File - Puzzlevan", defaultPath:pid+'.'+ext, filters:[{name:'Puzzle Files', extensions:[ext]}]};
@@ -338,6 +338,13 @@ var templateTemplate = [
 		{ label:'Redo', click:sendMenuReq('redo')},
 		{ type: 'separator'},
 		{ label:'Undo/Redo Interval', click:sendMenuReq('popup-undotime')},
+		{ type: 'separator', when:'pid==="stostone"'},
+		{ label:'Drop blocks',           click:sendMenuReq('drop-blocks'),  when:'pid==="stostone"'},
+		{ label:'Raise blocks',          click:sendMenuReq('raise-blocks'), when:'pid==="stostone"'},
+		{ label:'Reset blocks position', click:sendMenuReq('reset-blocks'), when:'pid==="stostone"'},
+		{ type: 'separator', when:'pid==="slalom"'},
+		{ label:'Show numbers on gates', click:sendMenuReq('show-gatenum'), when:'pid==="slalom"'},
+		{ label:'Hide numbers on gates', click:sendMenuReq('hide-gatenum'), when:'pid==="slalom"'},
 		{ type: 'separator'},
 		{ label:'Editor Mode', accelerator:'Shift+F2', click:sendMenuReq('edit-mode')},
 		{ label:'Answer Mode', accelerator:'F2',       click:sendMenuReq('play-mode')},
@@ -345,6 +352,13 @@ var templateTemplate = [
 		{ label:'&Check Answer', accelerator:'CmdOrCtrl+E', click:sendMenuReq('check')},
 		{ label:'Erase Answer',                             click:sendMenuReq('ansclear')},
 		{ label:'Erase Aux.Mark',                           click:sendMenuReq('auxclear')},
+		{ type: 'separator'},
+		{ label:'Enter trial mode',     accelerator:'CmdOrCtrl+T', click:sendMenuReq('enter-trial'),          when:'trialstage===0'},
+		{ label:'Accept trial',         accelerator:'CmdOrCtrl+F', click:sendMenuReq('accept-trial'),         when:'trialstage>0'},
+		{ label:'Reject trial',         accelerator:'CmdOrCtrl+D', click:sendMenuReq('reject-trial'),         when:'trialstage===1'},
+		{ label:'Reject current trial', accelerator:'CmdOrCtrl+D', click:sendMenuReq('reject-current-trial'), when:'trialstage>1'},
+		{ label:'Reject all trial',                                click:sendMenuReq('reject-trial'),         when:'trialstage>1'},
+		{ label:'Enter further trial',                             click:sendMenuReq('enter-further-trial'),  when:'trialstage>0'},
 		{ type: 'separator'},
 		{ label:'&Adjust the Board',                   click:sendMenuReq('popup-adjust')},
 		{ type: 'separator'},
@@ -368,9 +382,11 @@ var templateTemplate = [
 		]},
 		{ type: 'separator'},
 		{ label:'Color coding of line',         config:'irowake'},
-		{ label:'Color coding of block',        config:'irowakeblk'},
+		{ label:'Color coding of shaded block', config:'irowakeblk'},
 		{ label:'Paint as moving',              config:'dispmove'},
 		{ label:'Draw snake border',            config:'snakebd'},
+		{ label:'Paint BG of question marks',   config:'dispqnumbg'},
+		{ label:'Paint BG of blank marks',      config:'undefcell'},
 		{ label:'Show cursor',                  config:'cursor'},
 		{ label:'Show buttons in the window',   config:'buttonarea'},
 		{ type: 'separator'},
@@ -399,14 +415,17 @@ var templateTemplate = [
 		{ label:'Block continueous check', config:'redblkrb'},
 		{ label:'Check road',              config:'redroad'},
 		{ label:'Input background color',  config:'bgcolor'},
-		{ label:'Set Gray color automatically', config:'autocmp',  when:'pid!=="kouchoku"'},
-		{ label:'Set Gray color automatically', config:'autocmp',  when:'pid==="kouchoku"'},
+		{ label:'Set Gray color for correct marks', config:'autocmp',  when:'pid==="kouchoku"||pid==="bonsan"||pid==="heyabon"||pid==="rectslider"||pid==="hashikake"||pid==="herugolf"||pid==="kurotto"'},
+		{ label:'Paint BG for correct regions',     config:'autocmp',  when:'pid==="dosufuwa"||pid==="nondango"||pid==="toichika"||pid==="hanare"'},
 		{ label:'Show overlapped number',       config:'autoerr',  when:'pid==="hitori"'},
 		{ label:'Slash with color',             config:'autoerr',  when:'pid==="gokigen"||pid==="wagiri"'},
 		{ label:'Allow enpty cell',             config:'enbnonum'},
 		{ label:'Enable direction aux. mark',   config:'dirauxmark'},
 		{ label:'Set line only between points', config:'enline'},
 		{ label:'Check lattice point',          config:'lattice'},
+		{ label:'Each region should have a number',config:'singlenum'},
+		{ label:'Each cell should have a number',  config:'forceallcell'},
+		{ label:'Lines should pass all crossings', config:'passallcell'},
 		{ label:'Ura-mashu',                    config:'uramashu'},
 		{ label:'URL with padding',             config:'bdpadding'},
 		{ label:'Disble set color',             config:'discolor'},
@@ -436,12 +455,15 @@ var templateTemplate = [
 		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac'},
 	]}
 ];
-function setApplicationMenu(webContents, pid, config, first){ // jshint ignore:line, (avoid latedef error)
+function setApplicationMenu(webContents, config, pinfo, first){ // jshint ignore:line, (avoid latedef error)
 	var win = BrowserWindow.fromWebContents(webContents);
 	var isMac    = (process.platform==='darwin'); // jshint ignore:line, (avoid unused error)
 	var isPuzzle = !!config;                      // jshint ignore:line, (avoid unused error)
 	if(isMac && (!win.isFocused() && first!==true)){ return;}
 	
+	pinfo = pinfo || {};
+	var pid        = pinfo.pid;
+	var trialstage = pinfo.trialstage; // jshint ignore:line, (avoid unused error)
 	latest_pid = pid || '';
 	config = config || {};
 	config.language = preference.app.lang;

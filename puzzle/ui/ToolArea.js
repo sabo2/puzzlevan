@@ -41,6 +41,20 @@ ui.toolarea = {
 				this.captions.push({textnode:el, str_jp:RegExp.$1, str_en:RegExp.$2});
 			}
 		}
+		
+		this.displayByPid();
+	},
+	
+	//---------------------------------------------------------------------------
+	// toolarea.displayByPid()  要素のdata-pidカスタム属性によって表示するしないを切り替える
+	//---------------------------------------------------------------------------
+	displayByPid : function(){
+		var els = getEL('btnarea').querySelectorAll('button[data-disp-pid]');
+		for(var i=0;i<els.length;i++){
+			var isdisp = false;
+			if(!!ui.puzzle){ isdisp = pzpr.util.checkpid(els[i].dataset.dispPid, ui.puzzle.pid);}
+			els[i].style.display = (isdisp ? "" : "none");
+		}
 	},
 	
 	//---------------------------------------------------------------------------
@@ -56,7 +70,10 @@ ui.toolarea = {
 		this.setdisplay("operation");
 		getEL('btnclear2').style.display  = (!ui.puzzle || !ui.puzzle.board.disable_subclear ? "" : "none");
 		getEL('btncolor').style.display   = (ui.puzzle && ui.puzzle.pid==='tentaisho' ? "" : "none");
-		getEL('btnirowake').style.display = (ui.puzzle && (ui.puzzle.painter.irowake || ui.puzzle.painter.irowakeblk) ? "" : "none");
+		getEL('btnirowake').style.display = (ui.puzzle && ui.puzzle.painter.irowake ? "" : "none");
+		getEL('btnirowakeblk').style.display = (ui.puzzle && ui.puzzle.painter.irowakeblk ? "" : "none");
+		this.setdisplay("trialmode");
+		this.displayByPid();
 		
 		/* 共通：キャプションの設定 */
 		/* --------------------- */
@@ -72,6 +89,15 @@ ui.toolarea = {
 				getEL('btnundo').style.color = (!opemgr.enableUndo ? 'silver' : '');
 				getEL('btnredo').style.color = (!opemgr.enableRedo ? 'silver' : '');
 			}
+		}
+		else if(idname==="trialmode"){
+			var trialstage = (!!ui.puzzle ? ui.puzzle.board.trialstage : null);
+			getEL('btntrial').style.color       = ((trialstage>0) ? 'silver' : '');
+			getEL('btntrialarea').style.display = ((trialstage>0) ? 'block' : 'none');
+			
+			getEL('btntrialr').style.display  = ((trialstage<=1) ? '' : 'none');
+			getEL('btntrialr2').style.display = ((trialstage>1)  ? '' : 'none');
+			getEL('btntrialra').style.display = ((trialstage>1)  ? '' : 'none');
 		}
 		else if(idname==='buttonarea'){
 			getEL('btnarea').style.display = (ui.menuconfig.get("buttonarea") ? '' : 'none');
@@ -89,6 +115,15 @@ ui.toolarea = {
 	redostop : function(){ ui.undotimer.stopButtonRedo();},
 	ansclear : function(){ ui.toolarea.ACconfirm();},
 	subclear : function(){ ui.toolarea.ASconfirm();},
+	dropblocks  : function(){ ui.puzzle.board.operate('drop');},
+	resetblocks : function(){ ui.puzzle.board.operate('resetpos');},
+	showgatenum : function(){ ui.puzzle.board.operate('showgatenumber');},
+	hidegatenum : function(){ ui.puzzle.board.operate('hidegatenumber');},
+	enterTrial         : function(){ if(ui.puzzle.board.trialstage===0){ ui.puzzle.enterTrial();}},
+	enterFurtherTrial  : function(){ ui.puzzle.enterTrial();},
+	acceptTrial        : function(){ ui.puzzle.acceptTrial();},
+	rejectTrial        : function(){ ui.puzzle.rejectTrial();},
+	rejectCurrentTrial : function(){ ui.puzzle.rejectCurrentTrial();},
 	irowake  : function(){ ui.puzzle.irowake();},
 	encolorall : function(){ ui.puzzle.board.encolorall();}, /* 天体ショーのボタン */
 
