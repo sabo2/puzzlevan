@@ -6,7 +6,7 @@ var appmenu = require('electron').Menu;
 var rootdir = 'file://' + __dirname + '/../';
 
 // Global objects
-var pzpr = require('../pzpr/pzpr.js');
+var pzpr = require('pzpr');
 var latest_pid = '';
 var openpos = {x:40, y:40, width:640, height:360, modify:function(){
 	if((this.x+=24)>this.width) { this.x = 40;}

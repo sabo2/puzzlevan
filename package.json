@@ -27,5 +27,8 @@
   "devDependencies": {
     "electron": "^1.4.4",
     "electron-packager": "^8.1.0"
+  },
+  "dependencies": {
+    "pzpr": "^0.7.0"
   }
 }

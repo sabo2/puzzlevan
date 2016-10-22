@@ -12,19 +12,12 @@ var options = {
 	version   : electron_version,
 	
 	prune     : true,
-	ignore    : 'node_module|tests|dist|pack\.js|Gruntfile\.js|ignore|\.DS_Store|\.jshintrc|\.settings',
+	ignore    : [/pack\.js/, /\/\./, /tests/, /yarn\.lock/],
 	
 	name            : pkg.productName,
 	'app-version'   : pkg.version,
 //	icon            : ''  // not created
-	'app-bundle-id' : 'jp.pzv.puzzlevan',
-//	'version-string':{ // for Windows env.
-//		FileDescription: pkg.description,
-//		FileVersion    : pkg.version,
-//		ProductVersion : pkg.version,
-//		ProductName    : pkg.name,
-//		InternalName   : pkg.name
-//	}
+	'app-bundle-id' : 'jp.pzv.puzzlevan'
 };
 function done(error, appPath){
 	if(error){ throw new Error(error);}
