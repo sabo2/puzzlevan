@@ -98,7 +98,7 @@ app.on('browser-window-created', function(e, win){ // reference
 
 //--------------------------------------------------------------------------
 // Window factory function
-const webPreferences = {nodeIntegration:false,preload:__dirname+'/../main/preload.js'};
+const webPreferences = {nodeIntegration:false, preload:__dirname+'/../main/preload.js', devTools:preference.app.debugmode};
 function openPopupWindow(url){
 	var win = new BrowserWindow({
 		x:36, y:36, width:360, height:360, alwaysOnTop:true, 
@@ -450,9 +450,9 @@ var templateTemplate = [
 	{label:'Help', role:'help', submenu:[
 		{ label:'About Puzzlevan', click:versionInfo},
 		{ label:'How to Input',    click:openExplainWindow},
-		{ type: 'separator'},
-		{ label:'Toggle DevTools',  accelerator:'Alt+Cmd+I', click:windowEvent('toggleDevTools'), when:'isMac'},
-		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac'},
+		{ type: 'separator', when:'preference.app.debugmode'},
+		{ label:'Toggle DevTools',  accelerator:'Alt+Cmd+I', click:windowEvent('toggleDevTools'), when:'isMac && preference.app.debugmode'},
+		{ label:'Toggle &DevTools', accelerator:'F12',       click:windowEvent('toggleDevTools'), when:'!isMac && preference.app.debugmode'},
 	]}
 ];
 function setApplicationMenu(webContents, config, pinfo, first){ // jshint ignore:line, (avoid latedef error)
