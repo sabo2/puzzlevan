@@ -36,7 +36,7 @@ popupmgr.extend({
 		var filetype = form.filetype.value;
 		var option = {cellsize:+form.cellsize.value};
 		if(form.transparent.checked){ option.bgcolor = '';}
-		require('electron').remote.dialog.showSaveDialog(popupmgr.win, {
+		electron.remote.dialog.showSaveDialog(popupmgr.win, {
 			title : "Save Image - Puzzlevan",
 			defaultPath : popupmgr.pid+'.'+filetype,
 			filters : [ {name:filetype.toUpperCase()+' Images', extensions:[filetype]} ]

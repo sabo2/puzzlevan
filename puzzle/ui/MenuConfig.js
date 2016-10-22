@@ -114,13 +114,13 @@ ui.menuconfig = {
 	//---------------------------------------------------------------------------
 	restoreUI : function(){
 		/* 設定が保存されている場合は元に戻す */
-		this.restore(require('electron').ipcRenderer.sendSync('get-ui-preference'));
+		this.restore(electron.ipcRenderer.sendSync('get-ui-preference'));
 		
 		/* 言語設定をpzpr.langにも反映させる */
-		pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
+		pzpr.lang = electron.ipcRenderer.sendSync('get-app-preference').lang || pzpr.lang;
 	},
 	saveUI : function(){
-		require('electron').ipcRenderer.send('set-ui-preference', this.save());
+		electron.ipcRenderer.send('set-ui-preference', this.save());
 	},
 
 	//---------------------------------------------------------------------------
@@ -128,10 +128,10 @@ ui.menuconfig = {
 	// menuconfig.savePuzzle()     パズルごとの各種設定値を保存する
 	//---------------------------------------------------------------------------
 	restorePuzzle : function(){
-		ui.puzzle.restoreConfig(require('electron').ipcRenderer.sendSync('get-puzzle-preference'));
+		ui.puzzle.restoreConfig(electron.ipcRenderer.sendSync('get-puzzle-preference'));
 	},
 	savePuzzle : function(){
-		require('electron').ipcRenderer.send('set-puzzle-preference', ui.puzzle.saveConfig());
+		electron.ipcRenderer.send('set-puzzle-preference', ui.puzzle.saveConfig());
 	},
 
 	//---------------------------------------------------------------------------
@@ -157,7 +157,7 @@ ui.menuconfig = {
 	}
 };
 
-require('electron').ipcRenderer.on('config-req', function(e, idname, val){
+electron.ipcRenderer.on('config-req', function(e, idname, val){
 	ui.menuconfig.set(idname, val);
 });
 

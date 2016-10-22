@@ -1,5 +1,5 @@
 // MenuArea.js v3.4.0
-/* global ui:false */
+/* global ui:false, __dirname:false */
 
 // メニュー描画/取得/html表示系
 ui.menuarea = {
@@ -12,20 +12,22 @@ ui.menuarea = {
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
 			'resizable=no',
-			'show='+(!ui.debugmode?'no':'yes')
+			'show='+(!ui.debugmode?'no':'yes'),
+			'nodeIntegration=no',
+			'preload='+__dirname+'/preload.js'
 		].join(','));
 	},
 	saveFile : function(puzzle, filetype){
 		var filedata = puzzle.getFileData(filetype);
 		var fileext = (filetype===pzpr.parser.FILE_PBOX_XML ? 'xml' : '');
-		require('electron').ipcRenderer.send('save-file', filedata, puzzle.pid, fileext, filetype);
+		electron.ipcRenderer.send('save-file', filedata, puzzle.pid, fileext, filetype);
 	},
 	updateFile : function(puzzle){
 		var info = ui.puzzles.getInfo(puzzle);
 		var filename = info.filename;
 		if(!!filename){
 			var filedata = puzzle.getFileData(info.filetype);
-			require('electron').ipcRenderer.send('update-file', filedata, filename);
+			electron.ipcRenderer.send('update-file', filedata, filename);
 		}
 	},
 
@@ -43,7 +45,7 @@ ui.menuarea = {
 	clonePuzzle : function(){
 		if(ui.puzzle){
 			var data = ui.puzzle.getFileData(pzpr.parser.FILE_PZPR,{history:true});
-			require('electron').ipcRenderer.send('open-puzzle', data, ui.puzzle.pid);
+			electron.ipcRenderer.send('open-puzzle', data, ui.puzzle.pid);
 		}
 	},
 
@@ -68,9 +70,9 @@ ui.menuarea = {
 			case 'play-mode': if(puzzle.editmode){ puzzle.setMode('play'); ui.misc.setTitle();} break;
 			case 'irowake-change': puzzle.irowake(); break;
 			
-			case 'save-pzpr':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid, '', parser.FILE_PZPR); break;
-			case 'save-pbox':     require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid, '' ,parser.FILE_PBOX); break;
-			case 'save-pbox-xml': require('electron').ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml', parser.FILE_PBOX_XML); break;
+			case 'save-pzpr':     electron.ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PZPR), pid, '', parser.FILE_PZPR); break;
+			case 'save-pbox':     electron.ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX), pid, '' ,parser.FILE_PBOX); break;
+			case 'save-pbox-xml': electron.ipcRenderer.send('save-file', puzzle.getFileData(parser.FILE_PBOX_XML), pid, 'xml', parser.FILE_PBOX_XML); break;
 			case 'save-update':   ui.menuarea.updateFile(puzzle); break;
 			
 			case 'popup-urloutput': this.openpopup('urloutput.html?'+pid); break;
@@ -97,7 +99,7 @@ ui.menuarea = {
 				}
 				break;
 			case 'imagesave':
-				require('electron').ipcRenderer.send('save-image', data.filename, puzzle.toDataURL(data.filetype, data.option).replace(/data\:.+\;base64\,/,''));
+				electron.ipcRenderer.send('save-image', data.filename, puzzle.toDataURL(data.filetype, data.option).replace(/data\:.+\;base64\,/,''));
 				break;
 			case 'metadata-get': sender.postMessage(JSON.stringify(puzzle.metadata), '*'); break;
 			case 'metadata-set': puzzle.metadata.update(data); break;
@@ -113,7 +115,7 @@ ui.menuarea = {
 	}
 };
 
-require('electron').ipcRenderer.on('menu-req', function(e, req){
+electron.ipcRenderer.on('menu-req', function(e, req){
 	ui.menuarea.recvMenuReq(req);
 });
 window.addEventListener("message", function(e){

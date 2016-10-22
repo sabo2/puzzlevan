@@ -16,10 +16,10 @@ window.ui = {
 	puzzle    : null,
 	
 	/* Electron用のオブジェクト */
-	remote    : require('electron').remote,
-	win       : require('electron').remote.getCurrentWindow(),
-	isMDI     :(require('electron').ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'),
-	debugmode : require('electron').ipcRenderer.sendSync('get-app-preference').debugmode,
+	remote    : electron.remote,
+	win       : electron.remote.getCurrentWindow(),
+	isMDI     :(electron.ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'),
+	debugmode : electron.ipcRenderer.sendSync('get-app-preference').debugmode,
 	
 	/* メンバオブジェクト */
 	puzzles   : null,

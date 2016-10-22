@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="./popup.css" type="text/css" />
-<script src="../pzpr/pzpr-import.js"></script>
+<script src="../pzpr/pzpr.js"></script>
 <script src="./popup.js"></script>
 <script>
 var pid = '';
@@ -85,11 +85,11 @@ popupmgr.extend({
 		}
 		
 		if(url.length>0){
-			require('electron').ipcRenderer.send('open-puzzle', pid+"/"+url.join('/'));
+			electron.ipcRenderer.send('open-puzzle', pid+"/"+url.join('/'));
 		}
 		
-		if(require('electron').ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'){
-			require('electron').ipcRenderer.send('close-mainWindow');
+		if(electron.ipcRenderer.sendSync('get-app-preference').windowmode==='mdi'){
+			electron.ipcRenderer.send('close-mainWindow');
 		}
 		window.close();
 	},

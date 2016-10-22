@@ -17,7 +17,7 @@ ui.event =
 			var files = Array.from(e.dataTransfer.files||[]);
 			if(files.length>0){
 				files.forEach(function(file){
-					require('electron').ipcRenderer.send('open-file', file.path);
+					electron.ipcRenderer.send('open-file', file.path);
 				});
 				e.preventDefault();
 				e.stopPropagation();
@@ -72,7 +72,7 @@ ui.event =
 		}
 	},
 	onfocus_func : function(){
-		if(process.platform==='darwin'){
+		if(ui.remote.process.platform==='darwin'){
 			ui.misc.setMenu(false);
 		}
 	},

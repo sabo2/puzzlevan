@@ -7,7 +7,7 @@
 /* 初期化時のみ使用するルーチン */
 /********************************/
 
-require('electron').ipcRenderer.on('initial-data', function(e, data, pid, filename){
+electron.ipcRenderer.on('initial-data', function(e, data, pid, filename){
 	var onload_pzl = (importFileData(data) || importURL(data) || importFileData(data, pid));
 	if(!onload_pzl || !onload_pzl.pid){
 		ui.misc.failOpen();

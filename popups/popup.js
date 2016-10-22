@@ -33,7 +33,7 @@ var popupmgr = {
 		var rect = document.querySelector('body > div').getBoundingClientRect();
 		this.win.setContentSize((rect.right-rect.left+0.99)|0, (rect.bottom-rect.top+0.99)|0);
 	},
-	lang : require('electron').ipcRenderer.sendSync('get-app-preference').lang,
+	lang : electron.ipcRenderer.sendSync('get-app-preference').lang,
 	translate : function(){
 		for(var i=0;i<popupmgr.captions.length;i++){
 			var obj = popupmgr.captions[i];
@@ -49,7 +49,7 @@ var popupmgr = {
 };
 window.onload = function(){
 	if(!!window.pzpr){ pzpr.lang = popupmgr.lang;}
-	popupmgr.win = require('electron').remote.getCurrentWindow();
+	popupmgr.win = electron.remote.getCurrentWindow();
 	popupmgr.walkElement(document.querySelector('body > div'));
 	popupmgr.translate();
 	popupmgr.setFormEvent();
@@ -57,11 +57,11 @@ window.onload = function(){
 	popupmgr.win.show();
 };
 
-require('electron').ipcRenderer.on('config-req', function(idname, val){
+electron.ipcRenderer.on('config-req', function(idname, val){
 	if(idname==='language'){
 		popupmgr.lang = val;
 		if(!!window.pzpr){ pzpr.lang = val;}
 		popupmgr.translate();
-		require('electron').ipcRenderer.send('set-basic-menu');
+		electron.ipcRenderer.send('set-basic-menu');
 	}
 });

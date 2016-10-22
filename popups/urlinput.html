@@ -7,7 +7,7 @@
 <script>
 popupmgr.extend({
 	urlinput : function(){
-		require('electron').ipcRenderer.send('open-puzzle', document.urlinput.ta.value.replace(/\n/g,""));
+		electron.ipcRenderer.send('open-puzzle', document.urlinput.ta.value.replace(/\n/g,""));
 		window.close();
 	},
 	paste : function(){

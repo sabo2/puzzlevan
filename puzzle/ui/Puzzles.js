@@ -129,7 +129,7 @@ ui.puzzles = {
 	some    : Array.prototype.some
 };
 
-require('electron').ipcRenderer.on('update-filename', function(e, filename, filetype){
+electron.ipcRenderer.on('update-filename', function(e, filename, filetype){
 	if(ui.puzzle){
 		ui.puzzle.opemgr.initpos = ui.puzzle.opemgr.position; /* modified状態を解消する */
 		

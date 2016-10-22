@@ -1,6 +1,6 @@
 // Misc.js v3.4.1
 /* jshint latedef:false */
-/* global ui:false */
+/* global ui:false, getBasename:false */
 
 //---------------------------------------------------------------------------
 // ★Miscクラス html表示系 (Menu, Button以外)の制御を行う
@@ -58,7 +58,7 @@ ui.misc = {
 		var pinfo = pzpr.variety(puzzle.pid);
 		listel.childNodes[0].style.display = (puzzle.ismodified() ? '' : 'none');
 		listel.childNodes[1].innerText = ui.misc.selectStr(pinfo.ja, pinfo.en).replace(/\(.+\)/g,'')+' '+puzzle.board.cols+'x'+puzzle.board.rows;
-		listel.childNodes[3].innerText = require('path').basename(info.filename);
+		listel.childNodes[3].innerText = getBasename(info.filename);
 	},
 
 	//---------------------------------------------------------------------------
@@ -66,10 +66,10 @@ ui.misc = {
 	//---------------------------------------------------------------------------
 	setMenu : function(firstset){
 		if(ui.puzzle){
-			require('electron').ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.menuconfig.getList(), firstset);
+			electron.ipcRenderer.send('set-puzzle-menu', ui.puzzle.pid, ui.menuconfig.getList(), firstset);
 		}
 		else{
-			require('electron').ipcRenderer.send('set-basic-menu', firstset);
+			electron.ipcRenderer.send('set-basic-menu', firstset);
 		}
 	},
 

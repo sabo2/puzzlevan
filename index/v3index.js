@@ -24,7 +24,7 @@ function getEL(id){ return _doc.getElementById(id);}
 v3index.extend({
 	/* onload function */
 	onload_func : function(){
-		self.doclang = pzpr.lang = require('electron').ipcRenderer.sendSync('get-app-preference').lang;
+		self.doclang = pzpr.lang = electron.ipcRenderer.sendSync('get-app-preference').lang;
 		self.setTabEvent();
 		self.setDragDropEvent();
 		self.setTranslation();
@@ -34,10 +34,10 @@ v3index.extend({
 		
 		self.disp_tab();
 		
-		require('electron').remote.getCurrentWindow().show();
-		require('electron').ipcRenderer.send('set-basic-menu',true);
-		if(process.platform==='darwin'){
-			window.addEventListener('focus', function(){ require('electron').ipcRenderer.send('set-basic-menu');}, true);
+		electron.remote.getCurrentWindow().show();
+		electron.ipcRenderer.send('set-basic-menu',true);
+		if(electron.remote.process.platform==='darwin'){
+			window.addEventListener('focus', function(){ electron.ipcRenderer.send('set-basic-menu');}, true);
 		}
 	},
 
@@ -94,7 +94,7 @@ v3index.extend({
 
 	/* open new puzzle window as Electron manner */
 	openpuzzle : function(data, pid, filename){
-		require('electron').ipcRenderer.send('open-puzzle', data, pid, filename);
+		electron.ipcRenderer.send('open-puzzle', data, pid, filename);
 	},
 
 	setDragDropEvent : function(){
@@ -178,7 +178,7 @@ v3index.extend({
 
 	/* Puzzlevan specific functions */
 	newboardEvent : function(e,pid){
-		require('electron').ipcRenderer.send('open-popup-newboard', pid);
+		electron.ipcRenderer.send('open-popup-newboard', pid);
 		e.preventDefault();
 	},
 	selectEvent : function(e,pid){
@@ -196,13 +196,13 @@ window.v3index = v3index;
 
 })();
 
-require('electron').ipcRenderer.on('config-req', function(e, idname, val){
+electron.ipcRenderer.on('config-req', function(e, idname, val){
 	if(idname==='language'){
 		v3index.setlang(val);
-		require('electron').ipcRenderer.send('set-basic-menu');
+		electron.ipcRenderer.send('set-basic-menu');
 	}
 });
-require('electron').ipcRenderer.once('initial-data', function(e, data, filename){
+electron.ipcRenderer.once('initial-data', function(e, data, filename){
 	v3index.filedata = data;
 	v3index.filename = filename;
 });

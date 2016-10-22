@@ -98,12 +98,19 @@ app.on('browser-window-created', function(e, win){ // reference
 
 //--------------------------------------------------------------------------
 // Window factory function
+const webPreferences = {nodeIntegration:false,preload:__dirname+'/../main/preload.js'};
 function openPopupWindow(url){
-	var win = new BrowserWindow({x:36, y:36, width:360, height:360, alwaysOnTop:true, show:preference.app.debugmode, resizable:false});
+	var win = new BrowserWindow({
+		x:36, y:36, width:360, height:360, alwaysOnTop:true, 
+		show:preference.app.debugmode, resizable:false, webPreferences
+	});
 	win.loadURL(rootdir+'popups/'+url);
 }
 function openExplainWindow(menuitem, focusedWindow){
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 720, height: 600, show:preference.app.debugmode});
+	var win = new BrowserWindow({
+		x:openpos.x, y:openpos.y, width: 720, height: 600,
+		show:preference.app.debugmode, webPreferences
+	});
 	openpos.modify();
 	win.loadURL(rootdir+'index/faq.html?'+latest_pid+"_edit");
 }
@@ -111,18 +118,27 @@ var mainWindow = null;
 function openMainWindow(menuitem, focusedWindow){ // jshint ignore:line, (avoid latedef error)
 	if(!!mainWindow){ mainWindow.focus(); return;}
 	
-	mainWindow = new BrowserWindow({x:18, y:18, width: 720, height: 600, show:preference.app.debugmode});
+	mainWindow = new BrowserWindow({
+		x:18, y:18, width: 720, height: 600,
+		show:preference.app.debugmode, webPreferences
+	});
 	mainWindow.once('closed', function(){ mainWindow = null;});
 	mainWindow.loadURL(rootdir + 'index/index.html');
 }
 function openUndefWindow(data, filename){
-	var win = new BrowserWindow({x:36, y:36, width: 720, height: 400, show:preference.app.debugmode});
+	var win = new BrowserWindow({
+		x:36, y:36, width: 720, height: 400,
+		show:preference.app.debugmode, webPreferences
+	});
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, filename);});
 	win.loadURL(rootdir + 'index/fileindex.html');
 }
 var sdiWindows = new Set();
 function openPuzzleSDI(data, pid, filename){ // jshint ignore:line, (avoid latedef error)
-	var win = new BrowserWindow({x:openpos.x, y:openpos.y, width: 600, height: 600, show:preference.app.debugmode});
+	var win = new BrowserWindow({
+		x:openpos.x, y:openpos.y, width: 600, height: 600,
+		show:preference.app.debugmode, webPreferences
+	});
 	openpos.modify();
 	win.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
 	sdiWindows.add(win);
@@ -137,7 +153,10 @@ function openPuzzleMDI(data, pid, filename){ // jshint ignore:line, (avoid lated
 		}
 	}
 	else{
-		mdiWindow = new BrowserWindow({x:16, y:16, width: 960, height: 720, minWidth:480, minHeight:240, show:true});
+		mdiWindow = new BrowserWindow({
+			x:16, y:16, width: 960, height: 720, minWidth:480, minHeight:240,
+			show:true, webPreferences
+		});
 		if(!!data){
 			mdiWindow.webContents.once('did-finish-load', function(e){ e.sender.send('initial-data', data, pid, filename);});
 		}
@@ -285,7 +304,7 @@ var templateTemplate = [
 		{ label:'Hide Others',    accelerator:'Cmd+Shift+H', role:'hideothers'},
 		{ label:'Show All',                                        role:'unhide'},
 		{ type: 'separator'},
-		{ label:'Quit Puzzlevan', accelerator:'Cmd+Q', click:function(){ app.quit();}},
+		{ label:'Quit Puzzlevan', accelerator:'Cmd+Q', role:'quit'},
 	]},
 	{label:'&File', submenu:[
 		{ label:'&New Board',    accelerator:'CmdOrCtrl+N', click:popupNewBoard},
@@ -312,7 +331,7 @@ var templateTemplate = [
 		{ label:'&Close Puzzle',   accelerator:'CmdOrCtrl+W', click:closeWindow, when:'!config.windowsdi && isPuzzle'},
 		{ label:'&Close Window',   accelerator:'CmdOrCtrl+W', click:closeWindow, when:' config.windowsdi ||!isPuzzle'},
 		{ type: 'separator', when:'!isMac'},
-		{ label:'&Quit Puzzlevan', accelerator:'Ctrl+Q', click:function(){ app.quit();}, when:'!isMac'},
+		{ label:'&Quit Puzzlevan', accelerator:'Ctrl+Q', role:'quit', when:'!isMac'},
 	]},
 	{label:'&Edit', when:'isPuzzle', submenu:[
 		{ label:'Undo', click:sendMenuReq('undo')},
