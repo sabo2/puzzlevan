@@ -42,6 +42,10 @@ var popupmgr = {
 		this.adjustWindowSize();
 	},
 	setFormEvent : function(){},
+	show : function(){
+		popupmgr.adjustWindowSize();
+		popupmgr.win.show();
+	},
 	close : function(){
 		window.close();
 	},
@@ -53,8 +57,7 @@ window.onload = function(){
 	popupmgr.walkElement(document.querySelector('body > div'));
 	popupmgr.translate();
 	popupmgr.setFormEvent();
-	popupmgr.adjustWindowSize();
-	popupmgr.win.show();
+	setTimeout(popupmgr.show, 16);
 };
 
 electron.ipcRenderer.on('config-req', function(idname, val){

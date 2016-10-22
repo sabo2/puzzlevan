@@ -11,6 +11,8 @@ ui.menuarea = {
 		window.open('../popups/'+url, null, [
 			'x='+(bounds.x+24),
 			'y='+(bounds.y+24),
+			'minWidth=40',
+			'minHeight=40',
 			'resizable=no',
 			'show='+(!ui.debugmode?'no':'yes'),
 			'nodeIntegration=no',
