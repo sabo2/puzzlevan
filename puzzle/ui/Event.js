@@ -78,7 +78,9 @@ ui.event =
 	},
 	onbeforeunload_func : function(e){
 		if(ui.puzzles.some((puzzle) => puzzle.ismodified())){
-			e.returnValue = ui.misc.closePuzzleInquiry();
+			if(!ui.misc.closePuzzleInquiry()){
+				e.returnValue = false;
+			}
 		}
 	}
 };
