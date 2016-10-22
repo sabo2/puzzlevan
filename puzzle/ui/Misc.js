@@ -57,7 +57,7 @@ ui.misc = {
 		var listel = info.listel;
 		var pinfo = pzpr.variety(puzzle.pid);
 		listel.childNodes[0].style.display = (puzzle.ismodified() ? '' : 'none');
-		listel.childNodes[1].innerText = ui.misc.selectStr(pinfo.ja, pinfo.en).replace(/\(.+\)/g,'')+' '+puzzle.board.cols+'x'+puzzle.board.rows;
+		listel.childNodes[1].innerText = (ui.misc.selectStr(pinfo.ja, pinfo.en)||'').replace(/\(.+\)/g,'')+' '+puzzle.board.cols+'x'+puzzle.board.rows;
 		listel.childNodes[3].innerText = getBasename(info.filename);
 	},
 
